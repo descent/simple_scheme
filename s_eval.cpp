@@ -25,20 +25,49 @@ bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 
 ////////////////////// cell
 
-enum cell_type { Symbol, Number, List, Proc, Lambda };
+enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable};
 
 struct environment; // forward declaration; cell and environment reference each other
 
 // a variant that can hold any kind of lisp value
-struct cell {
+struct cell 
+{
+    cell_type kind() const {return type;}
     typedef cell (*proc_type)(const std::vector<cell> &);
     typedef std::vector<cell>::const_iterator iter;
     typedef std::map<std::string, cell> map;
-    cell_type type; std::string val; std::vector<cell> list; proc_type proc; environment * env;
+    cell_type type; 
+    std::string val; 
+    std::vector<cell> list; 
+    proc_type proc; 
+    environment * env;
+
     cell(cell_type type = Symbol) : type(type), env(0) {}
     cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
     cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
 };
+
+    // the code is short, but I think 1 hours.
+    void print_cell(const cell &exp)
+    {
+      switch (exp.kind())
+      {
+        case List: 
+        {
+          cout << "(";
+          for (int i=0 ; i < exp.list.size() ; ++i)
+            print_cell(exp.list[i]);
+          cout << ") ";
+          break;
+        }
+        default:
+        {
+          cout << exp.val << " , ";
+          break;
+        }
+      }
+      
+    }
 
 typedef std::vector<cell> cells;
 typedef cells::const_iterator cellit;
@@ -305,6 +334,45 @@ cell read(const std::string & s)
     return read_from(tokens);
 }
 
+cell list_of_values()
+{
+}
+
+cell apply(cell func, cell args)
+{
+}
+
+cell eval(cell exp)
+{
+#if 0
+  self-evaluating
+  variable       //? exp) (lookup-variable-value exp env))
+  ((application? exp)
+#endif
+
+  switch (exp.kind())
+  {
+    //case SelfEval: // number or string
+    case Number: 
+    case String: 
+    {
+      break;
+    }
+    //case Variable: // symbol
+    case Symbol: // symbol
+    {
+      break;
+    }
+    case List: 
+    {
+      apply(eval(exp), list_of_values() );
+      break;
+    }
+  }
+
+
+}
+
 // convert given cell to a Lisp-readable string
 std::string to_string(const cell & exp)
 {
@@ -326,10 +394,16 @@ std::string to_string(const cell & exp)
 // the default read-eval-print-loop
 void repl(const std::string & prompt, environment * env)
 {
-    for (;;) {
+    for (;;) 
+    {
         std::cout << prompt;
         std::string line; std::getline(std::cin, line);
-        std::cout << to_string(eval(read(line), env)) << '\n';
+        cell exp = read(line);
+        cout << endl;
+        print_cell(exp);
+        cout << endl;
+        break;
+        //std::cout << to_string(eval(read(line), env)) << '\n';
     }
 }
 
