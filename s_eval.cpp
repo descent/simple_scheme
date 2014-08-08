@@ -1,3 +1,5 @@
+#include <iterator>     // std::back_inserter
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -9,6 +11,7 @@
 
 using namespace std;
 
+
 // return given mumber as a string
 std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 
@@ -19,6 +22,7 @@ bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 ////////////////////// cell
 
 enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable};
+std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", "Lambda", "SelfEval", "Variable"};
 
 struct environment; // forward declaration; cell and environment reference each other
 
@@ -28,16 +32,7 @@ struct cell
     cell_type kind() const {return type;}
     std::string kind_str() const 
     {
-      switch (kind())
-      {
-        case List:
-          return std::string("List");
-        case String:
-          return std::string("String");
-        case Number:
-          return std::string("Number");
-      }
-      return std::string("unknown");
+      return cell_type_string[kind()];
     }
     typedef cell (*proc_type)(const std::vector<cell> &);
     typedef std::vector<cell>::const_iterator iter;
@@ -52,6 +47,8 @@ struct cell
     cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
     cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
 };
+
+cell eval(const cell &exp);
 
     // the code is short, but I think 1 hours.
     void print_cell(const cell &exp)
@@ -68,7 +65,8 @@ struct cell
         }
         default:
         {
-          cout << exp.val << "(" << exp.kind_str() << ") , ";
+          //cout << exp.val << "(" << exp.kind_str() << ") , ";
+          cout << exp.val << " , ";
           break;
         }
       }
@@ -232,6 +230,7 @@ void add_globals(environment & env)
 
 ////////////////////// eval
 
+#if 0
 cell eval(cell x, environment * env)
 {
     if (x.type == Symbol)
@@ -284,6 +283,7 @@ cell eval(cell x, environment * env)
     std::cout << "not a function\n";
     exit(1);
 }
+#endif
 
 
 ////////////////////// parse, read and user interaction
@@ -340,15 +340,41 @@ cell read(const std::string & s)
     return read_from(tokens);
 }
 
-cell list_of_values()
+cell list_of_values(const cell &exp)
 {
+  //cout << "list_of_values" << endl;
+  cell ret_cell(List);
+
+  if (exp.list.size() != 0)
+  {
+
+    cell rear(List);
+    std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
+
+    ret_cell.list.push_back(eval(exp.list[0]));
+    ret_cell.list.push_back(list_of_values(rear) );
+  }
+  return ret_cell;
 }
 
-cell apply(cell func, cell args)
+cell apply(const cell &func, const cell &args)
 {
+  cout << "apply:" << func.kind_str() << endl;
+  cout << endl;
+  print_cell(func);
+  cout << endl;
+  print_cell(args);
+  cout << endl;
+
+  if (func.kind() != Proc)
+  {
+    // func.proc(args);
+  }
+
+  return func;
 }
 
-cell eval(cell exp)
+cell eval(const cell &exp)
 {
 #if 0
   self-evaluating
@@ -362,16 +388,34 @@ cell eval(cell exp)
     case Number: 
     case String: 
     {
+      cout << "in exp:" << exp.val << endl;
+      return exp;
       break;
     }
     //case Variable: // symbol
     case Symbol: // symbol
     {
+      // lookup environment
+      cout << "in symbol:" << exp.val << endl;
+      cell func = exp;
+      func.proc = proc_add;
+      return func;
       break;
     }
     case List: 
     {
-      apply(eval(exp), list_of_values() );
+      cout << "in list" << endl;
+      // need check exp.list.size() >= 2
+      cell rear(List);
+      std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
+      return apply(eval(exp.list[0]), list_of_values(rear) );
+      //apply(eval(exp.list[0]));
+      #if 0
+      cell cur = exp.list[0];
+      return apply(eval(cur));
+      #endif
+      //cout << "after apply" << endl;
+      //return exp;
       break;
     }
   }
@@ -405,9 +449,26 @@ void repl(const std::string & prompt, environment * env)
         std::cout << prompt;
         std::string line; std::getline(std::cin, line);
         cell exp = read(line);
+
+
         cout << endl;
         print_cell(exp);
         cout << endl;
+
+        eval(exp);
+#if 0 
+        cell exp2(List);
+        std::copy(exp.list.begin()+3, exp.list.end(), back_inserter(exp2.list));
+        //exp2.list = exp.list;
+
+        cout << "exp2.list.size(): " << exp2.list.size() << endl;
+
+#if 1
+        cout << endl;
+        print_cell(exp2);
+        cout << endl;
+#endif
+#endif
         break;
         //std::cout << to_string(eval(read(line), env)) << '\n';
     }
