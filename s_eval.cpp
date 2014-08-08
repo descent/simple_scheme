@@ -1,10 +1,3 @@
-// Scheme Interpreter in 90 lines of C++ (not counting lines after the first 90).
-// Inspired by Peter Norvig's Lis.py.
-
-// Made by Anthony C. Hay in 2010. See http://howtowriteaprogram.blogspot.co.uk/
-// This is free and unencumbered public domain software, see http://unlicense.org/
-// This code is known to have faults. E.g. it leaks memory. Use at your own risk.
-
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -33,6 +26,19 @@ struct environment; // forward declaration; cell and environment reference each 
 struct cell 
 {
     cell_type kind() const {return type;}
+    std::string kind_str() const 
+    {
+      switch (kind())
+      {
+        case List:
+          return std::string("List");
+        case String:
+          return std::string("String");
+        case Number:
+          return std::string("Number");
+      }
+      return std::string("unknown");
+    }
     typedef cell (*proc_type)(const std::vector<cell> &);
     typedef std::vector<cell>::const_iterator iter;
     typedef std::map<std::string, cell> map;
@@ -62,7 +68,7 @@ struct cell
         }
         default:
         {
-          cout << exp.val << " , ";
+          cout << exp.val << "(" << exp.kind_str() << ") , ";
           break;
         }
       }
