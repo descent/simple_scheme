@@ -161,6 +161,40 @@ cell proc_add(const cell &c)
   return cell(Number, str(sum));
 }
 
+int mul_cell(const cell &c)
+{
+  switch (c.kind())
+  {
+    case List: 
+    {
+      int product=1;
+
+      for (int i=0 ; i < c.list.size() ; ++i)
+        product *= mul_cell(c.list[i]);
+      return product;
+      break;
+    }
+    case Number:
+    {
+      int num = atol(c.val.c_str() );
+      cout << "num: " << num << endl;
+      return num;
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+}
+
+cell proc_mul(const cell &c)
+{
+  int product = mul_cell(c);
+  cout << "product: " << product << endl;
+  return cell(Number, str(product));
+}
+
 cell proc_add(const cells & c)
 {
     long n(atol(c[0].val.c_str()));
@@ -407,7 +441,7 @@ cell apply(const cell &func, const cell &args)
   {
     // func.proc(args);
   }
-  return proc_add(args);
+  return func.proc_(args);
 
   //return func;
 }
@@ -436,8 +470,13 @@ cell eval(const cell &exp)
       // lookup environment
       cout << "in symbol:" << exp.val << endl;
       cell func = exp;
-      func.proc = proc_add;
-      func.proc_ = proc_add;
+      if (exp.val == "+")
+      {
+        func.proc = proc_add;
+        func.proc_ = proc_add;
+      }
+      if (exp.val == "*")
+        func.proc_ = proc_mul;
       return func;
       break;
     }
