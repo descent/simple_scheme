@@ -11,7 +11,6 @@
 
 using namespace std;
 
-
 // return given mumber as a string
 std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 
@@ -158,7 +157,7 @@ cell proc_add(const cell &c)
 {
   int sum = add_cell(c);
   cout << "sum: " << sum << endl;
-  return cell(Number, str(sum));
+  cell(Number, str(sum));
 }
 
 cell proc_add(const cells & c)
@@ -407,9 +406,10 @@ cell apply(const cell &func, const cell &args)
   {
     // func.proc(args);
   }
-  return proc_add(args);
+  proc_add(args);
+  //proc_add(args);
 
-  //return func;
+  return func;
 }
 
 cell eval(const cell &exp)
