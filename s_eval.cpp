@@ -35,12 +35,15 @@ struct cell
       return cell_type_string[kind()];
     }
     typedef cell (*proc_type)(const std::vector<cell> &);
+    typedef cell (*ProcType)(const cell &);
     typedef std::vector<cell>::const_iterator iter;
     typedef std::map<std::string, cell> map;
     cell_type type; 
     std::string val; 
     std::vector<cell> list; 
     proc_type proc; 
+    ProcType proc_; 
+
     environment * env;
 
     cell(cell_type type = Symbol) : type(type), env(0) {}
@@ -123,6 +126,40 @@ private:
 
 
 ////////////////////// built-in primitive procedures
+
+int add_cell(const cell &c)
+{
+  switch (c.kind())
+  {
+    case List: 
+    {
+      int sum=0;
+
+      for (int i=0 ; i < c.list.size() ; ++i)
+        sum += add_cell(c.list[i]);
+      return sum;
+      break;
+    }
+    case Number:
+    {
+      int num = atol(c.val.c_str() );
+      cout << "num: " << num << endl;
+      return num;
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+}
+
+cell proc_add(const cell &c)
+{
+  int sum = add_cell(c);
+  cout << "sum: " << sum << endl;
+  return cell(Number, str(sum));
+}
 
 cell proc_add(const cells & c)
 {
@@ -370,8 +407,9 @@ cell apply(const cell &func, const cell &args)
   {
     // func.proc(args);
   }
+  return proc_add(args);
 
-  return func;
+  //return func;
 }
 
 cell eval(const cell &exp)
@@ -399,6 +437,7 @@ cell eval(const cell &exp)
       cout << "in symbol:" << exp.val << endl;
       cell func = exp;
       func.proc = proc_add;
+      func.proc_ = proc_add;
       return func;
       break;
     }
