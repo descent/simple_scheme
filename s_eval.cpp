@@ -161,6 +161,42 @@ cell proc_add(const cell &c)
   return cell(Number, str(sum));
 }
 
+int sub_cell(const cell &c)
+{
+  switch (c.kind())
+  {
+    case List: 
+    {
+      int result=0;
+      if (c.list.size() >= 1)
+        result = sub_cell(c.list[0]);
+
+      for (int i=1 ; i < c.list.size() ; ++i)
+        result -= sub_cell(c.list[i]);
+      return result;
+      break;
+    }
+    case Number:
+    {
+      int num = atol(c.val.c_str() );
+      cout << "num: " << num << endl;
+      return num;
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+}
+
+cell proc_sub(const cell &c)
+{
+  int result = sub_cell(c);
+  cout << "result: " << result << endl;
+  return cell(Number, str(result));
+}
+
 int mul_cell(const cell &c)
 {
   switch (c.kind())
@@ -477,6 +513,8 @@ cell eval(const cell &exp)
       }
       if (exp.val == "*")
         func.proc_ = proc_mul;
+      if (exp.val == "-")
+        func.proc_ = proc_sub;
       return func;
       break;
     }
