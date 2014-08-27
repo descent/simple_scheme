@@ -26,6 +26,7 @@ std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", 
 
 struct environment; // forward declaration; cell and environment reference each other
 
+
 // a variant that can hold any kind of lisp value
 struct cell 
 {
@@ -48,10 +49,14 @@ struct cell
 
     cell(cell_type type = Symbol) : type(type), env(0) {}
     cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
-    cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
+    //cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
+    cell(ProcType proc) : type(Proc), proc_(proc), env(0) {}
 };
 
-cell eval(const cell &exp);
+typedef cell Cell;
+
+
+
 
     // the code is short, but I think 1 hours.
     void print_cell(const cell &exp)
@@ -85,47 +90,38 @@ const cell nil(Symbol, "nil");
 
 
 ////////////////////// environment
+//
 
-// a dictionary that (a) associates symbols with cells, and
-// (b) can chain to an "outer" dictionary
-struct environment {
-    environment(environment * outer = 0) : outer_(outer) {}
+typedef std::map<std::string, Cell> Frame;
+struct Environment 
+{
+  public:
+    Environment(): outer_(0) {}
+    Environment *outer_;
 
-    environment(const cells & parms, const cells & args, environment * outer)
-    : outer_(outer)
-    {
-        cellit a = args.begin();
-        for (cellit p = parms.begin(); p != parms.end(); ++p)
-            env_[p->val] = *a++;
-    }
-
-    // map a variable name onto a cell
-    typedef std::map<std::string, cell> map;
-
-    // return a reference to the innermost environment where 'var' appears
-    map & find(const std::string & var)
-    {
-        if (env_.find(var) != env_.end())
-            return env_; // the symbol exists in this environment
-        if (outer_)
-            return outer_->find(var); // attempt to find the symbol in some "outer" env
-        std::cout << "unbound symbol '" << var << "'\n";
-        exit(1);
-    }
-
-    // return a reference to the cell associated with the given symbol 'var'
-    cell & operator[] (const std::string & var)
-    {
-        return env_[var];
-    }
-    
-private:
-    map env_; // inner symbol->cell mapping
-    environment * outer_; // next adjacent outer env, or 0 if there are no further environments
+    Frame frame_;
+  private:
 };
 
+const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
+{
 
-////////////////////// built-in primitive procedures
+  Frame::const_iterator it = env->frame_.find(exp.val);
+  if (it != env->frame_.end()) // find it
+    return (*it).second;
+  else
+  {
+    if (env->outer_ != 0)
+      return lookup_variable_value(exp, env->outer_);
+    else
+    {
+      static Cell invalid_cell;
+      return invalid_cell;
+    }
+  }
+}
+
+cell eval(const cell &exp, Environment *env);
 
 int add_cell(const cell &c)
 {
@@ -231,26 +227,53 @@ cell proc_mul(const cell &c)
   return cell(Number, str(product));
 }
 
-cell proc_add(const cells & c)
+void create_primitive_procedure(Frame &frame)
 {
-    long n(atol(c[0].val.c_str()));
-    for (cellit i = c.begin()+1; i != c.end(); ++i) n += atol(i->val.c_str());
-    return cell(Number, str(n));
+  frame.insert(Frame::value_type("+", cell(proc_add)));
+  frame.insert(Frame::value_type("-", cell(proc_sub)));
+  frame.insert(Frame::value_type("*", cell(proc_mul)));
 }
 
-cell proc_sub(const cells & c)
-{
-    long n(atol(c[0].val.c_str()));
-    for (cellit i = c.begin()+1; i != c.end(); ++i) n -= atol(i->val.c_str());
-    return cell(Number, str(n));
-}
+// a dictionary that (a) associates symbols with cells, and
+// (b) can chain to an "outer" dictionary
+struct environment {
+    environment(environment * outer = 0) : outer_(outer) {}
 
-cell proc_mul(const cells & c)
-{
-    long n(1);
-    for (cellit i = c.begin(); i != c.end(); ++i) n *= atol(i->val.c_str());
-    return cell(Number, str(n));
-}
+    environment(const cells & parms, const cells & args, environment * outer)
+    : outer_(outer)
+    {
+        cellit a = args.begin();
+        for (cellit p = parms.begin(); p != parms.end(); ++p)
+            env_[p->val] = *a++;
+    }
+
+    // map a variable name onto a cell
+    typedef std::map<std::string, cell> map;
+
+    // return a reference to the innermost environment where 'var' appears
+    map & find(const std::string & var)
+    {
+        if (env_.find(var) != env_.end())
+            return env_; // the symbol exists in this environment
+        if (outer_)
+            return outer_->find(var); // attempt to find the symbol in some "outer" env
+        std::cout << "unbound symbol '" << var << "'\n";
+        exit(1);
+    }
+
+    // return a reference to the cell associated with the given symbol 'var'
+    cell & operator[] (const std::string & var)
+    {
+        return env_[var];
+    }
+    
+private:
+    map env_; // inner symbol->cell mapping
+    environment * outer_; // next adjacent outer env, or 0 if there are no further environments
+};
+
+
+////////////////////// built-in primitive procedures
 
 cell proc_div(const cells & c)
 {
@@ -321,6 +344,7 @@ cell proc_list(const cells & c)
     return result;
 }
 
+#if 0
 // define the bare minimum set of primintives necessary to pass the unit tests
 void add_globals(environment & env)
 {
@@ -333,6 +357,7 @@ void add_globals(environment & env)
     env["/"]      = cell(&proc_div);      env[">"]    = cell(&proc_greater);
     env["<"]      = cell(&proc_less);     env["<="]   = cell(&proc_less_equal);
 }
+#endif
 
 
 ////////////////////// eval
@@ -447,7 +472,7 @@ cell read(const std::string & s)
     return read_from(tokens);
 }
 
-cell list_of_values(const cell &exp)
+cell list_of_values(const cell &exp, Environment *env)
 {
   //cout << "list_of_values" << endl;
   cell ret_cell(List);
@@ -458,8 +483,8 @@ cell list_of_values(const cell &exp)
     cell rear(List);
     std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
 
-    ret_cell.list.push_back(eval(exp.list[0]));
-    ret_cell.list.push_back(list_of_values(rear) );
+    ret_cell.list.push_back(eval(exp.list[0], env));
+    ret_cell.list.push_back(list_of_values(rear, env));
   }
   return ret_cell;
 }
@@ -482,7 +507,7 @@ cell apply(const cell &func, const cell &args)
   //return func;
 }
 
-cell eval(const cell &exp)
+cell eval(const cell &exp, Environment *env)
 {
 #if 0
   self-evaluating
@@ -504,27 +529,40 @@ cell eval(const cell &exp)
     case Symbol: // symbol
     {
       // lookup environment
+      cell func = lookup_variable_value(exp, env);
+#if 0
       cout << "in symbol:" << exp.val << endl;
       cell func = exp;
       if (exp.val == "+")
       {
-        func.proc = proc_add;
+        //func.proc = proc_add;
         func.proc_ = proc_add;
       }
       if (exp.val == "*")
         func.proc_ = proc_mul;
       if (exp.val == "-")
         func.proc_ = proc_sub;
+#endif
       return func;
       break;
     }
     case List: 
     {
       cout << "in list" << endl;
+      if (exp.list[0].kind() == Symbol)
+      {
+        // (lambda (x) (+ x 4))
+        if (exp.list[0].val == "lambda")
+        {
+
+        }
+        // (define (plus4 y) (+ y 4))
+
+      }
       // need check exp.list.size() >= 2
       cell rear(List);
       std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
-      return apply(eval(exp.list[0]), list_of_values(rear) );
+      return apply(eval(exp.list[0], env), list_of_values(rear, env));
       //apply(eval(exp.list[0]));
       #if 0
       cell cur = exp.list[0];
@@ -558,7 +596,7 @@ std::string to_string(const cell & exp)
 }
 
 // the default read-eval-print-loop
-void repl(const std::string & prompt, environment * env)
+void repl(const std::string & prompt, Environment *env)
 {
     for (;;) 
     {
@@ -571,7 +609,7 @@ void repl(const std::string & prompt, environment * env)
         print_cell(exp);
         cout << endl;
 
-        eval(exp);
+        eval(exp, env);
 #if 0 
         cell exp2(List);
         std::copy(exp.list.begin()+3, exp.list.end(), back_inserter(exp2.list));
@@ -592,7 +630,8 @@ void repl(const std::string & prompt, environment * env)
 
 int main ()
 {
-    environment global_env; add_globals(global_env);
-    repl("90> ", &global_env);
+  Environment global_env; //add_globals(global_env);
+  create_primitive_procedure(global_env.frame_);
+  repl("90> ", &global_env);
 }
 
