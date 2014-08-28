@@ -21,7 +21,7 @@ bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 
 ////////////////////// Cell
 
-enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable};
+enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable, INVALID};
 std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", "Lambda", "SelfEval", "Variable"};
 
 struct environment; // forward declaration; cell and environment reference each other
@@ -53,8 +53,47 @@ struct Cell
     Cell(ProcType proc) : type(Proc), proc_(proc), env(0) {}
 };
 
+void print_cell(const Cell &exp);
 
+Cell invalid_cell(INVALID);
 
+Cell car_cell(const Cell &cell)
+{
+  if (cell.kind() != List)
+    return invalid_cell;
+
+  return cell.list[0];
+}
+
+Cell cdr_cell(const Cell &cell)
+{
+  if (cell.kind() != List)
+    return invalid_cell;
+
+  // performance is veay poor
+  Cell rear(List);
+  std::copy(cell.list.begin()+1, cell.list.end(), back_inserter(rear.list));
+  return rear;
+}
+
+Cell cons_cell(const Cell &c1, const Cell &c2)
+{
+  Cell cell(List);
+  Cell cell1(List);
+  Cell cell2(List);
+
+  std::copy(c1.list.begin(), c1.list.end(), back_inserter(cell1.list));
+  std::copy(c2.list.begin(), c2.list.end(), back_inserter(cell1.list));
+  cell.list.push_back(c1);
+  cell.list.push_back(c2);
+  return cell;
+}
+
+Cell proc_cons(const Cell &c)
+{
+  return c;
+  //print_cell(c);
+}
 
 
     // the code is short, but I think 1 hours.
@@ -79,6 +118,8 @@ struct Cell
       }
       
     }
+
+
 
 typedef std::vector<Cell> cells;
 typedef cells::const_iterator cellit;
@@ -114,7 +155,6 @@ const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
       return lookup_variable_value(exp, env->outer_);
     else
     {
-      static Cell invalid_cell;
       return invalid_cell;
     }
   }
@@ -231,6 +271,9 @@ void create_primitive_procedure(Frame &frame)
   frame.insert(Frame::value_type("+", Cell(proc_add)));
   frame.insert(Frame::value_type("-", Cell(proc_sub)));
   frame.insert(Frame::value_type("*", Cell(proc_mul)));
+  frame.insert(Frame::value_type("cons", Cell(proc_cons)));
+  frame.insert(Frame::value_type("car", Cell(car_cell)));
+  frame.insert(Frame::value_type("cdr", Cell(cdr_cell)));
 }
 
 #if 0
@@ -500,7 +543,7 @@ Cell apply(const Cell &func, const Cell &args)
 
   if (func.kind() != Proc)
   {
-    // func.proc(args);
+    return invalid_cell;
   }
   return func.proc_(args);
 
@@ -542,6 +585,7 @@ Cell eval(const Cell &exp, Environment *env)
         if (exp.list[0].val == "lambda")
         {
           cout << "lambda expression" << endl;
+          //make_procedure();
           exit(0);
         }
         else if (exp.list[0].val == "define") // (define (plus4 y) (+ y 4))
@@ -606,7 +650,17 @@ void repl(const std::string & prompt, Environment *env)
         print_cell(exp);
         cout << endl;
 
-        eval(exp, env);
+        exp = eval(exp, env);
+        cout << "result:" << endl;
+        if (exp.kind() != INVALID)
+        {
+          print_cell(exp);
+          cout << endl;
+        }
+        else
+        {
+          cout << "expression fail!" << endl;
+        }
 #if 0 
         cell exp2(List);
         std::copy(exp.list.begin()+3, exp.list.end(), back_inserter(exp2.list));
