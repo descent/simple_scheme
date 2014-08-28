@@ -554,15 +554,23 @@ cell eval(const cell &exp, Environment *env)
         // (lambda (x) (+ x 4))
         if (exp.list[0].val == "lambda")
         {
-
+          cout << "lambda expression" << endl;
+          exit(0);
         }
-        // (define (plus4 y) (+ y 4))
-
+        else if (exp.list[0].val == "define") // (define (plus4 y) (+ y 4))
+             {
+               cout << "define expression" << endl;
+               exit(0);
+             }
       }
-      // need check exp.list.size() >= 2
-      cell rear(List);
-      std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
-      return apply(eval(exp.list[0], env), list_of_values(rear, env));
+
+      // application
+      {
+        // need check exp.list.size() >= 2
+        Cell rear(List);
+        std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
+        return apply(eval(exp.list[0], env), list_of_values(rear, env));
+      }
       //apply(eval(exp.list[0]));
       #if 0
       cell cur = exp.list[0];
