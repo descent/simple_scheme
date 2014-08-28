@@ -19,7 +19,7 @@ std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 
 
-////////////////////// cell
+////////////////////// Cell
 
 enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable};
 std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", "Lambda", "SelfEval", "Variable"};
@@ -28,38 +28,37 @@ struct environment; // forward declaration; cell and environment reference each 
 
 
 // a variant that can hold any kind of lisp value
-struct cell 
+struct Cell 
 {
     cell_type kind() const {return type;}
     std::string kind_str() const 
     {
       return cell_type_string[kind()];
     }
-    typedef cell (*proc_type)(const std::vector<cell> &);
-    typedef cell (*ProcType)(const cell &);
-    typedef std::vector<cell>::const_iterator iter;
-    typedef std::map<std::string, cell> map;
+    typedef Cell (*proc_type)(const std::vector<Cell> &);
+    typedef Cell (*ProcType)(const Cell &);
+    typedef std::vector<Cell>::const_iterator iter;
+    typedef std::map<std::string, Cell> map;
     cell_type type; 
     std::string val; 
-    std::vector<cell> list; 
+    std::vector<Cell> list; 
     proc_type proc; 
     ProcType proc_; 
 
     environment * env;
 
-    cell(cell_type type = Symbol) : type(type), env(0) {}
-    cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
+    Cell(cell_type type = Symbol) : type(type), env(0) {}
+    Cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
     //cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
-    cell(ProcType proc) : type(Proc), proc_(proc), env(0) {}
+    Cell(ProcType proc) : type(Proc), proc_(proc), env(0) {}
 };
 
-typedef cell Cell;
 
 
 
 
     // the code is short, but I think 1 hours.
-    void print_cell(const cell &exp)
+    void print_cell(const Cell &exp)
     {
       switch (exp.kind())
       {
@@ -81,12 +80,12 @@ typedef cell Cell;
       
     }
 
-typedef std::vector<cell> cells;
+typedef std::vector<Cell> cells;
 typedef cells::const_iterator cellit;
 
-const cell false_sym(Symbol, "#f");
-const cell true_sym(Symbol, "#t"); // anything that isn't false_sym is true
-const cell nil(Symbol, "nil");
+const Cell false_sym(Symbol, "#f");
+const Cell true_sym(Symbol, "#t"); // anything that isn't false_sym is true
+const Cell nil(Symbol, "nil");
 
 
 ////////////////////// environment
@@ -121,9 +120,9 @@ const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
   }
 }
 
-cell eval(const cell &exp, Environment *env);
+Cell eval(const Cell &exp, Environment *env);
 
-int add_cell(const cell &c)
+int add_cell(const Cell &c)
 {
   switch (c.kind())
   {
@@ -150,14 +149,14 @@ int add_cell(const cell &c)
   }
 }
 
-cell proc_add(const cell &c)
+Cell proc_add(const Cell &c)
 {
   int sum = add_cell(c);
   cout << "sum: " << sum << endl;
-  return cell(Number, str(sum));
+  return Cell(Number, str(sum));
 }
 
-int sub_cell(const cell &c)
+int sub_cell(const Cell &c)
 {
   switch (c.kind())
   {
@@ -186,14 +185,14 @@ int sub_cell(const cell &c)
   }
 }
 
-cell proc_sub(const cell &c)
+Cell proc_sub(const Cell &c)
 {
   int result = sub_cell(c);
   cout << "result: " << result << endl;
-  return cell(Number, str(result));
+  return Cell(Number, str(result));
 }
 
-int mul_cell(const cell &c)
+int mul_cell(const Cell &c)
 {
   switch (c.kind())
   {
@@ -220,20 +219,21 @@ int mul_cell(const cell &c)
   }
 }
 
-cell proc_mul(const cell &c)
+Cell proc_mul(const Cell &c)
 {
   int product = mul_cell(c);
   cout << "product: " << product << endl;
-  return cell(Number, str(product));
+  return Cell(Number, str(product));
 }
 
 void create_primitive_procedure(Frame &frame)
 {
-  frame.insert(Frame::value_type("+", cell(proc_add)));
-  frame.insert(Frame::value_type("-", cell(proc_sub)));
-  frame.insert(Frame::value_type("*", cell(proc_mul)));
+  frame.insert(Frame::value_type("+", Cell(proc_add)));
+  frame.insert(Frame::value_type("-", Cell(proc_sub)));
+  frame.insert(Frame::value_type("*", Cell(proc_mul)));
 }
 
+#if 0
 // a dictionary that (a) associates symbols with cells, and
 // (b) can chain to an "outer" dictionary
 struct environment {
@@ -271,8 +271,9 @@ private:
     map env_; // inner symbol->cell mapping
     environment * outer_; // next adjacent outer env, or 0 if there are no further environments
 };
+#endif
 
-
+#if 0
 ////////////////////// built-in primitive procedures
 
 cell proc_div(const cells & c)
@@ -344,7 +345,6 @@ cell proc_list(const cells & c)
     return result;
 }
 
-#if 0
 // define the bare minimum set of primintives necessary to pass the unit tests
 void add_globals(environment & env)
 {
@@ -442,20 +442,20 @@ std::list<std::string> tokenize(const std::string & str)
 }
 
 // numbers become Numbers; every other token is a Symbol
-cell atom(const std::string & token)
+Cell atom(const std::string & token)
 {
     if (isdig(token[0]) || (token[0] == '-' && isdig(token[1])))
-        return cell(Number, token);
-    return cell(Symbol, token);
+        return Cell(Number, token);
+    return Cell(Symbol, token);
 }
 
 // return the Lisp expression in the given tokens
-cell read_from(std::list<std::string> & tokens)
+Cell read_from(std::list<std::string> & tokens)
 {
     const std::string token(tokens.front());
     tokens.pop_front();
     if (token == "(") {
-        cell c(List);
+        Cell c(List);
         while (tokens.front() != ")")
             c.list.push_back(read_from(tokens));
         tokens.pop_front();
@@ -466,21 +466,21 @@ cell read_from(std::list<std::string> & tokens)
 }
 
 // return the Lisp expression represented by the given string
-cell read(const std::string & s)
+Cell read(const std::string & s)
 {
     std::list<std::string> tokens(tokenize(s));
     return read_from(tokens);
 }
 
-cell list_of_values(const cell &exp, Environment *env)
+Cell list_of_values(const Cell &exp, Environment *env)
 {
   //cout << "list_of_values" << endl;
-  cell ret_cell(List);
+  Cell ret_cell(List);
 
   if (exp.list.size() != 0)
   {
 
-    cell rear(List);
+    Cell rear(List);
     std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
 
     ret_cell.list.push_back(eval(exp.list[0], env));
@@ -489,7 +489,7 @@ cell list_of_values(const cell &exp, Environment *env)
   return ret_cell;
 }
 
-cell apply(const cell &func, const cell &args)
+Cell apply(const Cell &func, const Cell &args)
 {
   cout << "apply:" << func.kind_str() << endl;
   cout << endl;
@@ -507,7 +507,7 @@ cell apply(const cell &func, const cell &args)
   //return func;
 }
 
-cell eval(const cell &exp, Environment *env)
+Cell eval(const Cell &exp, Environment *env)
 {
 #if 0
   self-evaluating
@@ -529,20 +529,7 @@ cell eval(const cell &exp, Environment *env)
     case Symbol: // symbol
     {
       // lookup environment
-      cell func = lookup_variable_value(exp, env);
-#if 0
-      cout << "in symbol:" << exp.val << endl;
-      cell func = exp;
-      if (exp.val == "+")
-      {
-        //func.proc = proc_add;
-        func.proc_ = proc_add;
-      }
-      if (exp.val == "*")
-        func.proc_ = proc_mul;
-      if (exp.val == "-")
-        func.proc_ = proc_sub;
-#endif
+      Cell func = lookup_variable_value(exp, env);
       return func;
       break;
     }
@@ -585,8 +572,9 @@ cell eval(const cell &exp, Environment *env)
 
 }
 
+#if 0
 // convert given cell to a Lisp-readable string
-std::string to_string(const cell & exp)
+std::string to_string(const Cell & exp)
 {
     if (exp.type == List) {
         std::string s("(");
@@ -602,6 +590,7 @@ std::string to_string(const cell & exp)
         return "<Proc>";
     return exp.val;
 }
+#endif
 
 // the default read-eval-print-loop
 void repl(const std::string & prompt, Environment *env)
@@ -610,7 +599,7 @@ void repl(const std::string & prompt, Environment *env)
     {
         std::cout << prompt;
         std::string line; std::getline(std::cin, line);
-        cell exp = read(line);
+        Cell exp = read(line);
 
 
         cout << endl;
