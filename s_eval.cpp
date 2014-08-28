@@ -50,7 +50,9 @@ struct Cell
     Cell(cell_type type = Symbol) : type(type), env(0) {}
     Cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
     //cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
-    Cell(ProcType proc) : type(Proc), proc_(proc), env(0) {}
+    Cell(ProcType proc, const std::string proc_name) 
+      :type(Proc), proc_(proc), val(proc_name), env(0) 
+    {}
 };
 
 void print_cell(const Cell &exp);
@@ -62,6 +64,10 @@ Cell car_cell(const Cell &cell)
   if (cell.kind() != List)
     return invalid_cell;
 
+  cout << "---" << endl;
+  cout << cell.list[0].kind_str() << endl;
+  //print_cell(cell.list[0]);
+  cout << "\n---" << endl;
   return cell.list[0];
 }
 
@@ -268,12 +274,12 @@ Cell proc_mul(const Cell &c)
 
 void create_primitive_procedure(Frame &frame)
 {
-  frame.insert(Frame::value_type("+", Cell(proc_add)));
-  frame.insert(Frame::value_type("-", Cell(proc_sub)));
-  frame.insert(Frame::value_type("*", Cell(proc_mul)));
-  frame.insert(Frame::value_type("cons", Cell(proc_cons)));
-  frame.insert(Frame::value_type("car", Cell(car_cell)));
-  frame.insert(Frame::value_type("cdr", Cell(cdr_cell)));
+  frame.insert(Frame::value_type("+", Cell(proc_add, "primitive add")));
+  frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
+  frame.insert(Frame::value_type("*", Cell(proc_mul, "primitive mul")));
+  frame.insert(Frame::value_type("cons", Cell(proc_cons, "primitive cons")));
+  frame.insert(Frame::value_type("car", Cell(car_cell, "primitive car")));
+  frame.insert(Frame::value_type("cdr", Cell(cdr_cell, "primitive cdr")));
 }
 
 #if 0
@@ -536,8 +542,10 @@ Cell apply(const Cell &func, const Cell &args)
 {
   cout << "apply:" << func.kind_str() << endl;
   cout << endl;
-  print_cell(func);
-  cout << endl;
+  cout << "func name:" << func.val << endl;
+  //print_cell(func);
+  //cout << endl;
+  cout << "args:" << endl;
   print_cell(args);
   cout << endl;
 
