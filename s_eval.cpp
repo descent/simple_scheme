@@ -565,13 +565,49 @@ Cell apply(const Cell &func, const Cell &args)
   print_cell(args);
   cout << endl;
 
-  if (func.kind() != Proc)
+  switch (func.proc_kind())
   {
-    return invalid_cell;
-  }
-  return func.proc_(args);
+    case LAMBDA:
+    {
+      // new a Environment
+      // add parameters and arguments pair
+      Environment env;
 
-  //return func;
+      Cell body(List); 
+      body = cdr_cell(func);
+
+      Cell parameters(List); 
+      parameters = car_cell(func);
+      cout << "body: " << endl;
+      print_cell(body);
+      cout << endl;
+
+      cout << "para: " << parameters.kind_str() << endl;
+      print_cell(parameters);
+      cout << endl;
+
+      exit(0);
+      break;
+    }
+    case PRIMITIVE:
+    {
+      cout << "func name:" << func.val << endl;
+      return func.proc_(args);
+      break;
+    }
+  }
+
+  return invalid_cell;
+}
+
+Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
+{
+  Cell lambda_proc(List);
+
+  lambda_proc = cons_cell(parameters, body);
+  lambda_proc.proc_kind_ = LAMBDA;
+
+  return lambda_proc;
 }
 
 Cell eval(const Cell &exp, Environment *env)
@@ -606,11 +642,22 @@ Cell eval(const Cell &exp, Environment *env)
       if (exp.list[0].kind() == Symbol)
       {
         // (lambda (x) (+ x 4))
+        // ((lambda (x) (+ x 4)) 5)
         if (exp.list[0].val == "lambda")
         {
           cout << "lambda expression" << endl;
-          //make_procedure();
-          exit(0);
+          Cell parameters = car_cell(cdr_cell(exp));
+          Cell body = cdr_cell(cdr_cell(exp));
+
+          cout << "parameters: " << parameters.kind_str() << endl;
+          print_cell(parameters);
+          cout << endl;
+          cout << "body: " << body.kind_str() << endl;
+          print_cell(body);
+          cout << endl;
+
+          return make_procedure(parameters, body, env);
+          //exit(0);
         }
         else if (exp.list[0].val == "define") // (define (plus4 y) (+ y 4))
              {
