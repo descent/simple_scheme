@@ -21,6 +21,7 @@ bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 
 ////////////////////// Cell
 
+enum ProcKind {PRIMITIVE, LAMBDA};
 enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable, INVALID};
 std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", "Lambda", "SelfEval", "Variable"};
 
@@ -30,16 +31,27 @@ struct environment; // forward declaration; cell and environment reference each 
 // a variant that can hold any kind of lisp value
 struct Cell 
 {
-    cell_type kind() const {return type;}
-    std::string kind_str() const 
-    {
-      return cell_type_string[kind()];
-    }
     typedef Cell (*proc_type)(const std::vector<Cell> &);
     typedef Cell (*ProcType)(const Cell &);
     typedef std::vector<Cell>::const_iterator iter;
     typedef std::map<std::string, Cell> map;
+
+    Cell(cell_type type = Symbol) : type(type), env(0) {}
+    Cell(cell_type type, const std::string & val)
+      : type(type), val(val), env(0)
+    {}
+    Cell(ProcType proc, const std::string proc_name) 
+      :type(Proc), proc_(proc), val(proc_name), env(0), proc_kind_(PRIMITIVE)
+    {}
+
+    cell_type kind() const {return type;}
+    ProcKind proc_kind() const {return proc_kind_;}
+    std::string kind_str() const 
+    {
+      return cell_type_string[kind()];
+    }
     cell_type type; 
+    ProcKind proc_kind_; // if type is Proc need check it.
     std::string val; 
     std::vector<Cell> list; 
     proc_type proc; 
@@ -47,12 +59,6 @@ struct Cell
 
     environment * env;
 
-    Cell(cell_type type = Symbol) : type(type), env(0) {}
-    Cell(cell_type type, const std::string & val) : type(type), val(val), env(0) {}
-    //cell(proc_type proc) : type(Proc), proc(proc), env(0) {}
-    Cell(ProcType proc, const std::string proc_name) 
-      :type(Proc), proc_(proc), val(proc_name), env(0) 
-    {}
 };
 
 void print_cell(const Cell &exp);
