@@ -155,21 +155,40 @@ struct Environment
   private:
 };
 
+Environment global_env; //add_globals(global_env);
+
+void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
+{
+  Cell para = car_cell(vars);
+  Cell arg = car_cell(vals);
+  cout << "-----\n";
+  print_cell(para);
+  cout << "\n";
+  print_cell(vals);
+  cout << "\n-----\n";
+
+  cout << "ext env: \n";
+  print_cell(arg);
+  cout << "\n-----\n";
+  env->frame_.insert(Frame::value_type(para.val, vals));
+}
+
 const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
 {
 
   Frame::const_iterator it = env->frame_.find(exp.val);
   if (it != env->frame_.end()) // find it
+  {
+    cout << "found it" << endl;
     return (*it).second;
+  }
   else
   {
     if (env->outer_ != 0)
       return lookup_variable_value(exp, env->outer_);
-    else
-    {
-      return invalid_cell;
-    }
   }
+  cout << "not found it" << endl;
+  return invalid_cell;
 }
 
 Cell eval(const Cell &exp, Environment *env);
