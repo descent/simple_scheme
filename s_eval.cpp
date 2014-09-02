@@ -598,9 +598,25 @@ Cell apply(const Cell &func, const Cell &args)
   cout << endl;
   //print_cell(func);
   //cout << endl;
-  cout << "args:" << args.kind_str() << endl;
-  print_cell(args);
-  cout << endl;
+
+
+  Cell args_list(List);
+  if (args.kind() != List)
+  {
+    args_list.list.push_back(args);
+    cout << "args_list:" << args_list.kind_str() << endl;
+    print_cell(args_list);
+    cout << endl;
+  }
+  else
+  {
+    cout << "args:" << args.kind_str() << endl;
+    print_cell(args);
+    cout << endl;
+  }
+
+
+
 
   switch (func.proc_kind())
   {
@@ -627,7 +643,10 @@ Cell apply(const Cell &func, const Cell &args)
       
       Environment env;
       env.outer_ = func.env_;
-      extend_environment(parameters, args, &env);
+      if (args.kind() != List)
+        extend_environment(parameters, args_list, &env);
+      else
+        extend_environment(parameters, args, &env);
       return eval_sequence(body, &env);
 
       break;
@@ -635,8 +654,10 @@ Cell apply(const Cell &func, const Cell &args)
     case PRIMITIVE:
     {
       cout << "func name:" << func.val << endl;
-      return func.proc_(args);
-      break;
+      if (args.kind() != List)
+        return func.proc_(args_list);
+      else
+        return func.proc_(args);
     }
   }
 
