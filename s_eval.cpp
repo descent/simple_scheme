@@ -21,7 +21,7 @@ bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 
 ////////////////////// Cell
 
-enum ProcKind {PRIMITIVE, LAMBDA};
+enum ProcKind {PRIMITIVE, LAMBDA, NORMAL_CELL};
 enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable, INVALID};
 std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", "Lambda", "SelfEval", "Variable"};
 
@@ -37,10 +37,14 @@ struct Cell
     typedef std::vector<Cell>::const_iterator iter;
     typedef std::map<std::string, Cell> map;
 
-    Cell(cell_type type = Symbol) : type(type), env_(0) {}
-    Cell(cell_type type, const std::string & val)
-      : type(type), val(val), env_(0)
+    Cell(cell_type type = Symbol) 
+      : type(type), env_(0), proc_kind_(NORMAL_CELL)
     {}
+
+    Cell(cell_type type, const std::string & val)
+      : type(type), val(val), env_(0), proc_kind_(NORMAL_CELL)
+    {}
+
     Cell(ProcType proc, const std::string proc_name) 
       :type(Proc), proc_(proc), val(proc_name), env_(0), proc_kind_(PRIMITIVE)
     {}
