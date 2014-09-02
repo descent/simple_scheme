@@ -573,14 +573,22 @@ Cell list_of_values(const Cell &exp, Environment *env)
   return ret_cell;
 }
 
+Cell eval_sequence(const Cell &exp, Environment *env)
+{
+  cout << "eval_sequence: " << exp.kind_str() << endl;
+  cout << endl;
+  print_cell(exp);
+  cout << endl;
+  return eval(exp, env);
+}
+
 Cell apply(const Cell &func, const Cell &args)
 {
   cout << "apply:" << func.kind_str() << endl;
   cout << endl;
-  cout << "func name:" << func.val << endl;
   //print_cell(func);
   //cout << endl;
-  cout << "args:" << endl;
+  cout << "args:" << args.kind_str() << endl;
   print_cell(args);
   cout << endl;
 
@@ -590,13 +598,13 @@ Cell apply(const Cell &func, const Cell &args)
     {
       // new a Environment
       // add parameters and arguments pair
-      Environment env;
 
       Cell body(List); 
       body = cdr_cell(func);
 
       Cell parameters(List); 
       parameters = car_cell(func);
+      #if 1
       cout << "body: " << endl;
       print_cell(body);
       cout << endl;
@@ -604,8 +612,14 @@ Cell apply(const Cell &func, const Cell &args)
       cout << "para: " << parameters.kind_str() << endl;
       print_cell(parameters);
       cout << endl;
+      #endif
 
-      exit(0);
+      
+      Environment env;
+      env.outer_ = &global_env;
+      extend_environment(parameters, args, &env);
+      return eval_sequence(body, &env);
+
       break;
     }
     case PRIMITIVE:
@@ -771,7 +785,6 @@ void repl(const std::string & prompt, Environment *env)
 
 int main ()
 {
-  Environment global_env; //add_globals(global_env);
   create_primitive_procedure(global_env.frame_);
   repl("90> ", &global_env);
 }
