@@ -108,7 +108,7 @@ Cell cons_cell(const Cell &c1, const Cell &c2)
   if (c2.kind() == List && c2.list.size()==1 && c2.list[0].kind() == List)
     cell.list.push_back(c2.list[0]);
   else
-  cell.list.push_back(c2);
+    cell.list.push_back(c2);
   return cell;
 }
 
