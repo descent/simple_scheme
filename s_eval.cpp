@@ -27,6 +27,7 @@ std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", 
 
 struct environment; // forward declaration; cell and environment reference each other
 
+struct Environment;
 
 // a variant that can hold any kind of lisp value
 struct Cell 
@@ -36,12 +37,12 @@ struct Cell
     typedef std::vector<Cell>::const_iterator iter;
     typedef std::map<std::string, Cell> map;
 
-    Cell(cell_type type = Symbol) : type(type), env(0) {}
+    Cell(cell_type type = Symbol) : type(type), env_(0) {}
     Cell(cell_type type, const std::string & val)
-      : type(type), val(val), env(0)
+      : type(type), val(val), env_(0)
     {}
     Cell(ProcType proc, const std::string proc_name) 
-      :type(Proc), proc_(proc), val(proc_name), env(0), proc_kind_(PRIMITIVE)
+      :type(Proc), proc_(proc), val(proc_name), env_(0), proc_kind_(PRIMITIVE)
     {}
 
     cell_type kind() const {return type;}
@@ -57,8 +58,7 @@ struct Cell
     proc_type proc; 
     ProcType proc_; 
 
-    environment * env;
-
+    Environment *env_;
 };
 
 void print_cell(const Cell &exp);
@@ -155,7 +155,6 @@ struct Environment
   private:
 };
 
-Environment global_env; //add_globals(global_env);
 
 void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
 {
@@ -616,7 +615,7 @@ Cell apply(const Cell &func, const Cell &args)
 
       
       Environment env;
-      env.outer_ = &global_env;
+      env.outer_ = func.env_;
       extend_environment(parameters, args, &env);
       return eval_sequence(body, &env);
 
@@ -639,6 +638,7 @@ Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
 
   lambda_proc = cons_cell(parameters, body);
   lambda_proc.proc_kind_ = LAMBDA;
+  lambda_proc.env_ = env;
 
   return lambda_proc;
 }
@@ -785,6 +785,7 @@ void repl(const std::string & prompt, Environment *env)
 
 int main ()
 {
+  Environment global_env; //add_globals(global_env);
   create_primitive_procedure(global_env.frame_);
   repl("90> ", &global_env);
 }
