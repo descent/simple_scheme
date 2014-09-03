@@ -633,8 +633,32 @@ Cell eval_sequence(const Cell &exp, Environment *env)
   cout << endl;
   print_cell(exp);
   cout << endl;
+
+  for (int i=0 ; i < exp.list.size()-1 ; ++i)
+    eval(exp.list[i], env);
+  return eval(exp.list[exp.list.size()-1], env);
+
+#if 0
   Cell first_cell = car_cell(exp);
-  return eval(first_cell, env);
+  Cell rest_cell = cdr_cell(exp);
+
+  cout << "first exp: " << endl;
+  print_cell(first_cell);
+  cout << endl;
+
+  cout << "rest exp: " << rest_cell.kind_str() << endl;
+  cout << "rest size: " << rest_cell.list.size() << endl;
+  print_cell(rest_cell);
+  cout << endl;
+
+  if (rest_cell.is_null() == true)
+    return eval(first_cell, env);
+  else
+  {
+    eval(first_cell, env);
+    return eval_sequence(rest_cell, env);
+  }
+#endif
 }
 
 Cell apply(const Cell &func, const Cell &args)
