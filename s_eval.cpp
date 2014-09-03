@@ -315,6 +315,10 @@ void create_primitive_procedure(Frame &frame)
   frame.insert(Frame::value_type("cons", Cell(proc_cons, "primitive cons")));
   frame.insert(Frame::value_type("car", Cell(car_cell, "primitive car")));
   frame.insert(Frame::value_type("cdr", Cell(cdr_cell, "primitive cdr")));
+#if 0
+  Cell x(Symbol, "5");
+  frame.insert(Frame::value_type("x", x));
+#endif
 }
 
 #if 0
@@ -589,7 +593,8 @@ Cell eval_sequence(const Cell &exp, Environment *env)
   cout << endl;
   print_cell(exp);
   cout << endl;
-  return eval(exp, env);
+  Cell first_cell = car_cell(exp);
+  return eval(first_cell, env);
 }
 
 Cell apply(const Cell &func, const Cell &args)
@@ -648,8 +653,6 @@ Cell apply(const Cell &func, const Cell &args)
       else
         extend_environment(parameters, args, &env);
       return eval_sequence(body, &env);
-
-      break;
     }
     case PRIMITIVE:
     {
