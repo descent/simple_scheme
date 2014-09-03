@@ -169,18 +169,24 @@ struct Environment
 
 void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
 {
-  Cell para = car_cell(vars);
-  Cell arg = car_cell(vals);
+#if 0
   cout << "-----\n";
-  print_cell(para);
+  print_cell(vars);
   cout << "\n";
   print_cell(vals);
   cout << "\n-----\n";
 
+  Cell para = car_cell(vars);
+  Cell arg = car_cell(vals);
+
   cout << "ext env: \n";
   print_cell(arg);
   cout << "\n-----\n";
-  env->frame_.insert(Frame::value_type(para.val, vals));
+#endif
+  // need check vars.list.size() == vals.list.size()
+  // vars/vals is a List
+  for (int i = 0 ; i < vars.list.size() ; ++i)
+    env->frame_.insert(Frame::value_type(vars.list[i].val, vals.list[i]));
 }
 
 const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
