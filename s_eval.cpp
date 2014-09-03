@@ -96,7 +96,16 @@ Cell cdr_cell(const Cell &cell)
 
   // performance is veay poor
   Cell rear(List);
-  std::copy(cell.list.begin()+1, cell.list.end(), back_inserter(rear.list));
+  if (cell.list.size() == 2)
+  {
+    Cell c =  cell.list[1];
+    //if (!c.is_null())
+      //c.list.push_back(Cell(List));
+    return c;
+  }
+  else
+    std::copy(cell.list.begin()+1, cell.list.end(), back_inserter(rear.list));
+
   return rear;
 }
 
