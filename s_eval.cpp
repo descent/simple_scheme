@@ -81,11 +81,12 @@ Cell car_cell(const Cell &cell)
 {
   if (cell.kind() != List)
     return invalid_cell;
-
+#if 0
   cout << "---" << endl;
   cout << cell.list[0].kind_str() << endl;
   //print_cell(cell.list[0]);
   cout << "\n---" << endl;
+#endif
   return cell.list[0];
 }
 
