@@ -49,6 +49,14 @@ struct Cell
       :type(Proc), proc_(proc), val(proc_name), env_(0), proc_kind_(PRIMITIVE)
     {}
 
+    bool is_null() 
+    {
+      if (list.size() == 0) 
+        return true;
+      else
+        return false;
+    }
+
     cell_type kind() const {return type;}
     ProcKind proc_kind() const {return proc_kind_;}
     std::string kind_str() const 
