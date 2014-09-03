@@ -572,10 +572,27 @@ Cell list_of_values(const Cell &exp, Environment *env)
     std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
 
     Cell eval_cell = eval(exp.list[0], env);
+    Cell list_cell = list_of_values(rear, env);
+
     if (rear.list.size() != 0)
     {
-      ret_cell.list.push_back(eval_cell);
-      ret_cell.list.push_back(list_of_values(rear, env));
+      if (eval_cell.kind() == List)
+      {
+        for (int i=0 ; i < eval_cell.list.size() ; ++i)
+          ret_cell.list.push_back(eval_cell.list[i]);
+      }
+      else
+        ret_cell.list.push_back(eval_cell);
+
+      if (list_cell.kind() == List)
+      {
+        for (int i=0 ; i < list_cell.list.size() ; ++i)
+          ret_cell.list.push_back(list_cell.list[i]);
+      }
+      else
+      {
+        ret_cell.list.push_back(list_cell);
+      }
     }
     else
     {
