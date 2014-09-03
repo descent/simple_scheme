@@ -1,7 +1,18 @@
 (lambda (x) (+ x 4))
 ((lambda (x) (+ x 4)) 5)
 
+((lambda (x) (+ x 4) (* 2 x) ) 5)
+
+((lambda (x) (+ x 4) (* (+ 1 x) x) ) 5)
+
 ((lambda (x y) (+ x y)) 5 6)
 
 ((lambda (x y z) (* x y z)) 5 6 2)
 
+
+((lambda (x y z) (* (+ x 1) (+ y 1) (+ z 1))) 1 2 3)
+
+
+cons, car, cdr test
+
+((+ , x , 4 , ) (* , 2 , x , ) )
