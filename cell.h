@@ -12,11 +12,13 @@ using namespace std;
 enum PairAttr {HEAD, FIRST, SECOND};
 enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, LAMBDA_PROC, NULL_CELL, INVALID};
 
+struct Cell;
+typedef Cell *(*ProcType)(Cell *);
+
 const int MAX_SIZE = 256;
 // a variant that can hold any kind of lisp value
 struct Cell 
 {
-    typedef Cell (*ProcType)(const Cell &);
 
 #if 0
     Cell(cell_type type = Symbol) 
@@ -55,10 +57,16 @@ struct Cell
     //Environment *env_;
 };
 
+
 extern Cell invalid_cell;
 extern Cell null_cell;
 
 void print_cell(const Cell *cell);
 Cell *make_list(vector<Cell *> cells);
 Cell *get_cell(const char *val, CellType type);
+Cell *get_cell(ProcType proc);
+
+Cell *car_cell(Cell *cell);
+Cell *cdr_cell(Cell *cell);
+Cell *cons_cell(Cell *first, Cell *second);
 #endif
