@@ -34,7 +34,7 @@ const Cell nil(Symbol, "nil");
 ////////////////////// environment
 //
 
-typedef std::map<std::string, Cell> Frame;
+typedef std::map<std::string, Cell*> Frame;
 struct Environment 
 {
   public:
@@ -87,10 +87,11 @@ const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
 #endif
 }
 
-Cell eval(const Cell &exp, Environment *env);
+Cell *eval(const Cell &exp, Environment *env);
 
-int add_cell(const Cell &c)
+int add_cell(Cell *cell)
 {
+
 #if 0
   switch (c.kind())
   {
@@ -118,13 +119,66 @@ int add_cell(const Cell &c)
 #endif
 }
 
-#if 0
-Cell proc_add(const Cell &c)
+// sign version
+char* s32_itoa_s(int n, char* str, int radix)
 {
+  char digit[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  char* p=str;
+  char* head=str;
+  //int radix = 10;
+
+//  if(!p || radix < 2 || radix > 36)
+//    return p;
+  if (n==0)
+  {
+    *p++='0';
+    *p=0;
+    return str;
+  }
+  if (radix == 10 && n < 0)
+  {
+    *p++='-';
+    n= -n;
+  }
+  while(n)
+  {
+    *p++=digit[n%radix];
+    //s32_put_char(*(p-1), (u8*)(0xb8000+80*2));
+    n/=radix;
+  }
+  *p=0;
+  #if 1
+  for (--p; head < p ; ++head, --p)
+  {
+    char temp=*head;
+    if (*(p-1) != '-')
+    {
+      *head=*p;
+      *p=temp;
+    }
+  }
+  #endif
+  return str;
+}
+
+Cell *proc_add(Cell *cell)
+{
+  int sum=0;
+  Cell *c = car_cell(cell);
+  while (c->type_ != NULL_CELL)
+  {
+    sum += atol(c->val_);
+  }
+  char num_str[20]="";
+  Cell *ret_cell = get_cell(s32_itoa_s(sum, num_str,10), NUMBER );
+  return ret_cell;
+#if 0
   int sum = add_cell(c);
   cout << "sum: " << sum << endl;
   return Cell(Number, str(sum));
+#endif
 }
+#if 0
 
 int sub_cell(const Cell &c)
 {
@@ -195,21 +249,22 @@ Cell proc_mul(const Cell &c)
   cout << "product: " << product << endl;
   return Cell(Number, str(product));
 }
+#endif
 
 void create_primitive_procedure(Frame &frame)
 {
-  frame.insert(Frame::value_type("+", Cell(proc_add, "primitive add")));
+  Cell *op = get_cell(proc_add);
+  frame.insert(Frame::value_type("+", op));
+#if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
   frame.insert(Frame::value_type("*", Cell(proc_mul, "primitive mul")));
   frame.insert(Frame::value_type("cons", Cell(proc_cons, "primitive cons")));
   frame.insert(Frame::value_type("car", Cell(car_cell, "primitive car")));
   frame.insert(Frame::value_type("cdr", Cell(cdr_cell, "primitive cdr")));
-#if 0
   Cell x(Symbol, "5");
   frame.insert(Frame::value_type("x", x));
 #endif
 }
-#endif
 
 #if 0
 // a dictionary that (a) associates symbols with cells, and
@@ -460,7 +515,7 @@ Cell *read(const std::string & s)
     return read_from(tokens);
 }
 
-Cell list_of_values(const Cell &exp, Environment *env)
+Cell *list_of_values(const Cell *exp, Environment *env)
 {
 #if 0
   //cout << "list_of_values" << endl;
@@ -520,7 +575,7 @@ Cell eval_sequence(const Cell &exp, Environment *env)
 #endif
 }
 
-Cell apply(const Cell &func, const Cell &args)
+Cell *apply(Cell *func, Cell *args)
 {
 #if 0
   cout << "apply:" << func.kind_str() << endl;
@@ -605,34 +660,36 @@ Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
 #endif
 }
 
-Cell eval(const Cell &exp, Environment *env)
+Cell *eval(Cell *exp, Environment *env)
 {
 #if 0
   self-evaluating
   variable       //? exp) (lookup-variable-value exp env))
   ((application? exp)
+#endif
 
-  switch (exp.kind())
+  switch (exp->type_)
   {
     //case SelfEval: // number or string
-    case Number: 
-    case String: 
+    case NUMBER: 
+    case STRING: 
     {
-      cout << "in exp:" << exp.val << endl;
+      //cout << "in exp:" << exp.val << endl;
       return exp;
       break;
     }
     //case Variable: // symbol
-    case Symbol: // symbol
+    case SYMBOL: // symbol
     {
       // lookup environment
-      Cell func = lookup_variable_value(exp, env);
-      return func;
+      //Cell func = lookup_variable_value(exp, env);
+      //return func;
       break;
     }
-    case List: 
+    case PAIR:
     {
-      cout << "in list" << endl;
+      cout << "is pair" << endl;
+#if 0
       if (exp.list[0].kind() == Symbol)
       {
         // (lambda (x) (+ x 4))
@@ -659,13 +716,11 @@ Cell eval(const Cell &exp, Environment *env)
                exit(0);
              }
       }
-
+#endif
       // application
       {
         // need check exp.list.size() >= 2
-        Cell rear(List);
-        std::copy(exp.list.begin()+1, exp.list.end(), back_inserter(rear.list));
-        return apply(eval(exp.list[0], env), list_of_values(rear, env));
+        return apply(eval(car_cell(exp), env), list_of_values(cdr_cell(exp), env));
       }
       //apply(eval(exp.list[0]));
       #if 0
@@ -679,7 +734,6 @@ Cell eval(const Cell &exp, Environment *env)
   }
 
 
-#endif
 }
 
 #if 0
@@ -715,8 +769,8 @@ void repl(const std::string & prompt, Environment *env)
         cout << endl;
         print_cell(exp);
         cout << endl;
-#if 0
         exp = eval(exp, env);
+#if 0
         cout << "result:" << endl;
         if (exp.kind() != INVALID)
         {
@@ -738,7 +792,7 @@ int main ()
   null_cell.type_ = NULL_CELL;
 
   Environment global_env; //add_globals(global_env);
-  //create_primitive_procedure(global_env.frame_);
+  create_primitive_procedure(global_env.frame_);
   repl("90> ", &global_env);
 }
 
