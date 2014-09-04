@@ -1,9 +1,16 @@
 #ifndef CELL_H
 #define CELL_H
 
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <list>
+#include <string>
+
+using namespace std;
+
 enum PairAttr {HEAD, FIRST, SECOND};
 enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, LAMBDA_PROC, NULL_CELL, INVALID};
-const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "INVALID"};
 
 const int MAX_SIZE = 256;
 // a variant that can hold any kind of lisp value
@@ -35,10 +42,7 @@ struct Cell
     CellType type() const {return type_;}
     //ProcKind proc_kind() const {return proc_kind_;}
 
-    const char* kind_str() const 
-    {
-      return cell_type_string[type()];
-    }
+    const char* kind_str() const;
 
     //ProcKind proc_kind_; // if type is Proc need check it.
     CellType type_;
@@ -50,4 +54,11 @@ struct Cell
 
     //Environment *env_;
 };
+
+extern Cell invalid_cell;
+extern Cell null_cell;
+
+void print_cell(const Cell *cell);
+Cell *make_list(vector<Cell *> cells);
+Cell *get_cell(const char *val, CellType type);
 #endif

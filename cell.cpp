@@ -1,14 +1,13 @@
 #include "cell.h"
 
-#define TEST_CELL
+//#define TEST_CELL
 
-#include <cstring>
-#include <iostream>
-#include <vector>
-#include <list>
-#include <string>
+const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "INVALID"};
 
-using namespace std;
+const char* Cell::kind_str() const 
+{
+  return cell_type_string[type()];
+}
 
 const int MAX_POOL = 1000;
 Cell pair_pool[MAX_POOL];
@@ -17,8 +16,10 @@ Cell cell_pool[MAX_POOL];
 int free_pair_index;
 int free_cell_index;
 
+#if 0
 Cell invalid_cell;
 Cell null_cell;
+#endif
 
 Cell *get_pair()
 {
@@ -99,6 +100,7 @@ int add_space_to_parenthesis(const char *org_str, char *new_str, int new_str_siz
   return OK;
 }
 
+#if 0
 Cell *create_expression(const char *exp)
 {
   char val[MAX_SIZE]; 
@@ -156,6 +158,7 @@ Cell *create_expression(const char *exp)
   }
   return head;
 }
+#endif
 
 Cell *car_cell(Cell *cell)
 {
@@ -257,28 +260,7 @@ Cell *make_list(vector<Cell *> cells)
   return c;
 }
 
-Cell *read_from(std::list<std::string> & tokens)
-{
-  const std::string token(tokens.front());
-  tokens.pop_front();
-  if (token == "(") 
-  {
-    vector<Cell *> cells;
-    while (tokens.front() != ")")
-    {
-      cells.push_back(read_from(tokens));
-    }
-    tokens.pop_front();
-    return make_list(cells);
-  }
-  else
-  {
-    Cell *cell = get_cell(token.c_str(), SYMBOL);
-    cout << "cell val_: " << cell->val_ << endl;
-    return cell;
-  }
-
-}
+//Cell *read_from(const char *tokens[])
 
 
 #ifdef TEST_CELL
@@ -289,6 +271,7 @@ int main(int argc, char *argv[])
   invalid_cell.type_ = INVALID;
   null_cell.type_ = NULL_CELL;
 
+#if 1
   std::list<std::string> tokens;
   tokens.push_back("(");
   tokens.push_back("+");
@@ -299,10 +282,30 @@ int main(int argc, char *argv[])
   tokens.push_back(")");
   tokens.push_back("2");
   tokens.push_back(")");
+#else
+  const char *tokens[MAX_POOL];
+  tokens[0] = "(";
+  tokens[1] = "+";
+  tokens[2] = "(";
+  tokens[3] = "*";
+  tokens[4] = "3";
+  tokens[5] = "5";
+  tokens[6] = ")";
+  tokens[7] = "2";
+  tokens[8] = ")";
+  tokens[9] = 0;
+
+  cout << tokens[0] << endl;
+  cout << tokens[1] << endl;
+  //cout << *tokens << endl;
+#endif
+
   Cell *exp = read_from(tokens);
+#if 1
   cout << "\n-----" << endl;
   print_cell(exp);
   cout << "\n-----" << endl;
+#endif
 
 #if 0
   Cell *exp = make_exp();
