@@ -9,8 +9,10 @@
 
 #include <cstdlib>
 
+
 using namespace std;
 
+#include "cell.h"
 
 // return given mumber as a string
 std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
@@ -18,157 +20,16 @@ std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 // return true iff given character is '0'..'9'
 bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 
-
-////////////////////// Cell
-
-enum ProcKind {PRIMITIVE, LAMBDA, NORMAL_CELL};
-enum cell_type {String, Symbol, Number, List, Proc, Lambda, SelfEval, Variable, INVALID};
-std::string cell_type_string[] = {"String", "Symbol", "Number", "List", "Proc", "Lambda", "SelfEval", "Variable"};
-
-struct environment; // forward declaration; cell and environment reference each other
+Cell invalid_cell;
+Cell null_cell;
 
 struct Environment;
 
-// a variant that can hold any kind of lisp value
-struct Cell 
-{
-    typedef Cell (*proc_type)(const std::vector<Cell> &);
-    typedef Cell (*ProcType)(const Cell &);
-    typedef std::vector<Cell>::const_iterator iter;
-    typedef std::map<std::string, Cell> map;
-
-    Cell(cell_type type = Symbol) 
-      : type(type), env_(0), proc_kind_(NORMAL_CELL)
-    {}
-
-    Cell(cell_type type, const std::string & val)
-      : type(type), val(val), env_(0), proc_kind_(NORMAL_CELL)
-    {}
-
-    Cell(ProcType proc, const std::string proc_name) 
-      :type(Proc), proc_(proc), val(proc_name), env_(0), proc_kind_(PRIMITIVE)
-    {}
-
-    bool is_null() 
-    {
-      if (list.size() == 0) 
-        return true;
-      else
-        return false;
-    }
-
-    cell_type kind() const {return type;}
-    ProcKind proc_kind() const {return proc_kind_;}
-    std::string kind_str() const 
-    {
-      return cell_type_string[kind()];
-    }
-    cell_type type; 
-    ProcKind proc_kind_; // if type is Proc need check it.
-    std::string val; 
-    std::vector<Cell> list; 
-    proc_type proc; 
-    ProcType proc_; 
-
-    Environment *env_;
-};
-
-void print_cell(const Cell &exp);
-
-Cell invalid_cell(INVALID);
-
-Cell car_cell(const Cell &cell)
-{
-  if (cell.kind() != List)
-    return invalid_cell;
 #if 0
-  cout << "---" << endl;
-  cout << cell.list[0].kind_str() << endl;
-  //print_cell(cell.list[0]);
-  cout << "\n---" << endl;
-#endif
-  return cell.list[0];
-}
-
-Cell cdr_cell(const Cell &cell)
-{
-  if (cell.kind() != List)
-    return invalid_cell;
-
-  // performance is veay poor
-  Cell rear(List);
-  if (cell.list.size() == 2)
-  {
-    Cell c =  cell.list[1];
-    //if (!c.is_null())
-      //c.list.push_back(Cell(List));
-    return c;
-  }
-  else
-    std::copy(cell.list.begin()+1, cell.list.end(), back_inserter(rear.list));
-
-  return rear;
-}
-
-Cell cons_cell(const Cell &c1, const Cell &c2)
-{
-  Cell cell(List);
-  //Cell cell1(List);
-  //Cell cell2(List);
-
-  //std::copy(c1.list.begin(), c1.list.end(), back_inserter(cell1.list));
-  //std::copy(c2.list.begin(), c2.list.end(), back_inserter(cell1.list));
-  if (c1.kind() == List && c1.list.size()==1 && c1.list[0].kind() == List)
-    cell.list.push_back(c1.list[0]);
-  else
-    cell.list.push_back(c1);
-
-  if (c2.kind() == List && c2.list.size()==1 && c2.list[0].kind() == List)
-    cell.list.push_back(c2.list[0]);
-  else
-    cell.list.push_back(c2);
-  return cell;
-}
-
-Cell proc_cons(const Cell &c)
-{
-  return c;
-  //print_cell(c);
-}
-
-
-    // the code is short, but I think 1 hours.
-    void print_cell(const Cell &exp)
-    {
-      switch (exp.kind())
-      {
-        case List: 
-        {
-          cout << "(";
-          for (int i=0 ; i < exp.list.size() ; ++i)
-            print_cell(exp.list[i]);
-          cout << ") ";
-          break;
-        }
-        default:
-        {
-          //cout << exp.val << "(" << exp.kind_str() << ") , ";
-          cout << exp.val << " , ";
-          break;
-        }
-      }
-      
-    }
-
-
-
-typedef std::vector<Cell> cells;
-typedef cells::const_iterator cellit;
-
 const Cell false_sym(Symbol, "#f");
 const Cell true_sym(Symbol, "#t"); // anything that isn't false_sym is true
 const Cell nil(Symbol, "nil");
-
+#endif
 
 ////////////////////// environment
 //
@@ -203,13 +64,13 @@ void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
 #endif
   // need check vars.list.size() == vals.list.size()
   // vars/vals is a List
-  for (int i = 0 ; i < vars.list.size() ; ++i)
-    env->frame_.insert(Frame::value_type(vars.list[i].val, vals.list[i]));
+  //for (int i = 0 ; i < vars.list.size() ; ++i)
+    //env->frame_.insert(Frame::value_type(vars.list[i].val, vals.list[i]));
 }
 
 const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
 {
-
+#if 0
   Frame::const_iterator it = env->frame_.find(exp.val);
   if (it != env->frame_.end()) // find it
   {
@@ -223,12 +84,14 @@ const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
   }
   cout << "not found it" << endl;
   return invalid_cell;
+#endif
 }
 
 Cell eval(const Cell &exp, Environment *env);
 
 int add_cell(const Cell &c)
 {
+#if 0
   switch (c.kind())
   {
     case List: 
@@ -252,8 +115,10 @@ int add_cell(const Cell &c)
       break;
     }
   }
+#endif
 }
 
+#if 0
 Cell proc_add(const Cell &c)
 {
   int sum = add_cell(c);
@@ -344,6 +209,7 @@ void create_primitive_procedure(Frame &frame)
   frame.insert(Frame::value_type("x", x));
 #endif
 }
+#endif
 
 #if 0
 // a dictionary that (a) associates symbols with cells, and
@@ -553,6 +419,7 @@ std::list<std::string> tokenize(const std::string & str)
     return tokens;
 }
 
+#if 0
 // numbers become Numbers; every other token is a Symbol
 Cell atom(const std::string & token)
 {
@@ -560,25 +427,34 @@ Cell atom(const std::string & token)
         return Cell(Number, token);
     return Cell(Symbol, token);
 }
+#endif
 
 // return the Lisp expression in the given tokens
-Cell read_from(std::list<std::string> & tokens)
+Cell *read_from(std::list<std::string> & tokens)
 {
-    const std::string token(tokens.front());
-    tokens.pop_front();
-    if (token == "(") {
-        Cell c(List);
-        while (tokens.front() != ")")
-            c.list.push_back(read_from(tokens));
-        tokens.pop_front();
-        return c;
+  const std::string token(tokens.front());
+  //char *token = tokens;
+  tokens.pop_front();
+  if (token == "(") 
+  {
+    vector<Cell *> cells;
+    while (tokens.front() != ")")
+    {
+      cells.push_back(read_from(tokens));
     }
-    else
-        return atom(token);
+    tokens.pop_front();
+    return make_list(cells);
+  }
+  else
+  {
+    Cell *cell = get_cell(token.c_str(), SYMBOL);
+    cout << "cell val_: " << cell->val_ << endl;
+    return cell;
+  }
 }
 
 // return the Lisp expression represented by the given string
-Cell read(const std::string & s)
+Cell *read(const std::string & s)
 {
     std::list<std::string> tokens(tokenize(s));
     return read_from(tokens);
@@ -586,6 +462,7 @@ Cell read(const std::string & s)
 
 Cell list_of_values(const Cell &exp, Environment *env)
 {
+#if 0
   //cout << "list_of_values" << endl;
   Cell ret_cell(List);
 
@@ -626,10 +503,12 @@ Cell list_of_values(const Cell &exp, Environment *env)
     //cout << ret_cell.list[1].kind_str() << endl;
   }
   return ret_cell;
+#endif
 }
 
 Cell eval_sequence(const Cell &exp, Environment *env)
 {
+#if 0
   cout << "eval_sequence: " << exp.kind_str() << endl;
   cout << endl;
   print_cell(exp);
@@ -638,32 +517,12 @@ Cell eval_sequence(const Cell &exp, Environment *env)
   for (int i=0 ; i < exp.list.size()-1 ; ++i)
     eval(exp.list[i], env);
   return eval(exp.list[exp.list.size()-1], env);
-
-#if 0
-  Cell first_cell = car_cell(exp);
-  Cell rest_cell = cdr_cell(exp);
-
-  cout << "first exp: " << endl;
-  print_cell(first_cell);
-  cout << endl;
-
-  cout << "rest exp: " << rest_cell.kind_str() << endl;
-  cout << "rest size: " << rest_cell.list.size() << endl;
-  print_cell(rest_cell);
-  cout << endl;
-
-  if (rest_cell.is_null() == true)
-    return eval(first_cell, env);
-  else
-  {
-    eval(first_cell, env);
-    return eval_sequence(rest_cell, env);
-  }
 #endif
 }
 
 Cell apply(const Cell &func, const Cell &args)
 {
+#if 0
   cout << "apply:" << func.kind_str() << endl;
   cout << endl;
   //print_cell(func);
@@ -730,10 +589,12 @@ Cell apply(const Cell &func, const Cell &args)
   }
 
   return invalid_cell;
+#endif
 }
 
 Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
 {
+#if 0
   Cell lambda_proc(List);
 
   lambda_proc = cons_cell(parameters, body);
@@ -741,6 +602,7 @@ Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
   lambda_proc.env_ = env;
 
   return lambda_proc;
+#endif
 }
 
 Cell eval(const Cell &exp, Environment *env)
@@ -749,7 +611,6 @@ Cell eval(const Cell &exp, Environment *env)
   self-evaluating
   variable       //? exp) (lookup-variable-value exp env))
   ((application? exp)
-#endif
 
   switch (exp.kind())
   {
@@ -818,6 +679,7 @@ Cell eval(const Cell &exp, Environment *env)
   }
 
 
+#endif
 }
 
 #if 0
@@ -847,13 +709,13 @@ void repl(const std::string & prompt, Environment *env)
     {
         std::cout << prompt;
         std::string line; std::getline(std::cin, line);
-        Cell exp = read(line);
+        Cell *exp = read(line);
 
 
         cout << endl;
         print_cell(exp);
         cout << endl;
-
+#if 0
         exp = eval(exp, env);
         cout << "result:" << endl;
         if (exp.kind() != INVALID)
@@ -865,28 +727,18 @@ void repl(const std::string & prompt, Environment *env)
         {
           cout << "expression fail!" << endl;
         }
-#if 0 
-        cell exp2(List);
-        std::copy(exp.list.begin()+3, exp.list.end(), back_inserter(exp2.list));
-        //exp2.list = exp.list;
-
-        cout << "exp2.list.size(): " << exp2.list.size() << endl;
-
-#if 1
-        cout << endl;
-        print_cell(exp2);
-        cout << endl;
-#endif
 #endif
         break;
-        //std::cout << to_string(eval(read(line), env)) << '\n';
     }
 }
 
 int main ()
 {
+  invalid_cell.type_ = INVALID;
+  null_cell.type_ = NULL_CELL;
+
   Environment global_env; //add_globals(global_env);
-  create_primitive_procedure(global_env.frame_);
+  //create_primitive_procedure(global_env.frame_);
   repl("90> ", &global_env);
 }
 
