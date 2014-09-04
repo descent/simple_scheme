@@ -32,6 +32,18 @@ Cell *get_pair()
   return c;
 }
 
+Cell *get_cell(ProcType proc)
+{
+  if (free_cell_index >= MAX_POOL) return 0;
+
+  Cell *c = &cell_pool[free_cell_index++];
+  c->proc_ = proc;
+  c->type_ = PRIMITIVE_PROC;
+  c->first_ = 0;
+  c->second_ = 0;
+  return c;
+}
+
 Cell *get_cell(const char *val, CellType type)
 {
   if (free_cell_index >= MAX_POOL) return 0;
