@@ -59,6 +59,7 @@ Cell *get_cell(const char *val, CellType type)
 
 void print_cell(const Cell *cell)
 {
+  //cout << "cell->type: " << cell->type_str() << endl;
   if (cell == 0)
   {
     cout << "null ptr" << endl;
@@ -66,17 +67,19 @@ void print_cell(const Cell *cell)
   }
   if (cell->type() == PAIR)
   {
-    if (cell->pair_attr_ == FIRST || cell->pair_attr_ == HEAD)
+    //if (cell->pair_attr_ == FIRST || cell->pair_attr_ == HEAD)
       cout << "( "; 
     print_cell(cell->first_);
     print_cell(cell->second_);
+      cout << " ) "; 
   }
   else
   {
     if (cell->type() != NULL_CELL)
+      //cout << cell->val_ << " ## " << cell->type_str() << " , ";
       cout << cell->val_ << " , ";
     else
-      cout << " () ) ";
+      cout << " () ";
   }
 }
 
