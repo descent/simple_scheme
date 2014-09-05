@@ -69,4 +69,6 @@ Cell *get_cell(const char *val, ProcType proc);
 Cell *car_cell(Cell *cell);
 Cell *cdr_cell(Cell *cell);
 Cell *cons_cell(Cell *first, Cell *second);
+bool is_list(const Cell *cell);
+int length_cell(Cell *cell);
 #endif

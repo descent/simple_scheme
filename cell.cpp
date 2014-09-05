@@ -198,6 +198,34 @@ Cell *cdr_cell(Cell *cell)
     return cell->second_; // second_ should not be 0.
 }
 
+#if 0
+bool is_list(const Cell *cell)
+{
+
+}
+
+// the length is not like mit-scheme length, so don't use it
+int length_cell(Cell *cell)
+{
+  if (cell == 0)
+  {
+    cout << "null ptr" << endl;
+    return 0;
+  }
+  if (cell->type() == PAIR)
+  {
+    return (length_cell(cell->first_) + length_cell(cell->second_));
+  }
+  else
+  {
+    if (cell->type() != NULL_CELL)
+      return 1;
+    else
+      return 0;
+  }
+
+}
+#endif
 Cell *cons_cell(Cell *first, Cell *second)
 {
   Cell *pair = get_pair();
@@ -400,4 +428,6 @@ int main(int argc, char *argv[])
 #endif
   return 0;
 }
+
+
 #endif
