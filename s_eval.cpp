@@ -166,6 +166,27 @@ Cell *proc_add(Cell *cell)
   return get_cell(s32_itoa_s(sum, str, 10), NUMBER);
 }
 
+Cell *proc_sub(Cell *cell)
+{
+  Cell *c = car_cell(cell);
+  Cell *rest=cdr_cell(cell);
+  int sub = atoi(c->val_);
+
+  while (rest->type_ != NULL_CELL)
+  {
+    sub -= atoi(car_cell(rest)->val_);
+    rest = cdr_cell(rest);
+  }
+  cout << "sub: " << sub << endl;
+  char str[20];
+  return get_cell(s32_itoa_s(sub, str, 10), NUMBER);
+#if 0
+  int result = sub_cell(c);
+  cout << "result: " << result << endl;
+  return Cell(Number, str(result));
+#endif
+}
+
 Cell *proc_mul(Cell *cell)
 {
   int product=1;
@@ -212,12 +233,6 @@ int sub_cell(const Cell &c)
   }
 }
 
-Cell proc_sub(const Cell &c)
-{
-  int result = sub_cell(c);
-  cout << "result: " << result << endl;
-  return Cell(Number, str(result));
-}
 
 int mul_cell(const Cell &c)
 {
@@ -255,6 +270,10 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive mul", proc_mul);
   frame.insert(Frame::value_type("*", op));
+
+  op = get_cell("primitive sub", proc_sub);
+  frame.insert(Frame::value_type("-", op));
+
 #if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
   frame.insert(Frame::value_type("cons", Cell(proc_cons, "primitive cons")));
