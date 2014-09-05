@@ -4,7 +4,7 @@
 
 const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "INVALID"};
 
-const char* Cell::kind_str() const 
+const char* Cell::type_str() const 
 {
   return cell_type_string[type()];
 }
@@ -32,13 +32,14 @@ Cell *get_pair()
   return c;
 }
 
-Cell *get_cell(ProcType proc)
+Cell *get_cell(const char *val, ProcType proc)
 {
   if (free_cell_index >= MAX_POOL) return 0;
 
   Cell *c = &cell_pool[free_cell_index++];
   c->proc_ = proc;
   c->type_ = PRIMITIVE_PROC;
+  strcpy(c->val_, val);
   c->first_ = 0;
   c->second_ = 0;
   return c;

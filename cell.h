@@ -44,7 +44,7 @@ struct Cell
     CellType type() const {return type_;}
     //ProcKind proc_kind() const {return proc_kind_;}
 
-    const char* kind_str() const;
+    const char* type_str() const;
 
     //ProcKind proc_kind_; // if type is Proc need check it.
     CellType type_;
@@ -64,7 +64,7 @@ extern Cell null_cell;
 void print_cell(const Cell *cell);
 Cell *make_list(vector<Cell *> cells);
 Cell *get_cell(const char *val, CellType type);
-Cell *get_cell(ProcType proc);
+Cell *get_cell(const char *val, ProcType proc);
 
 Cell *car_cell(Cell *cell);
 Cell *cdr_cell(Cell *cell);
