@@ -167,6 +167,22 @@ Cell *proc_add(Cell *cell)
   char str[20];
   return get_cell(s32_itoa_s(sum, str, 10), NUMBER);
 }
+
+Cell *proc_mul(Cell *cell)
+{
+  int product=1;
+  Cell *c = car_cell(cell);
+  Cell *rest=cell;
+
+  while (rest->type_ != NULL_CELL)
+  {
+    product *= atoi(car_cell(rest)->val_);
+    rest = cdr_cell(rest);
+  }
+  cout << "product: " << product << endl;
+  char str[20];
+  return get_cell(s32_itoa_s(product, str, 10), NUMBER);
+}
 #if 0
 
 int sub_cell(const Cell &c)
@@ -232,21 +248,17 @@ int mul_cell(const Cell &c)
   }
 }
 
-Cell proc_mul(const Cell &c)
-{
-  int product = mul_cell(c);
-  cout << "product: " << product << endl;
-  return Cell(Number, str(product));
-}
 #endif
 
 void create_primitive_procedure(Frame &frame)
 {
   Cell *op = get_cell("primitive add", proc_add);
   frame.insert(Frame::value_type("+", op));
+
+  op = get_cell("primitive mul", proc_mul);
+  frame.insert(Frame::value_type("*", op));
 #if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
-  frame.insert(Frame::value_type("*", Cell(proc_mul, "primitive mul")));
   frame.insert(Frame::value_type("cons", Cell(proc_cons, "primitive cons")));
   frame.insert(Frame::value_type("car", Cell(car_cell, "primitive car")));
   frame.insert(Frame::value_type("cdr", Cell(cdr_cell, "primitive cdr")));
@@ -378,64 +390,6 @@ void add_globals(environment & env)
     env["-"]      = cell(&proc_sub);      env["*"]    = cell(&proc_mul);
     env["/"]      = cell(&proc_div);      env[">"]    = cell(&proc_greater);
     env["<"]      = cell(&proc_less);     env["<="]   = cell(&proc_less_equal);
-}
-#endif
-
-
-////////////////////// eval
-
-#if 0
-cell eval(cell x, environment * env)
-{
-    if (x.type == Symbol)
-        return env->find(x.val)[x.val];
-    if (x.type == Number)
-        return x;
-    if (x.list.empty())
-        return nil;
-    if (x.list[0].type == Symbol) {
-        if (x.list[0].val == "quote")       // (quote exp)
-            return x.list[1];
-        if (x.list[0].val == "if")          // (if test conseq [alt])
-            return eval(eval(x.list[1], env).val == "#f" ? (x.list.size() < 4 ? nil : x.list[3]) : x.list[2], env);
-        if (x.list[0].val == "set!")        // (set! var exp)
-            return env->find(x.list[1].val)[x.list[1].val] = eval(x.list[2], env);
-        if (x.list[0].val == "define")      // (define var exp)
-            return (*env)[x.list[1].val] = eval(x.list[2], env);
-        if (x.list[0].val == "lambda") {    // (lambda (var*) exp)
-            x.type = Lambda;
-            // keep a reference to the environment that exists now (when the
-            // lambda is being defined) because that's the outer environment
-            // we'll need to use when the lambda is executed
-            x.env = env;
-            return x;
-        }
-        if (x.list[0].val == "begin") {     // (begin exp*)
-            for (size_t i = 1; i < x.list.size() - 1; ++i)
-                eval(x.list[i], env);
-            return eval(x.list[x.list.size() - 1], env);
-        }
-    }
-                                            // (proc exp*)
-    cell proc(eval(x.list[0], env));
-    cells exps;
-    for (cell::iter exp = x.list.begin() + 1; exp != x.list.end(); ++exp)
-        exps.push_back(eval(*exp, env));
-    if (proc.type == Lambda) {
-        // Create an environment for the execution of this lambda function
-        // where the outer environment is the one that existed* at the time
-        // the lambda was defined and the new inner associations are the
-        // parameter names with the given arguments.
-        // *Although the environmet existed at the time the lambda was defined
-        // it wasn't necessarily complete - it may have subsequently had
-        // more symbols defined in that environment.
-        return eval(/*body*/proc.list[2], new environment(/*parms*/proc.list[1].list, /*args*/exps, proc.env));
-    }
-    else if (proc.type == Proc)
-        return proc.proc(exps);
-
-    std::cout << "not a function\n";
-    exit(1);
 }
 #endif
 
@@ -667,7 +621,21 @@ Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
 
 Cell *eval(Cell *exp, Environment *env)
 {
-  cout << "xxx eval" << endl;
+#if 0
+  cout << "\nexp: !!!\n";
+  print_cell(exp);
+  cout << "\n!!!\n";
+
+  cout << "\ncar exp: !!!\n";
+  print_cell(car_cell(exp));
+  cout << "\n!!!\n";
+
+  cout << "\ncdr exp: !!!\n";
+  print_cell(cdr_cell(exp));
+  cout << "\n!!!\n";
+  exit(0);
+#endif
+
 #if 0
   self-evaluating
   variable       //? exp) (lookup-variable-value exp env))
@@ -688,7 +656,7 @@ Cell *eval(Cell *exp, Environment *env)
     case SYMBOL: // symbol
     {
       cout << "SYMBOL:" << exp->val_ << endl;
-      return env->frame_["+"];
+      return env->frame_[exp->val_];
       //return get_cell("primitive add", proc_add);
       // lookup environment
       //Cell func = lookup_variable_value(exp, env);
