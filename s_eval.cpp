@@ -87,37 +87,8 @@ const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
 #endif
 }
 
-Cell *eval(const Cell &exp, Environment *env);
+Cell *eval(Cell *exp, Environment *env);
 
-int add_cell(Cell *cell)
-{
-
-#if 0
-  switch (c.kind())
-  {
-    case List: 
-    {
-      int sum=0;
-
-      for (int i=0 ; i < c.list.size() ; ++i)
-        sum += add_cell(c.list[i]);
-      return sum;
-      break;
-    }
-    case Number:
-    {
-      int num = atol(c.val.c_str() );
-      cout << "num: " << num << endl;
-      return num;
-      break;
-    }
-    default:
-    {
-      break;
-    }
-  }
-#endif
-}
 
 // sign version
 char* s32_itoa_s(int n, char* str, int radix)
@@ -161,22 +132,40 @@ char* s32_itoa_s(int n, char* str, int radix)
   return str;
 }
 
+int add_cell(Cell *c)
+{
+  Cell *cell = car_cell(c);
+
+  int sum =0 ;
+  if (cell->type_ == PAIR)
+    return add_cell(cdr_cell(c));
+  else if (cell->type_ != NULL_CELL)
+       {
+         cout << cell->val_ << endl;
+         return sum += atol(cell->val_);
+       }
+       else
+         return 0;
+}
+
 Cell *proc_add(Cell *cell)
 {
+
   int sum=0;
   Cell *c = car_cell(cell);
-  while (c->type_ != NULL_CELL)
+  Cell *rest=cell;
+
+  while (rest->type_ != NULL_CELL)
   {
-    sum += atol(c->val_);
+    cout << "\n%%%\n";
+    print_cell(rest);
+    cout << "\n%%%\n";
+    sum += atoi(car_cell(rest)->val_);
+    rest = cdr_cell(rest);
   }
-  char num_str[20]="";
-  Cell *ret_cell = get_cell(s32_itoa_s(sum, num_str,10), NUMBER );
-  return ret_cell;
-#if 0
-  int sum = add_cell(c);
   cout << "sum: " << sum << endl;
-  return Cell(Number, str(sum));
-#endif
+  char str[20];
+  return get_cell(s32_itoa_s(sum, str, 10), NUMBER);
 }
 #if 0
 
@@ -253,7 +242,7 @@ Cell proc_mul(const Cell &c)
 
 void create_primitive_procedure(Frame &frame)
 {
-  Cell *op = get_cell(proc_add);
+  Cell *op = get_cell("primitive add", proc_add);
   frame.insert(Frame::value_type("+", op));
 #if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
@@ -502,7 +491,11 @@ Cell *read_from(std::list<std::string> & tokens)
   }
   else
   {
-    Cell *cell = get_cell(token.c_str(), SYMBOL);
+    Cell *cell;
+    if (isdig(token[0]) || (token[0] == '-' && isdig(token[1])))
+      cell = get_cell(token.c_str(), NUMBER);
+    else
+      cell = get_cell(token.c_str(), SYMBOL);
     cout << "cell val_: " << cell->val_ << endl;
     return cell;
   }
@@ -515,8 +508,18 @@ Cell *read(const std::string & s)
     return read_from(tokens);
 }
 
-Cell *list_of_values(const Cell *exp, Environment *env)
+Cell *list_of_values(Cell *exp, Environment *env)
 {
+  Cell *first_operand = car_cell(exp);
+  Cell *rest_operands = cdr_cell(exp);
+  cout << "list_of_values" << endl;
+  if (exp->type_ == NULL_CELL)
+  {
+    cout << "i am null" << endl;
+    return &null_cell;
+  }
+  else
+    return  cons_cell(eval(first_operand, env), list_of_values(rest_operands, env));
 #if 0
   //cout << "list_of_values" << endl;
   Cell ret_cell(List);
@@ -577,13 +580,15 @@ Cell eval_sequence(const Cell &exp, Environment *env)
 
 Cell *apply(Cell *func, Cell *args)
 {
-#if 0
-  cout << "apply:" << func.kind_str() << endl;
+  //Cell *eval(const Cell &exp, Environment *env);
+  cout << "apply:" << func->type_str() << endl;
   cout << endl;
+  return func->proc_(args);
   //print_cell(func);
   //cout << endl;
 
 
+#if 0
   Cell args_list(List);
   if (args.kind() != List)
   {
@@ -662,6 +667,7 @@ Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
 
 Cell *eval(Cell *exp, Environment *env)
 {
+  cout << "xxx eval" << endl;
 #if 0
   self-evaluating
   variable       //? exp) (lookup-variable-value exp env))
@@ -681,6 +687,9 @@ Cell *eval(Cell *exp, Environment *env)
     //case Variable: // symbol
     case SYMBOL: // symbol
     {
+      cout << "SYMBOL:" << exp->val_ << endl;
+      return env->frame_["+"];
+      //return get_cell("primitive add", proc_add);
       // lookup environment
       //Cell func = lookup_variable_value(exp, env);
       //return func;
@@ -770,9 +779,9 @@ void repl(const std::string & prompt, Environment *env)
         print_cell(exp);
         cout << endl;
         exp = eval(exp, env);
-#if 0
         cout << "result:" << endl;
-        if (exp.kind() != INVALID)
+
+        if (exp->type_ != INVALID)
         {
           print_cell(exp);
           cout << endl;
@@ -781,7 +790,6 @@ void repl(const std::string & prompt, Environment *env)
         {
           cout << "expression fail!" << endl;
         }
-#endif
         break;
     }
 }
