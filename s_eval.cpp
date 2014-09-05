@@ -68,10 +68,9 @@ void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
     //env->frame_.insert(Frame::value_type(vars.list[i].val, vals.list[i]));
 }
 
-const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
+Cell* lookup_variable_value(const Cell *exp, const Environment *env)
 {
-#if 0
-  Frame::const_iterator it = env->frame_.find(exp.val);
+  Frame::const_iterator it = env->frame_.find(exp->val_);
   if (it != env->frame_.end()) // find it
   {
     cout << "found it" << endl;
@@ -83,8 +82,7 @@ const Cell& lookup_variable_value(const Cell &exp, const Environment *env)
       return lookup_variable_value(exp, env->outer_);
   }
   cout << "not found it" << endl;
-  return invalid_cell;
-#endif
+  return &invalid_cell;
 }
 
 Cell *eval(Cell *exp, Environment *env);
@@ -656,10 +654,10 @@ Cell *eval(Cell *exp, Environment *env)
     case SYMBOL: // symbol
     {
       cout << "SYMBOL:" << exp->val_ << endl;
-      return env->frame_[exp->val_];
+      //return env->frame_[exp->val_];
+      return lookup_variable_value(exp, env);
       //return get_cell("primitive add", proc_add);
       // lookup environment
-      //Cell func = lookup_variable_value(exp, env);
       //return func;
       break;
     }
