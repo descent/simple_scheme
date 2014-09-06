@@ -229,6 +229,11 @@ int length_cell(Cell *cell)
 Cell *cons_cell(Cell *first, Cell *second)
 {
   Cell *pair = get_pair();
+  if (pair == 0)
+  {
+    cout << "cons 0" << endl;
+    return 0;
+  }
   pair->first_ = first; 
   pair->second_ = second;
   if (first->type_ == PAIR)

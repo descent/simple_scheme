@@ -10,7 +10,9 @@
 using namespace std;
 
 enum PairAttr {HEAD, FIRST, SECOND};
-enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, LAMBDA_PROC, NULL_CELL, INVALID};
+enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, NULL_CELL, INVALID};
+
+struct Environment;
 
 struct Cell;
 typedef Cell *(*ProcType)(Cell *);
@@ -53,8 +55,9 @@ struct Cell
     Cell *first_;
     Cell *second_;
     ProcType proc_; 
+    bool lambda_;
 
-    //Environment *env_;
+    Environment *env_;
 };
 
 
