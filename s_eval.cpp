@@ -701,6 +701,52 @@ bool tagged_list(Cell *exp, const char *tag)
   }
 }
 
+Cell *definition_variable(Cell *exp)
+{
+  if (car_cell(cdr_cell(exp))->type_ == SYMBOL)
+  {
+    // ex: (define a 9)
+    return car_cell(cdr_cell(exp));
+  }
+  else
+  {
+    // ex: (define (plus4 x) (+ 4 x))
+    return car_cell(car_cell(cdr_cell(exp)));
+  }
+}
+
+Cell *make_lambda(Cell *parameters, Cell *body)
+{
+  return cons_cell(&lambda_cell, cons_cell(parameters, body));
+}
+
+Cell *definition_value(Cell *exp)
+{
+  if (car_cell(cdr_cell(exp))->type_ == SYMBOL)
+  {
+    return car_cell(cdr_cell((cdr_cell(exp))));
+  }
+  else
+  {
+    // ex: (define (plus4 x) (+ 4 x))
+    Cell *para = cdr_cell(car_cell(cdr_cell(exp)));
+    Cell *body = cdr_cell(cdr_cell(exp));
+    return make_lambda(para, body);
+  }
+}
+
+// I rename it to set_variable.
+// The name of define-variable! is in sicp scheme code.
+void set_variable(Cell *var, Cell *val, Environment *env)
+{
+
+}
+
+Cell *eval_definition(Cell *exp, Environment *env)
+{
+  set_variable(definition_variable(exp), eval(definition_value(exp), env), env);
+}
+
 Cell *eval(Cell *exp, Environment *env)
 {
 #if 0
@@ -770,6 +816,9 @@ Cell *eval(Cell *exp, Environment *env)
       else if (tagged_list(exp, "define"))
            {
              cout << "define expression" << endl;
+             print_cell(exp);
+             cout << endl;
+             return eval_definition(exp, env);
            }
 #if 0
       if (exp->type_ == SYMBOL)
