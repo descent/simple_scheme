@@ -46,12 +46,12 @@ struct Environment
 };
 
 
-void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
+void extend_environment(Cell *vars, Cell *vals, Environment *env)
 {
-#if 0
   cout << "-----\n";
   print_cell(vars);
   cout << "\n";
+#if 0
   print_cell(vals);
   cout << "\n-----\n";
 
@@ -62,6 +62,24 @@ void extend_environment(const Cell &vars, const Cell &vals, Environment *env)
   print_cell(arg);
   cout << "\n-----\n";
 #endif
+
+  Cell *rest_vars = vars;
+  Cell *rest_vals = vals;
+
+  while (rest_vars->type_ != NULL_CELL)
+  {
+  #if 0
+    cout << "\n%%%\n";
+    print_cell(rest_vars);
+    cout << "\n%%%\n";
+  #endif
+    cout << "car_cell(rest_vars)->val_: " << car_cell(rest_vars)->val_ << endl;
+    env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
+
+    rest_vars = cdr_cell(rest_vars);
+    rest_vals = cdr_cell(rest_vals);
+  }
+  
   // need check vars.list.size() == vals.list.size()
   // vars/vals is a List
   //for (int i = 0 ; i < vars.list.size() ; ++i)
@@ -148,7 +166,6 @@ int add_cell(Cell *c)
 
 Cell *proc_add(Cell *cell)
 {
-
   int sum=0;
   Cell *c = car_cell(cell);
   Cell *rest=cell;
@@ -535,18 +552,35 @@ Cell *list_of_values(Cell *exp, Environment *env)
 #endif
 }
 
-Cell eval_sequence(const Cell &exp, Environment *env)
+Cell *eval_sequence(Cell *exp, Environment *env)
 {
-#if 0
-  cout << "eval_sequence: " << exp.kind_str() << endl;
+#if 1
+  cout << "eval_sequence: " << endl;
   cout << endl;
   print_cell(exp);
   cout << endl;
 
-  for (int i=0 ; i < exp.list.size()-1 ; ++i)
-    eval(exp.list[i], env);
-  return eval(exp.list[exp.list.size()-1], env);
+  //for (int i=0 ; i < exp.list.size()-1 ; ++i)
+    //eval(exp.list[i], env);
 #endif
+  Cell *first = car_cell(exp);
+  Cell *rest = cdr_cell(exp);
+
+  cout << "\nfirst\n";
+  print_cell(first);
+  cout << "\nrest\n";
+  print_cell(rest);
+  cout << endl;
+
+  if (rest->type_ == NULL_CELL)
+  {
+    return eval(first, env);
+  }
+  else
+  {
+    eval(first, env);
+    return eval_sequence(rest, env);
+  }
 }
 
 Cell *apply(Cell *func, Cell *args)
@@ -554,86 +588,116 @@ Cell *apply(Cell *func, Cell *args)
   //Cell *eval(const Cell &exp, Environment *env);
   cout << "apply:" << func->type_str() << endl;
   cout << endl;
-  return func->proc_(args);
+  //return func->proc_(args);
   //print_cell(func);
   //cout << endl;
 
+  if (func->lambda_ == true)
+  {
+      // new a Environment
+      // add parameters and arguments pair
 
+      Cell *body = cdr_cell(func);
+      Cell *parameters = car_cell(func);
+
+      cout << "\nfunc: \n";
+      print_cell(func);
+      cout << "\nbody: \n";
+      print_cell(body);
+      cout << "\nparameters: \n";
+      print_cell(parameters);
+      cout << "\nargs: \n";
+      print_cell(args);
+      cout << endl;
+      
+      Environment env;
+      env.outer_ = func->env_;
+
+      extend_environment(parameters, args, &env);
+
+      return eval_sequence(body, &env);
+
+  }
+  else if (func->type_ == PRIMITIVE_PROC)
+       {
+         cout << "primitive proc: " << func->val_ << endl;
+         return func->proc_(args);
+       }
 #if 0
-  Cell args_list(List);
-  if (args.kind() != List)
+  switch (func->type_)
   {
-    args_list.list.push_back(args);
-    cout << "args_list:" << args_list.kind_str() << endl;
-    print_cell(args_list);
-    cout << endl;
-  }
-  else
-  {
-    cout << "args:" << args.kind_str() << endl;
-    print_cell(args);
-    cout << endl;
-  }
-
-
-
-
-  switch (func.proc_kind())
-  {
-    case LAMBDA:
+    case LAMBDA_PROC:
     {
       // new a Environment
       // add parameters and arguments pair
 
-      Cell body(List); 
-      body = cdr_cell(func);
+      Cell *body = car_cell(cdr_cell(cdr_cell(func)));
+      Cell *parameters = car_cell(cdr_cell(func));
 
-      Cell parameters(List); 
-      parameters = car_cell(func);
-      #if 1
-      cout << "body: " << endl;
+      cout << "\nfunc: \n";
+      print_cell(func);
+      cout << "\nbody: \n";
       print_cell(body);
-      cout << endl;
-
-      cout << "para: " << parameters.kind_str() << endl;
+      cout << "\nparameters: \n";
       print_cell(parameters);
+      cout << "\nargs: \n";
+      print_cell(args);
       cout << endl;
-      #endif
-
+      exit(0);
       
       Environment env;
-      env.outer_ = func.env_;
-      if (args.kind() != List)
-        extend_environment(parameters, args_list, &env);
-      else
-        extend_environment(parameters, args, &env);
+      env.outer_ = func->env_;
+
+
+      extend_environment(parameters, args, &env);
+
       return eval_sequence(body, &env);
     }
-    case PRIMITIVE:
+    case PRIMITIVE_PROC:
     {
-      cout << "func name:" << func.val << endl;
-      if (args.kind() != List)
-        return func.proc_(args_list);
-      else
-        return func.proc_(args);
+      cout << "func name:" << func->val_ << endl;
+      return func->proc_(args);
     }
   }
-
-  return invalid_cell;
 #endif
+
+  return &invalid_cell;
 }
 
-Cell make_procedure(const Cell &parameters, const Cell &body, Environment *env)
+Cell *make_procedure(Cell *parameters, Cell *body, Environment *env)
 {
-#if 0
-  Cell lambda_proc(List);
+  Cell *lambda_proc = cons_cell(parameters, body);
 
-  lambda_proc = cons_cell(parameters, body);
-  lambda_proc.proc_kind_ = LAMBDA;
-  lambda_proc.env_ = env;
+          cout << "xx parameters: " << endl;
+          print_cell(parameters);
+          cout << endl;
+          cout << "xx body: " << endl;
+          print_cell(body);
+          cout << endl;
+
+  //lambda_proc->type_ = LAMBDA_PROC;
+  lambda_proc->lambda_ = true;
+  lambda_proc->env_ = env;
+  cout << "lambda proc: " << endl;
+  print_cell(lambda_proc);
+  cout << endl;
 
   return lambda_proc;
-#endif
+}
+
+bool tagged_list(Cell *exp, const char *tag)
+{
+  if (exp->type_ == PAIR)
+  {
+    if (strcmp(car_cell(exp)->val_, tag) == 0)
+      return true;
+    else
+      return false;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 Cell *eval(Cell *exp, Environment *env)
@@ -643,6 +707,9 @@ Cell *eval(Cell *exp, Environment *env)
   print_cell(exp);
   cout << "\n!!!\n";
 
+  cout << "cell length:" << length_cell(exp) << endl;
+
+  exit(0);
   cout << "\ncar exp: !!!\n";
   print_cell(car_cell(exp));
   cout << "\n!!!\n";
@@ -650,7 +717,6 @@ Cell *eval(Cell *exp, Environment *env)
   cout << "\ncdr exp: !!!\n";
   print_cell(cdr_cell(exp));
   cout << "\n!!!\n";
-  exit(0);
 #endif
 
 #if 0
@@ -683,28 +749,38 @@ Cell *eval(Cell *exp, Environment *env)
     case PAIR:
     {
       cout << "is pair" << endl;
-#if 0
-      if (exp.list[0].kind() == Symbol)
+      if (tagged_list(exp, "lambda"))
       {
-        // (lambda (x) (+ x 4))
-        // ((lambda (x) (+ x 4)) 5)
-        if (exp.list[0].val == "lambda")
-        {
-          cout << "lambda expression" << endl;
-          Cell parameters = car_cell(cdr_cell(exp));
-          Cell body = cdr_cell(cdr_cell(exp));
+        cout << "lambda expression" << endl;
+        print_cell(exp);
+        cout << endl;
+          Cell *parameters = car_cell(cdr_cell(exp));
+          Cell *body = cdr_cell(cdr_cell(exp));
 
-          cout << "parameters: " << parameters.kind_str() << endl;
+          cout << "parameters: " << endl;
           print_cell(parameters);
           cout << endl;
-          cout << "body: " << body.kind_str() << endl;
+          cout << "body: " << endl;
           print_cell(body);
           cout << endl;
 
           return make_procedure(parameters, body, env);
+      }
+      else if (tagged_list(exp, "define"))
+           {
+             cout << "define expression" << endl;
+           }
+#if 0
+      if (exp->type_ == SYMBOL)
+      {
+        // (lambda (x) (+ x 4))
+        // ((lambda (x) (+ x 4)) 5)
+        if (strcmp(car_cell(exp)->val_, "lambda") == 0)
+        {
+          cout << "lambda expression" << endl;
           //exit(0);
         }
-        else if (exp.list[0].val == "define") // (define (plus4 y) (+ y 4))
+        else if (strcmp(car_cell(exp)->val_, "define") == 0) // (define (plus4 y) (+ y 4))
              {
                cout << "define expression" << endl;
                exit(0);
