@@ -960,6 +960,6 @@ int main ()
 
   Environment global_env; //add_globals(global_env);
   create_primitive_procedure(global_env.frame_);
-  repl("90> ", &global_env);
+  repl("simple scheme> ", &global_env);
 }
 
