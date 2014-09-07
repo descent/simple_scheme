@@ -789,6 +789,26 @@ Cell *eval_definition(Cell *exp, Environment *env)
   return &define_cell;
 }
 
+Cell *eval_if(Cell *exp, Environment *env)
+{
+  // (if (< 1 0) -1 1)
+  if (eval(car_cell(cdr_cell(exp)), env) == &true_cell)
+  {
+    eval(car_cell(cdr_cell(cdr_cell(exp))), env);
+  }
+  else
+  {
+    if (cdr_cell(cdr_cell(cdr_cell(exp))) != &null_cell)
+    {
+      return eval(car_cell(cdr_cell(cdr_cell(cdr_cell(exp)))), env);
+    }
+    else
+    {
+      return &false_cell;
+    }
+  }
+}
+
 Cell *eval(Cell *exp, Environment *env)
 {
 #if 0
@@ -862,6 +882,11 @@ Cell *eval(Cell *exp, Environment *env)
              cout << endl;
              return eval_definition(exp, env);
            }
+           else if (tagged_list(exp, "if"))
+                {
+                  cout << "if expression" << endl;
+                  return eval_if(exp, env);
+                }
 #if 0
       if (exp->type_ == SYMBOL)
       {
@@ -926,7 +951,6 @@ void repl(const std::string & prompt, Environment *env)
         std::cout << prompt;
         std::string line; std::getline(std::cin, line);
         Cell *exp = read(line);
-
 
         cout << endl;
         print_cell(exp);
