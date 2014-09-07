@@ -14,9 +14,8 @@
 
 (define (aa) 5)
 (define bb 6)
-
+(define plus4 (lambda (x) (+ x 4)))
 (define (plus4 x) (+ 4 x))
-
 
 cons, car, cdr test
 
