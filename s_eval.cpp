@@ -958,6 +958,12 @@ int main ()
   strcpy(lambda_cell.val_, "lambda");
   define_cell.type_ = SYMBOL;
 
+  true_cell.type_ = SYMBOL;
+  strcpy(true_cell.val_, "#t");
+  false_cell.type_ = SYMBOL;
+  strcpy(false_cell.val_, "#f");
+
+
   Environment global_env; //add_globals(global_env);
   create_primitive_procedure(global_env.frame_);
   repl("simple scheme> ", &global_env);
