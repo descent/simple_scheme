@@ -24,6 +24,8 @@ Cell invalid_cell;
 Cell null_cell;
 Cell lambda_cell;
 Cell define_cell;
+Cell true_cell;
+Cell false_cell;
 
 struct Environment;
 
@@ -166,6 +168,20 @@ int add_cell(Cell *c)
          return 0;
 }
 
+Cell *proc_less(Cell *cell)
+{
+  // (< x1 x2 x3 ...) 理解成數學上的 x1 < x2 < x3 <
+  // ref: http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_idx_466
+  Cell *first = car_cell(cell);
+  Cell *second = car_cell(cdr_cell(cell));
+  if (first->type_ == NUMBER && second->type_ == NUMBER)
+  {
+    if (atoi(first->val_) < atoi(second->val_))
+      return &true_cell;
+  }
+  return &false_cell;
+}
+
 Cell *proc_add(Cell *cell)
 {
   int sum=0;
@@ -292,6 +308,12 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive sub", proc_sub);
   frame.insert(Frame::value_type("-", op));
+
+  op = get_cell("primitive less", proc_less);
+  frame.insert(Frame::value_type("<", op));
+
+  frame.insert(Frame::value_type("true", &true_cell));
+  frame.insert(Frame::value_type("false", &false_cell));
 
 #if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
