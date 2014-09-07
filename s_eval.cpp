@@ -23,6 +23,7 @@ bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
 Cell invalid_cell;
 Cell null_cell;
 Cell lambda_cell;
+Cell define_cell;
 
 struct Environment;
 
@@ -911,6 +912,7 @@ int main ()
   null_cell.type_ = NULL_CELL;
   lambda_cell.type_ = SYMBOL;
   strcpy(lambda_cell.val_, "lambda");
+  define_cell.type_ = SYMBOL;
 
   Environment global_env; //add_globals(global_env);
   create_primitive_procedure(global_env.frame_);
