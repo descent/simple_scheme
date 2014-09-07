@@ -712,6 +712,7 @@ Cell *definition_variable(Cell *exp)
   else
   {
     // ex: (define (plus4 x) (+ 4 x))
+    // ex: (define (bb) 6)
     return car_cell(car_cell(cdr_cell(exp)));
   }
 }
@@ -740,12 +741,30 @@ Cell *definition_value(Cell *exp)
 // The name of define-variable! is in sicp scheme code.
 void set_variable(Cell *var, Cell *val, Environment *env)
 {
-
+  Frame::iterator it = env->frame_.find(var->val_);
+  if (it != env->frame_.end()) // find it
+  {
+    it->second = val;
+  }
+  else // not fount
+  {
+    env->frame_.insert(Frame::value_type(var->val_, val));
+  }
+#if 0
+  cout << "var:" << endl;
+  print_cell(var);
+  cout << endl;
+  cout << "val:" << endl;
+  print_cell(val);
+  cout << endl;
+  //exit(0);
+#endif
 }
 
 Cell *eval_definition(Cell *exp, Environment *env)
 {
   set_variable(definition_variable(exp), eval(definition_value(exp), env), env);
+  return &define_cell;
 }
 
 Cell *eval(Cell *exp, Environment *env)
@@ -891,18 +910,21 @@ void repl(const std::string & prompt, Environment *env)
         print_cell(exp);
         cout << endl;
         exp = eval(exp, env);
-        cout << "result:" << endl;
-
-        if (exp->type_ != INVALID)
+        if (exp == &define_cell)
         {
-          print_cell(exp);
-          cout << endl;
+          cout << "define: ok" << endl;
         }
-        else
-        {
-          cout << "expression fail!" << endl;
-        }
-        break;
+        else if (exp->type_ != INVALID)
+             {
+               cout << "result:" << endl;
+               print_cell(exp);
+               cout << endl;
+             }
+             else
+             {
+               cout << "expression fail!" << endl;
+             }
+        //break;
     }
 }
 
