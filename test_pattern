@@ -26,3 +26,14 @@ cons, car, cdr test
 
 (if (< 0 1) (+ 1 2) (* 2 3))
 (if (< 2 1) (+ 1 2) (* 2 3))
+
+(define (addx x) (lambda (y) (+ y x)))
+(define add8 (addx 8))
+(add8 100)
+
+(define f (lambda (x) (lambda (y) (+ x y)) ) )     (define add8 (f 8))
+
+((lambda (x) (lambda (y) (+ x y)) ) 8)
+
+
+(define pp ((lambda (x) (lambda (y) (+ x y)) ) 8))
