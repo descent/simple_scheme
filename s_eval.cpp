@@ -7,6 +7,7 @@
 #include <list>
 #include <map>
 
+#include <cstdio>
 #include <cstdlib>
 
 
@@ -27,7 +28,6 @@ Cell define_cell;
 Cell true_cell;
 Cell false_cell;
 
-struct Environment;
 
 #if 0
 const Cell false_sym(Symbol, "#f");
@@ -42,12 +42,27 @@ typedef std::map<std::string, Cell*> Frame;
 struct Environment 
 {
   public:
-    Environment(): outer_(0) {}
+    //Environment(): outer_(0) {}
     Environment *outer_;
 
     Frame frame_;
+    char name_[255]; // for debug
   private:
 };
+
+const int MAX_ENVIRONMENT_POOL = 1000;
+Environment environment_pool[MAX_ENVIRONMENT_POOL];
+int free_env_index;
+
+Environment *get_env(Environment *outer, const char *name)
+{
+  if (free_env_index >= MAX_ENVIRONMENT_POOL) return 0;
+
+  Environment *env = &environment_pool[free_env_index++];
+  env->outer_ = outer;
+  strcpy(env->name_, name);
+  return env;
+}
 
 
 void extend_environment(Cell *vars, Cell *vals, Environment *env)
@@ -77,7 +92,7 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
     print_cell(rest_vars);
     cout << "\n%%%\n";
   #endif
-    cout << "car_cell(rest_vars)->val_: " << car_cell(rest_vars)->val_ << endl;
+    cout << "add to env car_cell(rest_vars)->val_: " << car_cell(rest_vars)->val_ << endl;
     env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
 
     rest_vars = cdr_cell(rest_vars);
@@ -92,7 +107,9 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
 
 Cell* lookup_variable_value(const Cell *exp, const Environment *env)
 {
+
   Frame::const_iterator it = env->frame_.find(exp->val_);
+  cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
   if (it != env->frame_.end()) // find it
   {
     cout << "found it" << endl;
@@ -624,22 +641,24 @@ Cell *apply(Cell *func, Cell *args)
       Cell *body = cdr_cell(func);
       Cell *parameters = car_cell(func);
 
-      cout << "\nfunc: \n";
+      cout << "\napply func: \n";
       print_cell(func);
-      cout << "\nbody: \n";
+      cout << "\napply body: \n";
       print_cell(body);
-      cout << "\nparameters: \n";
+      cout << "\napply parameters: \n";
       print_cell(parameters);
-      cout << "\nargs: \n";
+      cout << "\napply args: \n";
       print_cell(args);
       cout << endl;
       
-      Environment env;
-      env.outer_ = func->env_;
+      static int env_counter=0;
+      char env_name[255];
+      sprintf(env_name, "e%d", env_counter++);
+      Environment *env = get_env(func->env_, env_name);
 
-      extend_environment(parameters, args, &env);
+      extend_environment(parameters, args, env);
 
-      return eval_sequence(body, &env);
+      return eval_sequence(body, env);
 
   }
   else if (func->type_ == PRIMITIVE_PROC)
@@ -988,8 +1007,9 @@ int main ()
   strcpy(false_cell.val_, "#f");
 
 
-  Environment global_env; //add_globals(global_env);
-  create_primitive_procedure(global_env.frame_);
-  repl("simple scheme> ", &global_env);
+  Environment *global_env = get_env(0, "global");
+
+  create_primitive_procedure(global_env->frame_);
+  repl("simple scheme> ", global_env);
 }
 
