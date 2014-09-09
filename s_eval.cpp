@@ -906,6 +906,10 @@ Cell *eval(Cell *exp, Environment *env)
                   cout << "if expression" << endl;
                   return eval_if(exp, env);
                 }
+                else if (tagged_list(exp, "begin"))
+                     {
+                       return eval_sequence(cdr_cell(exp), env);
+                     }
 #if 0
       if (exp->type_ == SYMBOL)
       {
