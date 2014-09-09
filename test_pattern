@@ -37,3 +37,5 @@ cons, car, cdr test
 
 
 (define pp ((lambda (x) (lambda (y) (+ x y)) ) 8))
+
+(begin (+ 1 2) (* 5 6))
