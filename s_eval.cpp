@@ -1006,6 +1006,10 @@ Cell *eval(Cell *exp, Environment *env)
                           {
                              return eval(expand_clauses(cdr_cell(exp)), env);
                           }
+                          else if (tagged_list(exp, "quote"))
+                               {
+                                 return car_cell(cdr_cell(exp));
+                               }
 
 #if 0
       if (exp->type_ == SYMBOL)
