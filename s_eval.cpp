@@ -889,7 +889,7 @@ Cell *expand_clauses(Cell *clauses)
     {
       if (rest == &null_cell)
       {
-        sequence_to_exp(cdr_cell(first));
+        return sequence_to_exp(cdr_cell(first));
       }
       else
       { // error ELSE clause isn't last -- COND->IF
