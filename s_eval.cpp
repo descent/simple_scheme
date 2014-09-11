@@ -882,6 +882,10 @@ Cell *make_if(Cell *predicate, Cell *consequent, Cell *alternative)
 Cell *expand_clauses(Cell *clauses)
 {
   // (cond ((< 0 1) (+ 1 2) (* 3 5)) ((> 2 1) (+ 3 5)))
+  // (cond ((> 0 1) (+ 1 2)) ((< 2 1) (+ 3 5)) (else (+ 8 9)))
+  // when pass to the function, don't have cond
+  // (((< 0 1) (+ 1 2) (* 3 5)) ((> 2 1) (+ 3 5)))
+  // (((> 0 1) (+ 1 2)) ((< 2 1) (+ 3 5)) (else (+ 8 9)))
   if (clauses == &null_cell)
   {
     return &false_cell;
@@ -903,6 +907,13 @@ Cell *expand_clauses(Cell *clauses)
     }
     else
     {
+#if 0
+      cout << "\ncar first\n";
+      print_cell(car_cell(first));
+      cout << "\ncdr first\n";
+      print_cell(cdr_cell(first));
+      cout << endl;
+#endif
       make_if(car_cell(first), sequence_to_exp(cdr_cell(first)), expand_clauses(rest));
     }
 
