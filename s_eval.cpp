@@ -27,6 +27,8 @@ Cell lambda_cell;
 Cell define_cell;
 Cell true_cell;
 Cell false_cell;
+Cell begin_cell;
+Cell if_cell;
 
 
 #if 0
@@ -828,6 +830,63 @@ Cell *eval_if(Cell *exp, Environment *env)
   }
 }
 
+Cell *make_begin(Cell *seq)
+{
+  return cons_cell(&begin_cell, seq);
+}
+
+Cell *sequence_to_exp(Cell *seq)
+{
+  if (seq == &null_cell)
+  {
+    return seq;
+  }
+  else if (cdr_cell(seq) == &null_cell)
+       {
+         return car_cell(seq);
+       }
+       else
+       {
+         return make_begin(seq);
+       }
+}
+
+Cell *make_if(Cell *predicate, Cell *consequent, Cell *alternative)
+{
+  return cons_cell(&if_cell, cons_cell(predicate, cons_cell(consequent, cons_cell(alternative, &null_cell))));
+}
+
+
+
+Cell *expand_clauses(Cell *clauses)
+{
+  if (clauses == &null_cell)
+  {
+    return &false_cell;
+  }
+  else
+  {
+    Cell *first = car_cell(clauses);
+    Cell *rest = cdr_cell(clauses);
+    if (tagged_list(first, "else"))
+    {
+      if (rest == &null_cell)
+      {
+        sequence_to_exp(cdr_cell(first));
+      }
+      else
+      { // error ELSE clause isn't last -- COND->IF
+        return &invalid_cell;
+      }
+    }
+    else
+    {
+      make_if(car_cell(first), sequence_to_exp(cdr_cell(first)), expand_clauses(rest));
+    }
+
+  }
+}
+
 Cell *eval(Cell *exp, Environment *env)
 {
 #if 0
@@ -909,7 +968,12 @@ Cell *eval(Cell *exp, Environment *env)
                 else if (tagged_list(exp, "begin"))
                      {
                        return eval_sequence(cdr_cell(exp), env);
-                     }
+                     } 
+                     else if (tagged_list(exp, "cond"))
+                          {
+                             return eval(expand_clauses(cdr_cell(exp)), env);
+                          }
+
 #if 0
       if (exp->type_ == SYMBOL)
       {
@@ -1009,6 +1073,12 @@ int main ()
   strcpy(true_cell.val_, "#t");
   false_cell.type_ = SYMBOL;
   strcpy(false_cell.val_, "#f");
+
+  begin_cell.type_ = SYMBOL;
+  strcpy(begin_cell.val_, "begin");
+
+  if_cell.type_ = SYMBOL;
+  strcpy(if_cell.val_, "if");
 
 
   Environment *global_env = get_env(0, "global");
