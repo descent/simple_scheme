@@ -223,9 +223,11 @@ Cell *proc_add(Cell *cell)
 
   while (rest->type_ != NULL_CELL)
   {
+#if 0
     cout << "\n%%%\n";
     print_cell(rest);
     cout << "\n%%%\n";
+#endif
     sum += atoi(car_cell(rest)->val_);
     rest = cdr_cell(rest);
   }
@@ -544,7 +546,7 @@ Cell *read_from(std::list<std::string> & tokens)
       cell = get_cell(token.c_str(), NUMBER);
     else
       cell = get_cell(token.c_str(), SYMBOL);
-    cout << "cell val_: " << cell->val_ << endl;
+    //cout << "cell val_: " << cell->val_ << endl;
     return cell;
   }
 }
@@ -560,7 +562,7 @@ Cell *list_of_values(Cell *exp, Environment *env)
 {
   Cell *first_operand = car_cell(exp);
   Cell *rest_operands = cdr_cell(exp);
-  cout << "list_of_values" << endl;
+  //cout << "list_of_values" << endl;
   if (exp->type_ == NULL_CELL)
   {
     cout << "i am null" << endl;
@@ -614,7 +616,7 @@ Cell *list_of_values(Cell *exp, Environment *env)
 
 Cell *eval_sequence(Cell *exp, Environment *env)
 {
-#if 1
+#if 0
   cout << "eval_sequence: " << endl;
   cout << endl;
   print_cell(exp);
@@ -626,11 +628,13 @@ Cell *eval_sequence(Cell *exp, Environment *env)
   Cell *first = car_cell(exp);
   Cell *rest = cdr_cell(exp);
 
+#if 0
   cout << "\nfirst\n";
   print_cell(first);
   cout << "\nrest\n";
   print_cell(rest);
   cout << endl;
+#endif
 
   if (rest->type_ == NULL_CELL)
   {
@@ -877,6 +881,7 @@ Cell *make_if(Cell *predicate, Cell *consequent, Cell *alternative)
 
 Cell *expand_clauses(Cell *clauses)
 {
+  // (cond ((< 0 1) (+ 1 2) (* 3 5)) ((> 2 1) (+ 3 5)))
   if (clauses == &null_cell)
   {
     return &false_cell;
@@ -952,7 +957,7 @@ Cell *eval(Cell *exp, Environment *env)
     }
     case PAIR:
     {
-      cout << "is pair" << endl;
+      //cout << "is pair" << endl;
       if (tagged_list(exp, "lambda"))
       {
         cout << "lambda expression" << endl;
