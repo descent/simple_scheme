@@ -29,16 +29,6 @@ Cell false_cell;
 Cell begin_cell;
 Cell if_cell;
 
-
-#if 0
-const Cell false_sym(Symbol, "#f");
-const Cell true_sym(Symbol, "#t"); // anything that isn't false_sym is true
-const Cell nil(Symbol, "nil");
-#endif
-
-////////////////////// environment
-//
-
 typedef std::map<std::string, Cell*> Frame;
 struct Environment 
 {
@@ -335,66 +325,6 @@ Cell *proc_mul(Cell *cell)
   char str[20];
   return get_cell(s32_itoa_s(product, str, 10), NUMBER);
 }
-#if 0
-
-int sub_cell(const Cell &c)
-{
-  switch (c.kind())
-  {
-    case List: 
-    {
-      int result=0;
-      if (c.list.size() >= 1)
-        result = sub_cell(c.list[0]);
-
-      for (int i=1 ; i < c.list.size() ; ++i)
-        result -= sub_cell(c.list[i]);
-      return result;
-      break;
-    }
-    case Number:
-    {
-      int num = atol(c.val.c_str() );
-      cout << "num: " << num << endl;
-      return num;
-      break;
-    }
-    default:
-    {
-      break;
-    }
-  }
-}
-
-
-int mul_cell(const Cell &c)
-{
-  switch (c.kind())
-  {
-    case List: 
-    {
-      int product=1;
-
-      for (int i=0 ; i < c.list.size() ; ++i)
-        product *= mul_cell(c.list[i]);
-      return product;
-      break;
-    }
-    case Number:
-    {
-      int num = atol(c.val.c_str() );
-      cout << "num: " << num << endl;
-      return num;
-      break;
-    }
-    default:
-    {
-      break;
-    }
-  }
-}
-
-#endif
 
 void create_primitive_procedure(Frame &frame)
 {
@@ -610,15 +540,6 @@ int tokenize(const std::string & str, std::list<std::string> &tokens)
   return parenthesis_count;
 }
 
-#if 0
-// numbers become Numbers; every other token is a Symbol
-Cell atom(const std::string & token)
-{
-    if (isdig(token[0]) || (token[0] == '-' && isdig(token[1])))
-        return Cell(Number, token);
-    return Cell(Symbol, token);
-}
-#endif
 
 // return the Lisp expression in the given tokens
 Cell *read_from(std::list<std::string> & tokens)
