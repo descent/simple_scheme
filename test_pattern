@@ -24,6 +24,12 @@ cons, car, cdr test
 (cdr (quote (1 2)) (quote (3 4))) => error
 (cdr (quote (1 2)))
 
+(list 1 2 3 4)
+(car (list 1 2 3 4))
+(cdr (list 1 2 3 4))
+
+
+
 (if (< 1 0) -1 1)
 (if (< 0 1) -1 1)
 
