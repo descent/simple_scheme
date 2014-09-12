@@ -214,6 +214,11 @@ Cell *proc_greater(Cell *cell)
   return &false_cell;
 }
 
+Cell *proc_list(Cell *cell)
+{
+  return cell;
+}
+
 Cell *proc_cons(Cell *cell)
 {
   Cell *first = car_cell(cell);
@@ -419,6 +424,9 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive cons", proc_cons);
   frame.insert(Frame::value_type("cons", op));
+
+  op = get_cell("primitive list", proc_list);
+  frame.insert(Frame::value_type("list", op));
 
   frame.insert(Frame::value_type("true", &true_cell));
   frame.insert(Frame::value_type("false", &false_cell));
