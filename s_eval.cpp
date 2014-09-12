@@ -10,7 +10,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-
 using namespace std;
 
 #include "cell.h"
@@ -215,6 +214,26 @@ Cell *proc_greater(Cell *cell)
   return &false_cell;
 }
 
+Cell *proc_pool_status(Cell *cell)
+{
+  // create (+ 1 2) list
+  // use 3 cells
+  // use 3 pairs
+
+  extern Cell pair_pool[];
+  extern Cell cell_pool[];
+
+  extern int free_pair_index;
+  extern int free_cell_index;
+
+  cout << "pool max: " << MAX_POOL << endl;
+  cout << "Cell size: " << sizeof(Cell) << "bytes" << endl;
+  cout << "cell pool index: " << free_cell_index << endl;
+  cout << "pair pool index: " << free_pair_index << endl;
+
+  return &true_cell;
+}
+
 Cell *proc_add(Cell *cell)
 {
   int sum=0;
@@ -349,6 +368,9 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive greater", proc_greater);
   frame.insert(Frame::value_type(">", op));
+
+  op = get_cell("primitive pool_status", proc_pool_status);
+  frame.insert(Frame::value_type("pool_status", op));
 
   frame.insert(Frame::value_type("true", &true_cell));
   frame.insert(Frame::value_type("false", &false_cell));
@@ -1139,7 +1161,10 @@ void repl(const std::string & prompt, Environment *env)
         cout << endl;
         print_cell(exp);
         cout << endl;
+        proc_pool_status(exp);
+        continue;
 #endif
+
         exp = eval(exp, env);
         if (exp == &define_cell)
         {
@@ -1180,6 +1205,7 @@ int main ()
 
 
   Environment *global_env = get_env(0, "global");
+
 
   create_primitive_procedure(global_env->frame_);
   repl("simple scheme> ", global_env);
