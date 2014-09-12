@@ -920,6 +920,32 @@ Cell *expand_clauses(Cell *clauses)
   }
 }
 
+// for set!
+bool set_variable_value(Cell *var, Cell *val, Environment * env)
+{
+  Frame::iterator it = env->frame_.find(var->val_);
+  if (it != env->frame_.end()) // find it
+  {
+    it->second = val;
+    return true;
+  }
+  else // not fount
+  {
+    if (env->outer_ != 0)
+      return set_variable_value(var, val, env->outer_);
+  }
+  return false;
+}
+
+Cell *eval_assignment(Cell *exp, Environment *env)
+{
+  // (set! a 9)
+  if (set_variable_value(car_cell(cdr_cell(exp)), eval(car_cell(cdr_cell(cdr_cell(exp))), env), env))
+    return &true_cell;
+  else
+    return &false_cell;
+}
+
 Cell *eval(Cell *exp, Environment *env)
 {
 #if 0
@@ -1010,6 +1036,10 @@ Cell *eval(Cell *exp, Environment *env)
                                {
                                  return car_cell(cdr_cell(exp));
                                }
+                               else if (tagged_list(exp, "set!"))
+                                    {
+                                      return eval_assignment(exp, env);
+                                    }
 
 #if 0
       if (exp->type_ == SYMBOL)
