@@ -9,6 +9,8 @@
 
 using namespace std;
 
+const int MAX_POOL = 1000;
+
 enum PairAttr {HEAD, FIRST, SECOND};
 enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, NULL_CELL, INVALID};
 

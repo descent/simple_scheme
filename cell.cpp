@@ -9,7 +9,6 @@ const char* Cell::type_str() const
   return cell_type_string[type()];
 }
 
-const int MAX_POOL = 1000;
 Cell pair_pool[MAX_POOL];
 Cell cell_pool[MAX_POOL];
 
