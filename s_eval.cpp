@@ -518,11 +518,11 @@ void add_globals(environment & env)
 
 ////////////////////// parse, read and user interaction
 
+static int parenthesis_count=0;
+
 // convert given string to list of tokens
 int tokenize(const std::string & str, std::list<std::string> &tokens)
 {
-  static int parenthesis_count=0;
-
   //cout << "org str: " << str << endl;
   const char * s = str.c_str();
   while (*s) 
@@ -1151,21 +1151,22 @@ std::string to_string(const Cell & exp)
 // the default read-eval-print-loop
 void repl(const char *prompt, Environment *env)
 {
-    for (;;) 
+  for (;;) 
+  {
+    std::cout << prompt;
+    std::list<std::string> tokens;
+
+    while(1)
     {
-        std::cout << prompt;
-        std::list<std::string> tokens;
+      std::string line; std::getline(std::cin, line);
+      if (0 >= tokenize(line, tokens))
+        break;
+    }
+    parenthesis_count=0;
 
-        while(1)
-        {
-        std::string line; std::getline(std::cin, line);
-        if (0 == tokenize(line, tokens))
-          break;
-        }
-
-        Cell *exp = read(tokens);
-        if (exp->type_ == INVALID) // no input string
-          continue;
+    Cell *exp = read(tokens);
+    if (exp->type_ == INVALID) // no input string
+      continue;
 
 #if 0
         cout << endl;
@@ -1175,24 +1176,24 @@ void repl(const char *prompt, Environment *env)
         continue;
 #endif
 
-        exp = eval(exp, env);
-        if (exp == &define_cell)
-        {
-          cout << "define: ok" << endl;
-        }
-        else if (exp->type_ != INVALID)
-             {
-               cout << "result:" << endl;
-               print_cell(exp);
-               cout << endl;
-             }
-             else
-             {
-               cout << "expression fail!" << endl;
-               cout << "error message: " << invalid_cell.val_ << endl;
-             }
-        //break;
+    exp = eval(exp, env);
+    if (exp == &define_cell)
+    {
+      cout << "define: ok" << endl;
     }
+    else if (exp->type_ != INVALID)
+         {
+           cout << "result:" << endl;
+           print_cell(exp);
+           cout << endl;
+         }
+         else
+         {
+           cout << "expression fail!" << endl;
+           cout << "error message: " << invalid_cell.val_ << endl;
+         }
+        //break;
+  }
 }
 
 int main ()
