@@ -571,13 +571,11 @@ void add_globals(environment & env)
 ////////////////////// parse, read and user interaction
 
 // convert given string to list of tokens
-std::list<std::string> tokenize(const std::string & str)
+int tokenize(const std::string & str, std::list<std::string> &tokens)
 {
-  int parenthesis_count=0;
+  static int parenthesis_count=0;
 
   //cout << "org str: " << str << endl;
-
-  std::list<std::string> tokens;
   const char * s = str.c_str();
   while (*s) 
   {
@@ -607,9 +605,9 @@ std::list<std::string> tokenize(const std::string & str)
       s = t;
     }
   }
-  cout << "parenthesis_count:" << parenthesis_count << endl;
+  //cout << "parenthesis_count:" << parenthesis_count << endl;
 
-  return tokens;
+  return parenthesis_count;
 }
 
 #if 0
@@ -651,16 +649,15 @@ Cell *read_from(std::list<std::string> & tokens)
 }
 
 // return the Lisp expression represented by the given string
-Cell *read(const std::string & s)
+Cell *read(std::list<std::string> tokens)
 {
-    std::list<std::string> tokens(tokenize(s));
-    if (tokens.size() > 0)
-      return read_from(tokens);
-    else
-    {
-      strcpy(invalid_cell.val_, "no input string");
-      return &invalid_cell;
-    }
+  if (tokens.size() > 0)
+    return read_from(tokens);
+  else
+  {
+    strcpy(invalid_cell.val_, "no input string");
+    return &invalid_cell;
+  }
 }
 
 Cell *list_of_values(Cell *exp, Environment *env)
@@ -1213,13 +1210,21 @@ std::string to_string(const Cell & exp)
 #endif
 
 // the default read-eval-print-loop
-void repl(const std::string & prompt, Environment *env)
+void repl(const char *prompt, Environment *env)
 {
     for (;;) 
     {
         std::cout << prompt;
+        std::list<std::string> tokens;
+
+        while(1)
+        {
         std::string line; std::getline(std::cin, line);
-        Cell *exp = read(line);
+        if (0 == tokenize(line, tokens))
+          break;
+        }
+
+        Cell *exp = read(tokens);
         if (exp->type_ == INVALID) // no input string
           continue;
 
