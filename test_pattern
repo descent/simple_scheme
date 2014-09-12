@@ -44,6 +44,13 @@ cons, car, cdr test
 
 ((lambda (x) (lambda (y) (+ x y)) ) 8)
 
+// use the example to explain environment.
+(define (aa x) (lambda (y) (+ x y)))
+(define aax (aa 5))
+(aax 6)
+
+(define (aax 5)) // this should be wrong, but in my implementation is passed.
+
 
 (define pp ((lambda (x) (lambda (y) (+ x y)) ) 8))
 
