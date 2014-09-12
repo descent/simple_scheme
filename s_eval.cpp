@@ -495,22 +495,43 @@ void add_globals(environment & env)
 // convert given string to list of tokens
 std::list<std::string> tokenize(const std::string & str)
 {
-    std::list<std::string> tokens;
-    const char * s = str.c_str();
-    while (*s) {
-        while (*s == ' ')
-            ++s;
-        if (*s == '(' || *s == ')')
-            tokens.push_back(*s++ == '(' ? "(" : ")");
-        else {
-            const char * t = s;
-            while (*t && *t != ' ' && *t != '(' && *t != ')')
-                ++t;
-            tokens.push_back(std::string(s, t));
-            s = t;
-        }
+  int parenthesis_count=0;
+
+  //cout << "org str: " << str << endl;
+
+  std::list<std::string> tokens;
+  const char * s = str.c_str();
+  while (*s) 
+  {
+    while (*s == ' ')
+      ++s;
+    if (*s == '(' || *s == ')')
+    {
+      if (*s == '(')
+        ++parenthesis_count;
+      if (*s == ')')
+        --parenthesis_count;
+      tokens.push_back(*s++ == '(' ? "(" : ")");
     }
-    return tokens;
+    else 
+    {
+      const char * t = s;
+      while (*t && *t != ' ' && *t != '(' && *t != ')')
+      {
+        if (*s == '(')
+          ++parenthesis_count;
+        if (*s == ')')
+          --parenthesis_count;
+        ++t;
+      }
+      tokens.push_back(std::string(s, t));
+      //cout << "str: " << s << endl;
+      s = t;
+    }
+  }
+  cout << "parenthesis_count:" << parenthesis_count << endl;
+
+  return tokens;
 }
 
 #if 0
@@ -555,7 +576,13 @@ Cell *read_from(std::list<std::string> & tokens)
 Cell *read(const std::string & s)
 {
     std::list<std::string> tokens(tokenize(s));
-    return read_from(tokens);
+    if (tokens.size() > 0)
+      return read_from(tokens);
+    else
+    {
+      strcpy(invalid_cell.val_, "no input string");
+      return &invalid_cell;
+    }
 }
 
 Cell *list_of_values(Cell *exp, Environment *env)
@@ -1105,10 +1132,14 @@ void repl(const std::string & prompt, Environment *env)
         std::cout << prompt;
         std::string line; std::getline(std::cin, line);
         Cell *exp = read(line);
+        if (exp->type_ == INVALID) // no input string
+          continue;
 
+#if 0
         cout << endl;
         print_cell(exp);
         cout << endl;
+#endif
         exp = eval(exp, env);
         if (exp == &define_cell)
         {
