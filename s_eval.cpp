@@ -178,7 +178,7 @@ int add_cell(Cell *c)
 
 Cell *proc_less(Cell *cell)
 {
-  // (< x1 x2 x3 ...) 理解成數學上的 x1 < x2 < x3 <
+  // (< x1 x2 x3 ...) 理解成數學上的 x1 < x2 < x3 
   // ref: http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_idx_466
   Cell *first = car_cell(cell);
   Cell *second = car_cell(cdr_cell(cell));
@@ -192,7 +192,7 @@ Cell *proc_less(Cell *cell)
 
 Cell *proc_greater(Cell *cell)
 {
-  // (> x1 x2 x3 ...) 理解成數學上的 x1 > x2 > x3 >
+  // (> x1 x2 x3 ...) 理解成數學上的 x1 > x2 > x3 
   // ref: http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_idx_466
   Cell *first = car_cell(cell);
   Cell *second = car_cell(cdr_cell(cell));
@@ -202,6 +202,21 @@ Cell *proc_greater(Cell *cell)
       return &true_cell;
   }
   return &false_cell;
+}
+
+Cell *proc_equal(Cell *cell)
+{
+  // (= x1 x2 x3 ...) 理解成數學上的 x1 = x2 = x3 
+  // ref: http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_idx_466
+  Cell *first = car_cell(cell);
+  Cell *second = car_cell(cdr_cell(cell));
+  if (first->type_ == NUMBER && second->type_ == NUMBER)
+  {
+    if (atoi(first->val_) == atoi(second->val_))
+      return &true_cell;
+  }
+  return &false_cell;
+
 }
 
 Cell *proc_list(Cell *cell)
@@ -342,6 +357,9 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive greater", proc_greater);
   frame.insert(Frame::value_type(">", op));
+
+  op = get_cell("primitive equal", proc_equal);
+  frame.insert(Frame::value_type("=", op));
 
   op = get_cell("primitive pool_status", proc_pool_status);
   frame.insert(Frame::value_type("pool_status", op));
