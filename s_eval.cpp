@@ -214,6 +214,45 @@ Cell *proc_greater(Cell *cell)
   return &false_cell;
 }
 
+Cell *proc_cons(Cell *cell)
+{
+  Cell *first = car_cell(cell);
+  Cell *second = car_cell(cdr_cell(cell));
+  Cell *third = cdr_cell(cdr_cell(cell));
+  if (third != &null_cell)
+  {
+    strcpy(invalid_cell.val_, "requires exactly 2 argument");
+    return &invalid_cell;
+  }
+  return cons_cell(first, second);
+}
+
+Cell *proc_car(Cell *cell)
+{
+  // should one argument
+  Cell *first = car_cell(cell);
+  Cell *second = cdr_cell(cell);
+  if (second != &null_cell)
+  {
+    strcpy(invalid_cell.val_, "requires exactly 1 argument");
+    return &invalid_cell;
+  }
+  return car_cell(first);
+}
+
+Cell *proc_cdr(Cell *cell)
+{
+  // should one argument
+  Cell *first = car_cell(cell);
+  Cell *second = cdr_cell(cell);
+  if (second != &null_cell)
+  {
+    strcpy(invalid_cell.val_, "requires exactly 1 argument");
+    return &invalid_cell;
+  }
+  return cdr_cell(first);
+}
+
 Cell *proc_pool_status(Cell *cell)
 {
   // create (+ 1 2) list
@@ -371,6 +410,15 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive pool_status", proc_pool_status);
   frame.insert(Frame::value_type("pool_status", op));
+
+  op = get_cell("primitive car", proc_car);
+  frame.insert(Frame::value_type("car", op));
+
+  op = get_cell("primitive cdr", proc_cdr);
+  frame.insert(Frame::value_type("cdr", op));
+
+  op = get_cell("primitive cons", proc_cons);
+  frame.insert(Frame::value_type("cons", op));
 
   frame.insert(Frame::value_type("true", &true_cell));
   frame.insert(Frame::value_type("false", &false_cell));
@@ -611,7 +659,16 @@ Cell *list_of_values(Cell *exp, Environment *env)
 {
   Cell *first_operand = car_cell(exp);
   Cell *rest_operands = cdr_cell(exp);
-  //cout << "list_of_values" << endl;
+#if 0
+  cout << "\nlist_of_values" << endl;
+  print_cell(exp);
+  cout << "\nfirst" << endl;
+  print_cell(first_operand);
+  cout << "\nrest" << endl;
+  print_cell(rest_operands);
+  cout << endl;
+#endif
+
   if (exp->type_ == NULL_CELL)
   {
     cout << "i am null" << endl;
@@ -696,6 +753,7 @@ Cell *eval_sequence(Cell *exp, Environment *env)
   }
 }
 
+// args is a list which terminals by '(). ex: (1 2 '()) or ((1 2) (3 4) '())
 Cell *apply(Cell *func, Cell *args)
 {
   //Cell *eval(const Cell &exp, Environment *env);
@@ -704,6 +762,9 @@ Cell *apply(Cell *func, Cell *args)
   //return func->proc_(args);
   //print_cell(func);
   //cout << endl;
+      cout << "\napply args: \n";
+      print_cell(args);
+      cout << endl;
 
   if (func->lambda_ == true)
   {
@@ -719,9 +780,6 @@ Cell *apply(Cell *func, Cell *args)
       print_cell(body);
       cout << "\napply parameters: \n";
       print_cell(parameters);
-      cout << "\napply args: \n";
-      print_cell(args);
-      cout << endl;
       
       static int env_counter=0;
       char env_name[255];
@@ -1179,6 +1237,7 @@ void repl(const std::string & prompt, Environment *env)
              else
              {
                cout << "expression fail!" << endl;
+               cout << "error message: " << invalid_cell.val_ << endl;
              }
         //break;
     }
@@ -1203,9 +1262,7 @@ int main ()
   if_cell.type_ = SYMBOL;
   strcpy(if_cell.val_, "if");
 
-
   Environment *global_env = get_env(0, "global");
-
 
   create_primitive_procedure(global_env->frame_);
   repl("simple scheme> ", global_env);
