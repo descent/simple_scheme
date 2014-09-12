@@ -83,7 +83,12 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
     print_cell(rest_vars);
     cout << "\n%%%\n";
   #endif
-    cout << "add to env car_cell(rest_vars)->val_: " << car_cell(rest_vars)->val_ << endl;
+    cout << "add to env : " << env->name_ << endl;
+    cout << "car_cell(rest_vars)->val_: " << car_cell(rest_vars)->val_ << endl;
+    cout << "value of " << car_cell(rest_vars)->val_ << ":" << endl;
+    print_cell(car_cell(rest_vals));
+    cout << "\n====\n";
+
     env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
 
     rest_vars = cdr_cell(rest_vars);
