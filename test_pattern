@@ -18,8 +18,11 @@
 (define (plus4 x) (+ 4 x))
 
 cons, car, cdr test
-
-((+ , x , 4 , ) (* , 2 , x , ) )
+(cons 1 2 3) => get error
+(cons 1 2)
+(car (cons 1 2))
+(cdr (quote (1 2)) (quote (3 4))) => error
+(cdr (quote (1 2)))
 
 (if (< 1 0) -1 1)
 (if (< 0 1) -1 1)
