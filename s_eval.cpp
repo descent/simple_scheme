@@ -799,43 +799,6 @@ Cell *apply(Cell *func, Cell *args)
          cout << "primitive proc: " << func->val_ << endl;
          return func->proc_(args);
        }
-#if 0
-  switch (func->type_)
-  {
-    case LAMBDA_PROC:
-    {
-      // new a Environment
-      // add parameters and arguments pair
-
-      Cell *body = car_cell(cdr_cell(cdr_cell(func)));
-      Cell *parameters = car_cell(cdr_cell(func));
-
-      cout << "\nfunc: \n";
-      print_cell(func);
-      cout << "\nbody: \n";
-      print_cell(body);
-      cout << "\nparameters: \n";
-      print_cell(parameters);
-      cout << "\nargs: \n";
-      print_cell(args);
-      cout << endl;
-      exit(0);
-      
-      Environment env;
-      env.outer_ = func->env_;
-
-
-      extend_environment(parameters, args, &env);
-
-      return eval_sequence(body, &env);
-    }
-    case PRIMITIVE_PROC:
-    {
-      cout << "func name:" << func->val_ << endl;
-      return func->proc_(args);
-    }
-  }
-#endif
 
   return &invalid_cell;
 }
