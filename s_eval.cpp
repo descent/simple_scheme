@@ -1191,6 +1191,8 @@ void repl(const char *prompt, Environment *env)
            cout << "result:" << endl;
            print_cell(exp);
            cout << endl;
+           if (exp->env_ != 0)
+             print_env(exp->env_);
          }
          else
          {
