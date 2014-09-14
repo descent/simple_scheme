@@ -47,6 +47,8 @@ cons, car, cdr test
 // use the example to explain environment.
 (define (aa x) (lambda (y) (+ x y)))
 
+(define aa (lambda (x) (lambda (y) (+ x y))))
+
 result:
 ( ( x ,  ()  ) ( ( lambda , ( ( y ,  ()  ) ( ( + , ( x , ( y ,  ()  )  )  )  ()  )  )  )  ()  )  ) 
 env name: global
