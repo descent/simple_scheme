@@ -224,6 +224,54 @@ Cell *proc_equal(Cell *cell)
 
 }
 
+int print_env(Environment *env)
+{
+  cout << "env name: " << env->name_ << endl;
+
+  if (env->outer_ != 0)
+  {
+    print_env(env->outer_);
+  }
+  return 0;
+}
+
+Cell *proc_env(Cell *cell)
+{
+  Cell *first = car_cell(cell);
+  int i= atoi(first->val_);
+  print_env(environment_pool + i);
+
+  cout << endl;
+  return &true_cell;
+#if 0
+  // need check first is null_cell or invalid_cell
+  for (int i=0 ; i < free_env_index ; ++i)
+  {
+    if (strcmp(first->val_, environment_pool[i].name_) == 0)
+    {
+      cout << "env name: " << environment_pool[i].name_ << endl;
+      cout << "env outer: " << (environment_pool[i].outer_ == 0 ? "no outer env" : environment_pool[i].outer_->name_);
+      return &true_cell;
+    }
+  }
+  
+  return &false_cell;
+#endif
+}
+
+// list all environment
+Cell *proc_env_list(Cell *cell)
+{
+  cout << "=============" << endl;
+  for (int i=0 ; i < free_env_index ; ++i)
+  {
+    cout << i << ": " << environment_pool[i].name_ << endl;
+  }
+  cout << "=============" << endl;
+
+  return &true_cell;
+}
+
 Cell *proc_list(Cell *cell)
 {
   return cell;
@@ -380,6 +428,12 @@ void create_primitive_procedure(Frame &frame)
 
   op = get_cell("primitive list", proc_list);
   frame.insert(Frame::value_type("list", op));
+
+  op = get_cell("primitive env_list", proc_env_list);
+  frame.insert(Frame::value_type("env_list", op));
+
+  op = get_cell("primitive env", proc_env);
+  frame.insert(Frame::value_type("env", op));
 
   frame.insert(Frame::value_type("true", &true_cell));
   frame.insert(Frame::value_type("false", &false_cell));
