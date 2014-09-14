@@ -46,7 +46,19 @@ cons, car, cdr test
 
 // use the example to explain environment.
 (define (aa x) (lambda (y) (+ x y)))
+
+result:
+( ( x ,  ()  ) ( ( lambda , ( ( y ,  ()  ) ( ( + , ( x , ( y ,  ()  )  )  )  ()  )  )  )  ()  )  ) 
+env name: global
+
+
 (define aax (aa 5))
+
+reult:
+( ( y ,  ()  ) ( ( + , ( x , ( y ,  ()  )  )  )  ()  )  ) 
+env name: e0
+env name: global
+
 (aax 6)
 
 (define (aax 5)) // this should be wrong, but in my implementation is passed.
