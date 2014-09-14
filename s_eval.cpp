@@ -75,7 +75,7 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
 
   Cell *rest_vars = vars;
   Cell *rest_vals = vals;
-
+  // need check vars, vals length are the same.
   while (rest_vars->type_ != NULL_CELL)
   {
   #if 0
@@ -787,6 +787,7 @@ Cell *apply(Cell *func, Cell *args)
       static int env_counter=0;
       char env_name[255];
       sprintf(env_name, "e%d", env_counter++);
+      cout << "\nouter env: " << func->env_->name_ << endl;
       Environment *env = get_env(func->env_, env_name);
 
       extend_environment(parameters, args, env);
