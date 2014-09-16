@@ -224,13 +224,25 @@ Cell *proc_equal(Cell *cell)
 
 }
 
-int print_env(Environment *env)
+// print frame variable/value
+void print_env_content(const Environment *env)
 {
+  Frame::const_iterator it = env->frame_.begin();
+  for (; it != env->frame_.end() ; ++it)
+  {
+    cout << "(" << it->first << "," << it->second->val_ << ")" << endl;
+  }
+}
+
+int print_env(Environment *env, int count)
+{
+  for (int i=0 ; i < count*2 ; ++i)
+    cout << ' ';
   cout << "env name: " << env->name_ << endl;
 
   if (env->outer_ != 0)
   {
-    print_env(env->outer_);
+    print_env(env->outer_, count+1);
   }
   return 0;
 }
@@ -239,7 +251,9 @@ Cell *proc_env(Cell *cell)
 {
   Cell *first = car_cell(cell);
   int i= atoi(first->val_);
-  print_env(environment_pool + i);
+  cout << "environment hierarchy:" << endl;
+  print_env(environment_pool + i, 0);
+  print_env_content(environment_pool + i);
 
   cout << endl;
   return &true_cell;
@@ -1210,7 +1224,7 @@ void repl(const char *prompt, Environment *env)
            print_cell(exp);
            cout << endl;
            if (exp->env_ != 0)
-             print_env(exp->env_);
+             print_env(exp->env_, 0);
          }
          else
          {
