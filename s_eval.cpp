@@ -71,6 +71,21 @@ int add_variable(Environment *env, const char *variable, Cell *cell)
     return -1;
   }
 }
+
+// return EnvElement * pointer need not to free it.
+EnvElement *find_variable(Environment *env, const char *variable)
+{
+  for (int i=0 ; i < env->free_frame_index_ ; ++i)
+  {
+    EnvElement *env_element = &env->frame_[i];
+    if (strcmp(env_element->variable_, variable) == 0)
+    {
+      return env_element;
+    }
+  }
+  return 0;
+}
+
 #endif
 
 const int MAX_ENVIRONMENT_POOL = 1000;
@@ -124,6 +139,12 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
 
 #ifdef USE_CPP_MAP
     env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
+#else
+  if (add_variable(env, car_cell(rest_vars)->val_, car_cell(rest_vals)) == -1)
+  {
+    cout << "add_variable faile\n";
+  }
+
 #endif
 
     rest_vars = cdr_cell(rest_vars);
@@ -283,6 +304,13 @@ void print_env_content(const Environment *env)
   {
     cout << "(" << it->first << "," << it->second->val_ << ")" << endl;
   }
+#else
+  for (int i=0 ; i < env->free_frame_index_ ; ++i)
+  {
+    const EnvElement *env_element = &env->frame_[i];
+    cout << "(" << env_element->variable_ << "," << env_element->value_->val_ << ")" << endl;
+  }
+
 #endif
 }
 
@@ -966,6 +994,25 @@ void set_variable(Cell *var, Cell *val, Environment *env)
   {
     env->frame_.insert(Frame::value_type(var->val_, val));
   }
+#else
+  EnvElement *env_e = find_variable(env, var->val_);
+
+  if (env_e) // found
+  {
+    env_e->value_ = val;
+  }
+  else
+  {
+    if (add_variable(env, var->val_, val) != -1)
+    {
+      cout << "add variable\n";
+    }
+    else
+    {
+      cout << "add variable fail\n";
+    }
+  }
+
 #endif
 #if 0
   cout << "var:" << endl;
@@ -1088,8 +1135,20 @@ bool set_variable_value(Cell *var, Cell *val, Environment * env)
     if (env->outer_ != 0)
       return set_variable_value(var, val, env->outer_);
   }
-  return false;
+#else
+  EnvElement *env_e = find_variable(env, var->val_);
+
+  if (env_e) // found
+  {
+    env_e->value_ = val;
+  }
+  else
+  {
+    if (env->outer_ != 0)
+      return set_variable_value(var, val, env->outer_);
+  }
 #endif
+  return false;
 }
 
 Cell *eval_assignment(Cell *exp, Environment *env)
