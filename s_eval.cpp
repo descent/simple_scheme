@@ -32,7 +32,14 @@ Cell if_cell;
 #ifdef USE_CPP_MAP
 typedef std::map<std::string, Cell*> Frame;
 #else
-typedef Cell Frame;
+const int FRAME_LEN = 128;
+
+struct EnvElement
+{
+  char variable_[MAX_SIZE];
+  Cell *value_;
+};
+typedef EnvElement Frame[FRAME_LEN];
 #endif
 
 struct Environment 
@@ -44,8 +51,27 @@ struct Environment
     Frame frame_;
 
     char name_[255]; // for debug
+    int free_frame_index_;
   private:
 };
+
+#ifndef USE_CPP_MAP
+int add_variable(Environment *env, const char *variable, Cell *cell)
+{
+  if (env->free_frame_index_ < FRAME_LEN)
+  {
+    EnvElement *env_element = &env->frame_[env->free_frame_index_++];
+
+    strcpy(env_element->variable_, variable);
+    env_element->value_ = cell;
+    return 0;
+  }
+  else
+  {
+    return -1;
+  }
+}
+#endif
 
 const int MAX_ENVIRONMENT_POOL = 1000;
 Environment environment_pool[MAX_ENVIRONMENT_POOL];
@@ -57,6 +83,7 @@ Environment *get_env(Environment *outer, const char *name)
 
   Environment *env = &environment_pool[free_env_index++];
   env->outer_ = outer;
+  env->free_frame_index_ = 0;
   strcpy(env->name_, name);
   return env;
 }
@@ -127,6 +154,19 @@ Cell* lookup_variable_value(const Cell *exp, const Environment *env)
   }
   cout << "not found it" << endl;
   return &invalid_cell;
+#else
+  for (int i=0 ; i < env->free_frame_index_ ; ++i)
+  {
+    const EnvElement *env_element = &env->frame_[i];
+    if (strcmp(exp->val_, env_element->variable_) == 0)
+    {
+      cout << "found it" << endl;
+      return env_element->value_;
+    }
+  }
+  cout << "not found it" << endl;
+  return &invalid_cell;
+
 #endif
 }
 
@@ -420,12 +460,10 @@ Cell *proc_mul(Cell *cell)
   return get_cell(s32_itoa_s(product, str, 10), NUMBER);
 }
 
+#ifdef USE_CPP_MAP
 void create_primitive_procedure(Frame &frame)
 {
-  Cell *symbol = get_cell("+", SYMBOL);
-
   Cell *op = get_cell("primitive add", proc_add);
-#if 0
   frame.insert(Frame::value_type("+", op));
 
   op = get_cell("primitive mul", proc_mul);
@@ -466,7 +504,6 @@ void create_primitive_procedure(Frame &frame)
 
   frame.insert(Frame::value_type("true", &true_cell));
   frame.insert(Frame::value_type("false", &false_cell));
-#endif
 
 #if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
@@ -477,6 +514,16 @@ void create_primitive_procedure(Frame &frame)
   frame.insert(Frame::value_type("x", x));
 #endif
 }
+
+#else
+
+void create_primitive_procedure(Environment *env)
+{
+  Cell *op = get_cell("primitive add", proc_add);
+  int ret = add_variable(env, "+", op);
+}
+
+#endif
 
 #if 0
 // a dictionary that (a) associates symbols with cells, and
@@ -1276,7 +1323,11 @@ int main ()
 
   Environment *global_env = get_env(0, "global");
 
+#ifdef USE_CPP_MAP
   create_primitive_procedure(global_env->frame_);
+#else
+  create_primitive_procedure(global_env);
+#endif
   repl("simple scheme> ", global_env);
 }
 
