@@ -29,7 +29,12 @@ Cell false_cell;
 Cell begin_cell;
 Cell if_cell;
 
+#ifdef USE_CPP_MAP
 typedef std::map<std::string, Cell*> Frame;
+#else
+typedef Cell Frame;
+#endif
+
 struct Environment 
 {
   public:
@@ -37,6 +42,7 @@ struct Environment
     Environment *outer_;
 
     Frame frame_;
+
     char name_[255]; // for debug
   private:
 };
@@ -89,7 +95,9 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
     print_cell(car_cell(rest_vals));
     cout << "\n====\n";
 
+#ifdef USE_CPP_MAP
     env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
+#endif
 
     rest_vars = cdr_cell(rest_vars);
     rest_vals = cdr_cell(rest_vals);
@@ -103,6 +111,7 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
 
 Cell* lookup_variable_value(const Cell *exp, const Environment *env)
 {
+#ifdef USE_CPP_MAP
 
   Frame::const_iterator it = env->frame_.find(exp->val_);
   cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
@@ -118,6 +127,7 @@ Cell* lookup_variable_value(const Cell *exp, const Environment *env)
   }
   cout << "not found it" << endl;
   return &invalid_cell;
+#endif
 }
 
 Cell *eval(Cell *exp, Environment *env);
@@ -227,11 +237,13 @@ Cell *proc_equal(Cell *cell)
 // print frame variable/value
 void print_env_content(const Environment *env)
 {
+#ifdef USE_CPP_MAP
   Frame::const_iterator it = env->frame_.begin();
   for (; it != env->frame_.end() ; ++it)
   {
     cout << "(" << it->first << "," << it->second->val_ << ")" << endl;
   }
+#endif
 }
 
 int print_env(Environment *env, int count)
@@ -410,7 +422,10 @@ Cell *proc_mul(Cell *cell)
 
 void create_primitive_procedure(Frame &frame)
 {
+  Cell *symbol = get_cell("+", SYMBOL);
+
   Cell *op = get_cell("primitive add", proc_add);
+#if 0
   frame.insert(Frame::value_type("+", op));
 
   op = get_cell("primitive mul", proc_mul);
@@ -451,6 +466,7 @@ void create_primitive_procedure(Frame &frame)
 
   frame.insert(Frame::value_type("true", &true_cell));
   frame.insert(Frame::value_type("false", &false_cell));
+#endif
 
 #if 0
   frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
@@ -893,6 +909,7 @@ Cell *definition_value(Cell *exp)
 // The name of define-variable! is in sicp scheme code.
 void set_variable(Cell *var, Cell *val, Environment *env)
 {
+#ifdef USE_CPP_MAP
   Frame::iterator it = env->frame_.find(var->val_);
   if (it != env->frame_.end()) // find it
   {
@@ -902,6 +919,7 @@ void set_variable(Cell *var, Cell *val, Environment *env)
   {
     env->frame_.insert(Frame::value_type(var->val_, val));
   }
+#endif
 #if 0
   cout << "var:" << endl;
   print_cell(var);
@@ -1011,6 +1029,7 @@ Cell *expand_clauses(Cell *clauses)
 // for set!
 bool set_variable_value(Cell *var, Cell *val, Environment * env)
 {
+#ifdef USE_CPP_MAP
   Frame::iterator it = env->frame_.find(var->val_);
   if (it != env->frame_.end()) // find it
   {
@@ -1023,6 +1042,7 @@ bool set_variable_value(Cell *var, Cell *val, Environment * env)
       return set_variable_value(var, val, env->outer_);
   }
   return false;
+#endif
 }
 
 Cell *eval_assignment(Cell *exp, Environment *env)
