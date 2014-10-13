@@ -29,6 +29,8 @@ Cell false_cell;
 Cell begin_cell;
 Cell if_cell;
 
+//#define USE_CPP_MAP
+
 #ifdef USE_CPP_MAP
 typedef std::map<std::string, Cell*> Frame;
 #else
@@ -501,66 +503,71 @@ Cell *proc_mul(Cell *cell)
 }
 
 #ifdef USE_CPP_MAP
-void create_primitive_procedure(Frame &frame)
-{
-  Cell *op = get_cell("primitive add", proc_add);
-  frame.insert(Frame::value_type("+", op));
-
-  op = get_cell("primitive mul", proc_mul);
-  frame.insert(Frame::value_type("*", op));
-
-  op = get_cell("primitive sub", proc_sub);
-  frame.insert(Frame::value_type("-", op));
-
-  op = get_cell("primitive less", proc_less);
-  frame.insert(Frame::value_type("<", op));
-
-  op = get_cell("primitive greater", proc_greater);
-  frame.insert(Frame::value_type(">", op));
-
-  op = get_cell("primitive equal", proc_equal);
-  frame.insert(Frame::value_type("=", op));
-
-  op = get_cell("primitive pool_status", proc_pool_status);
-  frame.insert(Frame::value_type("pool_status", op));
-
-  op = get_cell("primitive car", proc_car);
-  frame.insert(Frame::value_type("car", op));
-
-  op = get_cell("primitive cdr", proc_cdr);
-  frame.insert(Frame::value_type("cdr", op));
-
-  op = get_cell("primitive cons", proc_cons);
-  frame.insert(Frame::value_type("cons", op));
-
-  op = get_cell("primitive list", proc_list);
-  frame.insert(Frame::value_type("list", op));
-
-  op = get_cell("primitive env_list", proc_env_list);
-  frame.insert(Frame::value_type("env_list", op));
-
-  op = get_cell("primitive env", proc_env);
-  frame.insert(Frame::value_type("env", op));
-
-  frame.insert(Frame::value_type("true", &true_cell));
-  frame.insert(Frame::value_type("false", &false_cell));
-
-#if 0
-  frame.insert(Frame::value_type("-", Cell(proc_sub, "primitive sub")));
-  frame.insert(Frame::value_type("cons", Cell(proc_cons, "primitive cons")));
-  frame.insert(Frame::value_type("car", Cell(car_cell, "primitive car")));
-  frame.insert(Frame::value_type("cdr", Cell(cdr_cell, "primitive cdr")));
-  Cell x(Symbol, "5");
-  frame.insert(Frame::value_type("x", x));
-#endif
-}
-
+  #define ADD_VAR(env, var, val) frame.insert(Frame::value_type(var, op));
 #else
+  #define ADD_VAR(env, var, val) add_variable(env, var, op);
+#endif
 
 void create_primitive_procedure(Environment *env)
 {
+#ifdef USE_CPP_MAP
+  Frame &frame = env->frame_;
+#endif
   Cell *op = get_cell("primitive add", proc_add);
-  int ret = add_variable(env, "+", op);
+  ADD_VAR(env, "+", op)
+
+  op = get_cell("primitive mul", proc_mul);
+  ADD_VAR(env, "*", op)
+
+  op = get_cell("primitive sub", proc_sub);
+  ADD_VAR(env, "-", op)
+
+  op = get_cell("primitive less", proc_less);
+  ADD_VAR(env, "<", op)
+
+  op = get_cell("primitive greater", proc_greater);
+  ADD_VAR(env, ">", op)
+
+  op = get_cell("primitive equal", proc_equal);
+  ADD_VAR(env, "=", op)
+
+  op = get_cell("primitive pool_status", proc_pool_status);
+  ADD_VAR(env, "pool_status", op)
+
+  op = get_cell("primitive car", proc_car);
+  ADD_VAR(env, "car", op)
+
+  op = get_cell("primitive cdr", proc_cdr);
+  ADD_VAR(env, "cdr", op)
+
+  op = get_cell("primitive cons", proc_cons);
+  ADD_VAR(env, "cons", op)
+
+  op = get_cell("primitive list", proc_list);
+  ADD_VAR(env, "list", op)
+
+  op = get_cell("primitive env_list", proc_env_list);
+  ADD_VAR(env, "env_list", op)
+
+  op = get_cell("primitive env", proc_env);
+  ADD_VAR(env, "env", op)
+
+  //frame.insert(Frame::value_type("true", &true_cell));
+  ADD_VAR(env, "true", &true_cell)
+  //frame.insert(Frame::value_type("false", &false_cell));
+  ADD_VAR(env, "false", &false_cell)
+}
+
+#if 0
+void create_primitive_procedure(Environment *env)
+{
+  int ret=-1;
+
+  Cell *op = get_cell("primitive add", proc_add);
+  ret = add_variable(env, "+", op);
+
+  op = get_cell("primitive mul", proc_mul);
+  ret = add_variable(env, "*", op);
 }
 
 #endif
@@ -1394,11 +1401,7 @@ int main ()
 
   Environment *global_env = get_env(0, "global");
 
-#ifdef USE_CPP_MAP
-  create_primitive_procedure(global_env->frame_);
-#else
   create_primitive_procedure(global_env);
-#endif
   repl("simple scheme> ", global_env);
 }
 
