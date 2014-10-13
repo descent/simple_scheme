@@ -10,4 +10,10 @@ I modify it, the code likes sicp 4.1.1 ~ 4.1.4 example.
 Metacircular Evaluator (sections 4.1.1-4.1.4)
 http://mitpress.mit.edu/sicp/code/index.html
 
-
+environment relative function:
+extend_environment
+create_primitive_procedure
+set_variable
+set_variable_value // set!
+lookup_variable_value
+print_env_content
