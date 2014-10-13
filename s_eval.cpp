@@ -157,12 +157,12 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
     //env->frame_.insert(Frame::value_type(vars.list[i].val, vals.list[i]));
 }
 
-Cell* lookup_variable_value(const Cell *exp, const Environment *env)
+Cell* lookup_variable_value(const Cell *exp, Environment *env)
 {
-#ifdef USE_CPP_MAP
-
-  Frame::const_iterator it = env->frame_.find(exp->val_);
   cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
+
+#ifdef USE_CPP_MAP
+  Frame::const_iterator it = env->frame_.find(exp->val_);
   if (it != env->frame_.end()) // find it
   {
     cout << "found it" << endl;
@@ -173,9 +173,20 @@ Cell* lookup_variable_value(const Cell *exp, const Environment *env)
     if (env->outer_ != 0)
       return lookup_variable_value(exp, env->outer_);
   }
-  cout << "not found it" << endl;
-  return &invalid_cell;
 #else
+  EnvElement *env_e = find_variable(env, exp->val_);
+
+  if (env_e) // found
+  {
+    return env_e->value_;
+  }
+  else
+  {
+    if (env->outer_ != 0)
+      return lookup_variable_value(exp, env->outer_);
+  }
+
+#if 0
   for (int i=0 ; i < env->free_frame_index_ ; ++i)
   {
     const EnvElement *env_element = &env->frame_[i];
@@ -185,10 +196,11 @@ Cell* lookup_variable_value(const Cell *exp, const Environment *env)
       return env_element->value_;
     }
   }
-  cout << "not found it" << endl;
-  return &invalid_cell;
+#endif
 
 #endif
+  cout << "not found it" << endl;
+  return &invalid_cell;
 }
 
 Cell *eval(Cell *exp, Environment *env);
