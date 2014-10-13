@@ -36,6 +36,8 @@ typedef std::map<std::string, Cell*> Frame;
 #else
 const int FRAME_LEN = 128;
 
+const int LINE_SIZE = 256;
+
 struct EnvElement
 {
   char variable_[MAX_SIZE];
@@ -1330,6 +1332,8 @@ std::string to_string(const Cell & exp)
 }
 #endif
 
+enum {BEGIN, SPACE, WORD, END};
+
 // the default read-eval-print-loop
 void repl(const char *prompt, Environment *env)
 {
@@ -1340,7 +1344,69 @@ void repl(const char *prompt, Environment *env)
 
     while(1)
     {
-      std::string line; std::getline(std::cin, line);
+      // get_byte
+      //std::string line; 
+      //std::getline(std::cin, line);
+      char line[LINE_SIZE];
+      int i=0;
+      int state;
+      while(i < LINE_SIZE)
+      {
+        int ch;
+        ch = getchar();
+        switch (ch)
+        {
+          case '(':
+          case ')':
+          {
+            line[0] = ch;
+            line[1] = 0;
+            i=0;
+            break;
+          }
+          case EOF:
+          {
+            exit(1);
+          }
+          case ' ':
+          {
+            while(1)
+            {
+              ch=getchar();
+              if (ch != ' ')
+              {
+                i=0;
+                ungetc(ch, stdin);
+                break;
+              }
+            }
+            break;
+          }
+          default:
+          {
+            line[i++] = ch;
+            while(1)
+            {
+              ch=getchar();
+              if (ch == ' ' || ch == ')' || ch == '(')
+              {
+                ungetc(ch, stdin);
+                line[i] = 0;
+                i = 0;
+                break;
+              }
+              else
+                line[i++] = ch;
+            }
+          }
+        }
+        if (line[0] != ' ' && line[0] != 0)
+        {
+          cout << line << endl;
+          line[0] = 0;
+        }
+      }
+
       if (0 >= tokenize(line, tokens))
         break;
     }
