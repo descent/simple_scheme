@@ -703,6 +703,7 @@ void add_globals(environment & env)
 
 ////////////////////// parse, read and user interaction
 
+#if 0
 static int parenthesis_count=0;
 
 // convert given string to list of tokens
@@ -742,6 +743,7 @@ int tokenize(const std::string & str, std::list<std::string> &tokens)
 
   return parenthesis_count;
 }
+#endif
 
 
 // return the Lisp expression in the given tokens
@@ -1342,6 +1344,7 @@ void repl(const char *prompt, Environment *env)
     std::cout << prompt;
     std::list<std::string> tokens;
 
+      int parenthesis_count=0;
     while(1)
     {
       // get_byte
@@ -1350,15 +1353,26 @@ void repl(const char *prompt, Environment *env)
       char line[LINE_SIZE];
       int i=0;
       int state;
+
+
       while(i < LINE_SIZE)
       {
         int ch;
+
         ch = getchar();
         switch (ch)
         {
           case '(':
+          {
+            ++parenthesis_count;
+            line[0] = ch;
+            line[1] = 0;
+            i=0;
+            break;
+          }
           case ')':
           {
+            --parenthesis_count;
             line[0] = ch;
             line[1] = 0;
             i=0;
@@ -1382,14 +1396,23 @@ void repl(const char *prompt, Environment *env)
             }
             break;
           }
+          case '\n':
+          {
+            //cout << "\\n" << endl;;
+            goto end_line;
+            break;
+          }
           default:
           {
             line[i++] = ch;
             while(1)
             {
               ch=getchar();
-              if (ch == ' ' || ch == ')' || ch == '(')
+
+              if (ch == ' ' || ch == ')' || ch == '(' || '\n')
               {
+                //if (ch == ')')
+                //if (ch == '(')
                 ungetc(ch, stdin);
                 line[i] = 0;
                 i = 0;
@@ -1400,17 +1423,32 @@ void repl(const char *prompt, Environment *env)
             }
           }
         }
+
         if (line[0] != ' ' && line[0] != 0)
         {
-          cout << line << endl;
+          //cout << line << endl;
+          tokens.push_back(line);
           line[0] = 0;
         }
+
       }
 
-      if (0 >= tokenize(line, tokens))
-        break;
+end_line:
+
+      cout << "parenthesis_count: " << parenthesis_count << endl;
+        if (parenthesis_count == 0)
+          break;
+
+      //if (0 >= tokenize(line, tokens))
+        //break;
     }
-    parenthesis_count=0;
+    //parenthesis_count=0;
+
+      cout << "tokens.size(): " << tokens.size() << endl;
+      for (std::list<std::string>::iterator it=tokens.begin() ; it != tokens.end() ; ++it)
+      {
+        cout << *it << endl;
+      }
 
     Cell *exp = read(tokens);
     if (exp->type_ == INVALID) // no input string
