@@ -1,4 +1,3 @@
-#include <iterator>     // std::back_inserter
 #include <algorithm>
 #include <iostream>
 #include <sstream>
