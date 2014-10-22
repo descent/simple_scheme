@@ -1409,7 +1409,7 @@ void repl(const char *prompt, Environment *env)
             {
               ch=getchar();
 
-              if (ch == ' ' || ch == ')' || ch == '(' || '\n')
+              if (ch == ' ' || ch == ')' || ch == '(' || ch == '\n')
               {
                 //if (ch == ')')
                 //if (ch == '(')
