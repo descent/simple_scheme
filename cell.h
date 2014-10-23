@@ -3,9 +3,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <vector>
-#include <list>
-#include <string>
 
 using namespace std;
 
@@ -62,12 +59,10 @@ struct Cell
     Environment *env_;
 };
 
-
 extern Cell invalid_cell;
 extern Cell null_cell;
 
 void print_cell(const Cell *cell);
-Cell *make_list(vector<Cell *> cells);
 Cell *get_cell(const char *val, CellType type);
 Cell *get_cell(const char *val, ProcType proc);
 

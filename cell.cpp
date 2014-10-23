@@ -296,17 +296,6 @@ Cell *make_exp()
   return c2;
 }
 
-Cell *make_list(vector<Cell *> cells)
-{
-  Cell *c;
-  c = cons_cell(cells[cells.size()-1], &null_cell); 
-
-  for (int i = cells.size()-2 ; i>=0 ; --i)
-  {
-    c = cons_cell(cells[i], c);
-  }
-  return c;
-}
 
 //Cell *read_from(const char *tokens[])
 
