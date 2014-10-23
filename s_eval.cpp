@@ -11,10 +11,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-using namespace std;
+#include "s_eval.h"
 
-#include "cell.h"
-#include "token_container.h"
+using namespace std;
 
 // return given mumber as a string
 //std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
@@ -32,34 +31,6 @@ Cell begin_cell;
 Cell if_cell;
 
 //#define USE_CPP_MAP
-
-#ifdef USE_CPP_MAP
-typedef std::map<std::string, Cell*> Frame;
-#else
-const int FRAME_LEN = 128;
-
-const int LINE_SIZE = 256;
-
-struct EnvElement
-{
-  char variable_[MAX_SIZE];
-  Cell *value_;
-};
-typedef EnvElement Frame[FRAME_LEN];
-#endif
-
-struct Environment 
-{
-  public:
-    //Environment(): outer_(0) {}
-    Environment *outer_;
-
-    Frame frame_;
-
-    char name_[255]; // for debug
-    int free_frame_index_;
-  private:
-};
 
 #ifndef USE_CPP_MAP
 int add_variable(Environment *env, const char *variable, Cell *cell)
@@ -94,7 +65,6 @@ EnvElement *find_variable(Environment *env, const char *variable)
 
 #endif
 
-const int MAX_ENVIRONMENT_POOL = 1000;
 Environment environment_pool[MAX_ENVIRONMENT_POOL];
 int free_env_index;
 
@@ -1571,7 +1541,7 @@ end_line:
   }
 }
 
-int main(int argc, char *argv[])
+int init_eval()
 {
 #if 1
   invalid_cell.type_ = INVALID;
@@ -1591,10 +1561,10 @@ int main(int argc, char *argv[])
   if_cell.type_ = SYMBOL;
   strcpy(if_cell.val_, "if");
 
-  Environment *global_env = get_env(0, "global");
+  //Environment *global_env = get_env(0, "global");
 
-  create_primitive_procedure(global_env);
-  repl("simple scheme> ", global_env);
+  //create_primitive_procedure(global_env);
+  //repl("simple scheme> ", global_env);
 #endif
 
 #if 0
