@@ -11,7 +11,7 @@
 
 using namespace std;
 
-const int MAX_POOL = 1000;
+const int MAX_POOL = 70;
 
 enum PairAttr {HEAD, FIRST, SECOND};
 enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, NULL_CELL, INVALID};
@@ -21,7 +21,7 @@ struct Environment;
 struct Cell;
 typedef Cell *(*ProcType)(Cell *);
 
-const int MAX_SIZE = 256;
+const int MAX_SIZE = 20;
 // a variant that can hold any kind of lisp value
 struct Cell 
 {

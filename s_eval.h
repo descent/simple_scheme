@@ -4,14 +4,14 @@
 #include "cell.h"
 #include "token_container.h"
 
-const int MAX_ENVIRONMENT_POOL = 1000;
+const int MAX_ENVIRONMENT_POOL = 10;
 
 #ifdef USE_CPP_MAP
 typedef std::map<std::string, Cell*> Frame;
 #else
-const int FRAME_LEN = 128;
+const int FRAME_LEN = 56;
 
-const int LINE_SIZE = 256;
+const int LINE_SIZE = 128;
 
 struct EnvElement
 {
@@ -29,7 +29,7 @@ struct Environment
 
     Frame frame_;
 
-    char name_[255]; // for debug
+    char name_[12]; // for debug
     int free_frame_index_;
   private:
 };
