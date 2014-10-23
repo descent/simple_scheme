@@ -1,10 +1,12 @@
-#include <algorithm>
 #include <iostream>
 #include <sstream>
+
+#ifdef OS_CPP
 #include <string>
-#include <vector>
 #include <list>
 #include <map>
+#include <vector>
+#endif
 
 #include <cstdio>
 #include <cstdlib>
@@ -12,6 +14,7 @@
 using namespace std;
 
 #include "cell.h"
+#include "token_container.h"
 
 // return given mumber as a string
 std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
@@ -745,6 +748,7 @@ int tokenize(const std::string & str, std::list<std::string> &tokens)
 #endif
 
 
+#ifdef OS_CPP
 // return the Lisp expression in the given tokens
 Cell *read_from(std::list<std::string> & tokens)
 {
@@ -775,6 +779,75 @@ Cell *read_from(std::list<std::string> & tokens)
 
 // return the Lisp expression represented by the given string
 Cell *read(std::list<std::string> tokens)
+{
+  if (tokens.size() > 0)
+    return read_from(tokens);
+  else
+  {
+    strcpy(invalid_cell.val_, "no input string");
+    return &invalid_cell;
+  }
+}
+
+Cell *make_list(vector<Cell *> cells)
+{
+  Cell *c;
+  c = cons_cell(cells[cells.size()-1], &null_cell); 
+
+  for (int i = cells.size()-2 ; i>=0 ; --i)
+  {
+    c = cons_cell(cells[i], c);
+  }
+  return c;
+}
+
+#endif
+
+Cell *make_list(Cell *cells[], int len)
+{
+  Cell *c;
+  c = cons_cell(cells[len-1], &null_cell); 
+
+  for (int i = len-2 ; i>=0 ; --i)
+  {
+    c = cons_cell(cells[i], c);
+  }
+  return c;
+}
+
+  const int CELL_SIZE = 256;
+
+Cell *read_from(TokenContainer &tokens)
+{
+  const char *token = tokens.front();
+  int total_cells = 0; 
+  //char *token = tokens;
+  tokens.pop_front();
+  if (strcmp(token, "(") == 0)
+  {
+    //vector<Cell *> cells;
+    Cell *cells[CELL_SIZE];
+
+    while (strcmp(tokens.front(), ")") != 0)
+    {
+      cells[total_cells++] = read_from(tokens);
+    }
+    tokens.pop_front();
+    return make_list(cells, total_cells);
+  }
+  else
+  {
+    Cell *cell;
+    if (isdig(token[0]) || (token[0] == '-' && isdig(token[1])))
+      cell = get_cell(token, NUMBER);
+    else
+      cell = get_cell(token, SYMBOL);
+    //cout << "cell val_: " << cell->val_ << endl;
+    return cell;
+  }
+}
+
+Cell *read(TokenContainer &tokens)
 {
   if (tokens.size() > 0)
     return read_from(tokens);
@@ -1341,9 +1414,12 @@ void repl(const char *prompt, Environment *env)
   for (;;) 
   {
     std::cout << prompt;
+#ifdef OS_CPP
     std::list<std::string> tokens;
+#endif
+    TokenContainer tc;
 
-      int parenthesis_count=0;
+    int parenthesis_count=0;
     while(1)
     {
       // get_byte
@@ -1352,7 +1428,6 @@ void repl(const char *prompt, Environment *env)
       char line[LINE_SIZE];
       int i=0;
       int state;
-
 
       while(i < LINE_SIZE)
       {
@@ -1426,7 +1501,10 @@ void repl(const char *prompt, Environment *env)
         if (line[0] != ' ' && line[0] != 0)
         {
           //cout << line << endl;
+#ifdef OS_CPP
           tokens.push_back(line);
+#endif
+          tc.push_back(line);
           line[0] = 0;
         }
 
@@ -1443,15 +1521,25 @@ end_line:
     }
     //parenthesis_count=0;
 
+#ifdef OS_CPP
       cout << "tokens.size(): " << tokens.size() << endl;
       for (std::list<std::string>::iterator it=tokens.begin() ; it != tokens.end() ; ++it)
       {
         cout << *it << endl;
       }
+#endif
+      cout << "tc.size(): " << tc.size() << endl;
+      tc.print();
 
+#ifdef OS_CPP
     Cell *exp = read(tokens);
     if (exp->type_ == INVALID) // no input string
       continue;
+#else
+    Cell *exp = read(tc);
+    if (exp->type_ == INVALID) // no input string
+      continue;
+#endif
 
 #if 0
         cout << endl;
@@ -1483,8 +1571,9 @@ end_line:
   }
 }
 
-int main ()
+int main(int argc, char *argv[])
 {
+#if 1
   invalid_cell.type_ = INVALID;
   null_cell.type_ = NULL_CELL;
   lambda_cell.type_ = SYMBOL;
@@ -1506,5 +1595,19 @@ int main ()
 
   create_primitive_procedure(global_env);
   repl("simple scheme> ", global_env);
+#endif
+
+#if 0
+  TokenContainer tc;
+
+  tc.push_back("abc");
+  tc.push_back("xyz");
+  tc.print();
+  const char *str = tc.front();
+  cout << str << endl;
+  tc.pop_front();
+  tc.print();
+#endif
+  return 0;
 }
 
