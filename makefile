@@ -1,5 +1,8 @@
-s_eval: s_eval.o cell.o token_container.o
+ss: ss.o s_eval.o cell.o token_container.o
 	g++ -o $@ $^
+
+ss.o: ss.cpp
+	g++ -g -c $<
 
 s_eval.o: s_eval.cpp cell.h
 	g++ -g -c $<
