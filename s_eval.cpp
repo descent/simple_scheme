@@ -1,5 +1,5 @@
 #include <iostream>
-#include <sstream>
+//#include <sstream>
 
 #ifdef OS_CPP
 #include <string>
@@ -17,7 +17,7 @@ using namespace std;
 #include "token_container.h"
 
 // return given mumber as a string
-std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
+//std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 
 // return true iff given character is '0'..'9'
 bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
