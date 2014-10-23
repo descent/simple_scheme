@@ -1404,11 +1404,13 @@ void repl(const char *prompt, Environment *env)
 {
   for (;;) 
   {
-    //std::cout << prompt;
 #ifdef OS_CPP
     std::list<std::string> tokens;
-#endif
+    std::cout << prompt;
+#else
+    myprint(prompt);
     TokenContainer tc;
+#endif
 
     int parenthesis_count=0;
     while(1)
