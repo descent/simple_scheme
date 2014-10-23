@@ -1,15 +1,19 @@
-#include <iostream>
 //#include <sstream>
 
 #ifdef OS_CPP
+#include <iostream>
 #include <string>
 #include <list>
 #include <map>
 #include <vector>
-#endif
 
 #include <cstdio>
 #include <cstdlib>
+#else
+#include "k_string.h"
+#define strcmp s_strcmp
+#define sprintf s32_sprintf
+#endif
 
 #include "s_eval.h"
 
@@ -19,7 +23,7 @@ using namespace std;
 //std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 
 // return true iff given character is '0'..'9'
-bool isdig(char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }
+bool isdig(char c) { return isdigit(static_cast<int>(c)) != 0; }
 
 Cell invalid_cell;
 Cell null_cell;
@@ -82,9 +86,9 @@ Environment *get_env(Environment *outer, const char *name)
 
 void extend_environment(Cell *vars, Cell *vals, Environment *env)
 {
-  cout << "-----\n";
+  //cout << "-----\n";
   print_cell(vars);
-  cout << "\n";
+  //cout << "\n";
 #if 0
   print_cell(vals);
   cout << "\n-----\n";
@@ -106,19 +110,19 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
     cout << "\n%%%\n";
     print_cell(rest_vars);
     cout << "\n%%%\n";
-  #endif
     cout << "add to env : " << env->name_ << endl;
     cout << "car_cell(rest_vars)->val_: " << car_cell(rest_vars)->val_ << endl;
     cout << "value of " << car_cell(rest_vars)->val_ << ":" << endl;
+  #endif
     print_cell(car_cell(rest_vals));
-    cout << "\n====\n";
+    //cout << "\n====\n";
 
 #ifdef USE_CPP_MAP
     env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
 #else
   if (add_variable(env, car_cell(rest_vars)->val_, car_cell(rest_vals)) == -1)
   {
-    cout << "add_variable faile\n";
+    //cout << "add_variable faile\n";
   }
 
 #endif
@@ -135,13 +139,13 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
 
 Cell* lookup_variable_value(const Cell *exp, Environment *env)
 {
-  cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
+  //cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
 
 #ifdef USE_CPP_MAP
   Frame::const_iterator it = env->frame_.find(exp->val_);
   if (it != env->frame_.end()) // find it
   {
-    cout << "found it" << endl;
+    //cout << "found it" << endl;
     return (*it).second;
   }
   else
@@ -175,13 +179,14 @@ Cell* lookup_variable_value(const Cell *exp, Environment *env)
 #endif
 
 #endif
-  cout << "not found it" << endl;
+  //cout << "not found it" << endl;
   return &invalid_cell;
 }
 
 Cell *eval(Cell *exp, Environment *env);
 
 
+#if 0
 // sign version
 char* s32_itoa_s(int n, char* str, int radix)
 {
@@ -223,6 +228,7 @@ char* s32_itoa_s(int n, char* str, int radix)
   #endif
   return str;
 }
+#endif
 
 int add_cell(Cell *c)
 {
@@ -233,8 +239,8 @@ int add_cell(Cell *c)
     return add_cell(cdr_cell(c));
   else if (cell->type_ != NULL_CELL)
        {
-         cout << cell->val_ << endl;
-         return sum += atol(cell->val_);
+         //cout << cell->val_ << endl;
+         return sum += atoi(cell->val_);
        }
        else
          return 0;
@@ -286,6 +292,7 @@ Cell *proc_equal(Cell *cell)
 // print frame variable/value
 void print_env_content(const Environment *env)
 {
+#if 0
 #ifdef USE_CPP_MAP
   Frame::const_iterator it = env->frame_.begin();
   for (; it != env->frame_.end() ; ++it)
@@ -300,10 +307,12 @@ void print_env_content(const Environment *env)
   }
 
 #endif
+#endif
 }
 
 int print_env(Environment *env, int count)
 {
+#if 0
   for (int i=0 ; i < count*2 ; ++i)
     cout << ' ';
   cout << "env name: " << env->name_ << endl;
@@ -313,17 +322,19 @@ int print_env(Environment *env, int count)
     print_env(env->outer_, count+1);
   }
   return 0;
+#endif
 }
 
 Cell *proc_env(Cell *cell)
 {
   Cell *first = car_cell(cell);
   int i= atoi(first->val_);
+#if 0
   cout << "environment hierarchy:" << endl;
   print_env(environment_pool + i, 0);
   print_env_content(environment_pool + i);
-
   cout << endl;
+#endif
   return &true_cell;
 #if 0
   // need check first is null_cell or invalid_cell
@@ -344,13 +355,14 @@ Cell *proc_env(Cell *cell)
 // list all environment
 Cell *proc_env_list(Cell *cell)
 {
+#if 0
   cout << "=============" << endl;
   for (int i=0 ; i < free_env_index ; ++i)
   {
     cout << i << ": " << environment_pool[i].name_ << endl;
   }
   cout << "=============" << endl;
-
+#endif
   return &true_cell;
 }
 
@@ -410,11 +422,12 @@ Cell *proc_pool_status(Cell *cell)
   extern int free_pair_index;
   extern int free_cell_index;
 
+#if 0
   cout << "pool max: " << MAX_POOL << endl;
   cout << "Cell size: " << sizeof(Cell) << "bytes" << endl;
   cout << "cell pool index: " << free_cell_index << endl;
   cout << "pair pool index: " << free_pair_index << endl;
-
+#endif
   return &true_cell;
 }
 
@@ -434,7 +447,7 @@ Cell *proc_add(Cell *cell)
     sum += atoi(car_cell(rest)->val_);
     rest = cdr_cell(rest);
   }
-  cout << "sum: " << sum << endl;
+  //cout << "sum: " << sum << endl;
   char str[20];
   return get_cell(s32_itoa_s(sum, str, 10), NUMBER);
 }
@@ -450,7 +463,7 @@ Cell *proc_sub(Cell *cell)
     sub -= atoi(car_cell(rest)->val_);
     rest = cdr_cell(rest);
   }
-  cout << "sub: " << sub << endl;
+  //cout << "sub: " << sub << endl;
   char str[20];
   return get_cell(s32_itoa_s(sub, str, 10), NUMBER);
 #if 0
@@ -471,7 +484,7 @@ Cell *proc_mul(Cell *cell)
     product *= atoi(car_cell(rest)->val_);
     rest = cdr_cell(rest);
   }
-  cout << "product: " << product << endl;
+  //cout << "product: " << product << endl;
   char str[20];
   return get_cell(s32_itoa_s(product, str, 10), NUMBER);
 }
@@ -844,11 +857,11 @@ Cell *list_of_values(Cell *exp, Environment *env)
 
   if (exp->type_ == NULL_CELL)
   {
-    cout << "i am null" << endl;
+    //cout << "i am null" << endl;
     return &null_cell;
   }
   else
-    return  cons_cell(eval(first_operand, env), list_of_values(rest_operands, env));
+    return cons_cell(eval(first_operand, env), list_of_values(rest_operands, env));
 #if 0
   //cout << "list_of_values" << endl;
   Cell ret_cell(List);
@@ -930,15 +943,16 @@ Cell *eval_sequence(Cell *exp, Environment *env)
 Cell *apply(Cell *func, Cell *args)
 {
   //Cell *eval(const Cell &exp, Environment *env);
-  cout << "apply:" << func->type_str() << endl;
-  cout << endl;
+  //cout << "apply:" << func->type_str() << endl;
+  //cout << endl;
   //return func->proc_(args);
   //print_cell(func);
   //cout << endl;
+#if 0
       cout << "\napply args: \n";
       print_cell(args);
       cout << endl;
-
+#endif
   if (func->lambda_ == true)
   {
       // new a Environment
@@ -946,18 +960,18 @@ Cell *apply(Cell *func, Cell *args)
 
       Cell *body = cdr_cell(func);
       Cell *parameters = car_cell(func);
-
+#if 0
       cout << "\napply func: \n";
       print_cell(func);
       cout << "\napply body: \n";
       print_cell(body);
       cout << "\napply parameters: \n";
       print_cell(parameters);
-      
+#endif  
       static int env_counter=0;
       char env_name[255];
       sprintf(env_name, "e%d", env_counter++);
-      cout << "\nouter env: " << func->env_->name_ << endl;
+      //cout << "\nouter env: " << func->env_->name_ << endl;
       Environment *env = get_env(func->env_, env_name);
 
       extend_environment(parameters, args, env);
@@ -967,7 +981,7 @@ Cell *apply(Cell *func, Cell *args)
   }
   else if (func->type_ == PRIMITIVE_PROC)
        {
-         cout << "primitive proc: " << func->val_ << endl;
+         //cout << "primitive proc: " << func->val_ << endl;
          return func->proc_(args);
        }
 
@@ -978,20 +992,22 @@ Cell *make_procedure(Cell *parameters, Cell *body, Environment *env)
 {
   Cell *lambda_proc = cons_cell(parameters, body);
 
+#if 0
           cout << "xx parameters: " << endl;
           print_cell(parameters);
           cout << endl;
           cout << "xx body: " << endl;
           print_cell(body);
           cout << endl;
-
+#endif
   //lambda_proc->type_ = LAMBDA_PROC;
   lambda_proc->lambda_ = true;
   lambda_proc->env_ = env;
+#if 0
   cout << "lambda proc: " << endl;
   print_cell(lambda_proc);
   cout << endl;
-
+#endif
   return lambda_proc;
 }
 
@@ -1070,11 +1086,11 @@ void set_variable(Cell *var, Cell *val, Environment *env)
   {
     if (add_variable(env, var->val_, val) != -1)
     {
-      cout << "add variable\n";
+      //cout << "add variable\n";
     }
     else
     {
-      cout << "add variable fail\n";
+      //cout << "add variable fail\n";
     }
   }
 
@@ -1263,7 +1279,7 @@ Cell *eval(Cell *exp, Environment *env)
     //case Variable: // symbol
     case SYMBOL: // symbol
     {
-      cout << "SYMBOL:" << exp->val_ << endl;
+      //cout << "SYMBOL:" << exp->val_ << endl;
       //return env->frame_[exp->val_];
       return lookup_variable_value(exp, env);
       //return get_cell("primitive add", proc_add);
@@ -1276,31 +1292,36 @@ Cell *eval(Cell *exp, Environment *env)
       //cout << "is pair" << endl;
       if (tagged_list(exp, "lambda"))
       {
+#if 0
         cout << "lambda expression" << endl;
         print_cell(exp);
         cout << endl;
+#endif
           Cell *parameters = car_cell(cdr_cell(exp));
           Cell *body = cdr_cell(cdr_cell(exp));
 
+#if 0
           cout << "parameters: " << endl;
           print_cell(parameters);
           cout << endl;
           cout << "body: " << endl;
           print_cell(body);
           cout << endl;
-
+#endif
           return make_procedure(parameters, body, env);
       }
       else if (tagged_list(exp, "define"))
            {
+#if 0
              cout << "define expression" << endl;
              print_cell(exp);
              cout << endl;
+#endif
              return eval_definition(exp, env);
            }
            else if (tagged_list(exp, "if"))
                 {
-                  cout << "if expression" << endl;
+                  //cout << "if expression" << endl;
                   return eval_if(exp, env);
                 }
                 else if (tagged_list(exp, "begin"))
@@ -1383,7 +1404,7 @@ void repl(const char *prompt, Environment *env)
 {
   for (;;) 
   {
-    std::cout << prompt;
+    //std::cout << prompt;
 #ifdef OS_CPP
     std::list<std::string> tokens;
 #endif
@@ -1422,10 +1443,12 @@ void repl(const char *prompt, Environment *env)
             i=0;
             break;
           }
+          #if 0
           case EOF:
           {
             exit(1);
           }
+          #endif
           case ' ':
           {
             while(1)
@@ -1434,7 +1457,11 @@ void repl(const char *prompt, Environment *env)
               if (ch != ' ')
               {
                 i=0;
+                #ifdef OS_CPP
                 ungetc(ch, stdin);
+                #else
+                ungetch(ch);
+                #endif
                 break;
               }
             }
@@ -1457,7 +1484,11 @@ void repl(const char *prompt, Environment *env)
               {
                 //if (ch == ')')
                 //if (ch == '(')
+                #ifdef OS_CPP
                 ungetc(ch, stdin);
+                #else
+                ungetch(ch);
+                #endif
                 line[i] = 0;
                 i = 0;
                 break;
@@ -1482,7 +1513,7 @@ void repl(const char *prompt, Environment *env)
 
 end_line:
 
-      cout << "parenthesis_count: " << parenthesis_count << endl;
+      //cout << "parenthesis_count: " << parenthesis_count << endl;
         if (parenthesis_count == 0)
           break;
 
@@ -1498,8 +1529,11 @@ end_line:
         cout << *it << endl;
       }
 #endif
+
+#if 0
       cout << "tc.size(): " << tc.size() << endl;
       tc.print();
+#endif
 
 #ifdef OS_CPP
     Cell *exp = read(tokens);
@@ -1522,20 +1556,22 @@ end_line:
     exp = eval(exp, env);
     if (exp == &define_cell)
     {
-      cout << "define: ok" << endl;
+      //cout << "define: ok" << endl;
     }
     else if (exp->type_ != INVALID)
          {
+         #if 0
            cout << "result:" << endl;
            print_cell(exp);
            cout << endl;
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
+          #endif
          }
          else
          {
-           cout << "expression fail!" << endl;
-           cout << "error message: " << invalid_cell.val_ << endl;
+           //cout << "expression fail!" << endl;
+           //cout << "error message: " << invalid_cell.val_ << endl;
          }
         //break;
   }

@@ -1,7 +1,11 @@
 #include "token_container.h"
 
+#ifdef OS_CPP
 #include <cstring>
 #include <iostream>
+#else
+#include "k_string.h"
+#endif
 
 using namespace std;
 
@@ -22,11 +26,11 @@ int TokenContainer::push_back(const char *str)
   if (total_ >= TOKEN_SIZE)
     return -1;
 
-  int len = strlen(str);
+  int len = s_strlen(str);
   if (len > STRING_SIZE-1)
     return -2;
 
-  strcpy(string_[total_], str);
+  s_strcpy(string_[total_], str);
   ++total_;
   return 0;
 }
@@ -35,7 +39,9 @@ void TokenContainer::print()
 {
   for (int i=index_ ; i < total_ ; ++i)
   {
+#ifdef OS_CPP
     cout << string_[i] << endl;
+#endif
   }
 
 }

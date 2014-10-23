@@ -1,8 +1,13 @@
 #ifndef CELL_H
 #define CELL_H
 
+#ifdef OS_CPP
 #include <cstring>
 #include <iostream>
+#else
+#include "k_string.h"
+#define strcpy s_strcpy
+#endif
 
 using namespace std;
 

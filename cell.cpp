@@ -2,6 +2,7 @@
 
 //#define TEST_CELL
 
+
 const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "INVALID"};
 
 const char* Cell::type_str() const 
@@ -14,6 +15,8 @@ Cell cell_pool[MAX_POOL];
 
 int free_pair_index;
 int free_cell_index;
+
+extern Cell invalid_cell;
 
 #if 0
 Cell invalid_cell;
@@ -61,24 +64,27 @@ void print_cell(const Cell *cell)
   //cout << "cell->type: " << cell->type_str() << endl;
   if (cell == 0)
   {
-    cout << "null ptr" << endl;
+    myprint("null ptr\n");
     return;
   }
   if (cell->type() == PAIR)
   {
     //if (cell->pair_attr_ == FIRST || cell->pair_attr_ == HEAD)
-      cout << "( "; 
+    myprint("( "); 
     print_cell(cell->first_);
     print_cell(cell->second_);
-      cout << " ) "; 
+    myprint(") "); 
   }
   else
   {
     if (cell->type() != NULL_CELL)
+    {
       //cout << cell->val_ << " ## " << cell->type_str() << " , ";
-      cout << cell->val_ << " , ";
+      myprint(cell->val_);
+      myprint(" , ");
+    }
     else
-      cout << " () ";
+      myprint(" () ");
   }
 }
 
@@ -230,7 +236,7 @@ Cell *cons_cell(Cell *first, Cell *second)
   Cell *pair = get_pair();
   if (pair == 0)
   {
-    cout << "cons 0" << endl;
+    //cout << "cons 0" << endl;
     return 0;
   }
   pair->first_ = first; 
@@ -339,9 +345,9 @@ int main(int argc, char *argv[])
 
   Cell *exp = read_from(tokens);
 #if 1
-  cout << "\n-----" << endl;
+  //cout << "\n-----" << endl;
   print_cell(exp);
-  cout << "\n-----" << endl;
+  //cout << "\n-----" << endl;
 #endif
 
 #if 0
