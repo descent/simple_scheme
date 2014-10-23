@@ -6,6 +6,7 @@
 #include <iostream>
 #else
 #include "k_string.h"
+#include "k_stdio.h"
 #define strcpy s_strcpy
 #endif
 
