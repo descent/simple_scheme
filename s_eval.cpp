@@ -1532,8 +1532,9 @@ end_line:
       }
 #endif
 
-#if 0
-      cout << "tc.size(): " << tc.size() << endl;
+#if 1
+      //cout << "tc.size(): " << tc.size() << endl;
+      myprint("\r\n");
       tc.print();
 #endif
 
@@ -1559,20 +1560,19 @@ end_line:
     if (exp == &define_cell)
     {
       //cout << "define: ok" << endl;
+      myprint("define: ok\r\n");
     }
     else if (exp->type_ != INVALID)
          {
-         #if 0
-           cout << "result:" << endl;
+           myprint("result:\r\n");
            print_cell(exp);
-           cout << endl;
+           myprint("\r\n");
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
-          #endif
          }
          else
          {
-           //cout << "expression fail!" << endl;
+           myprint("expression fail!\r\n");
            //cout << "error message: " << invalid_cell.val_ << endl;
          }
         //break;
