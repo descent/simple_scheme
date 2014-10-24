@@ -5,6 +5,7 @@
 #include <iostream>
 #else
 #include "k_string.h"
+#include "k_stdio.h"
 #endif
 
 using namespace std;
@@ -41,6 +42,9 @@ void TokenContainer::print()
   {
 #ifdef OS_CPP
     cout << string_[i] << endl;
+#else
+    myprint(string_[i]);
+    myprint("\r\n");
 #endif
   }
 
