@@ -1469,9 +1469,10 @@ void repl(const char *prompt, Environment *env)
             }
             break;
           }
-          case '\n':
+          case '\r':
           {
             //cout << "\\n" << endl;;
+            //myprint("\r\nenter\r\n");
             goto end_line;
             break;
           }
@@ -1482,7 +1483,7 @@ void repl(const char *prompt, Environment *env)
             {
               ch=getchar();
 
-              if (ch == ' ' || ch == ')' || ch == '(' || ch == '\n')
+              if (ch == ' ' || ch == ')' || ch == '(' || ch == '\r')
               {
                 //if (ch == ')')
                 //if (ch == '(')
