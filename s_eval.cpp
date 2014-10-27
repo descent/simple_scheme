@@ -822,9 +822,15 @@ Cell *read_from(TokenContainer &tokens)
   {
     Cell *cell;
     if (isdig(token[0]) || (token[0] == '-' && isdig(token[1])))
+    {
+      //myprint("\r\nnumber\r\n");
       cell = get_cell(token, NUMBER);
+    }
     else
+    {
+      //myprint("\r\nsymbol\r\n");
       cell = get_cell(token, SYMBOL);
+    }
     //cout << "cell val_: " << cell->val_ << endl;
     return cell;
   }
