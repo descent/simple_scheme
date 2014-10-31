@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#define myprint printf
 #else
 #include "k_string.h"
 #define strcmp s_strcmp
@@ -18,6 +19,49 @@
 #include "s_eval.h"
 
 using namespace std;
+
+#ifdef OS_CPP
+char* s32_itoa_s(int n, char* str, int radix)
+{
+  char digit[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  char* p=str;
+  char* head=str;
+  //int radix = 10;
+
+//  if(!p || radix < 2 || radix > 36)
+//    return p;
+  if (n==0)
+  {
+    *p++='0';
+    *p=0;
+    return str;
+  }
+  if (radix == 10 && n < 0)
+  {
+    *p++='-';
+    n= -n;
+  }
+  while(n)
+  {
+    *p++=digit[n%radix];
+    //s32_put_char(*(p-1), (u8*)(0xb8000+80*2));
+    n/=radix;
+  }
+  *p=0;
+  #if 1
+  for (--p; head < p ; ++head, --p)
+  {
+    char temp=*head;
+    if (*(p-1) != '-')
+    {
+      *head=*p;
+      *p=temp;
+    }
+  }
+  #endif
+  return str;
+}
+#endif
 
 // return given mumber as a string
 //std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
@@ -732,6 +776,18 @@ int tokenize(const std::string & str, std::list<std::string> &tokens)
 
 
 #ifdef OS_CPP
+Cell *make_list(vector<Cell *> cells)
+{
+  Cell *c;
+  c = cons_cell(cells[cells.size()-1], &null_cell); 
+
+  for (int i = cells.size()-2 ; i>=0 ; --i)
+  {
+    c = cons_cell(cells[i], c);
+  }
+  return c;
+}
+
 // return the Lisp expression in the given tokens
 Cell *read_from(std::list<std::string> & tokens)
 {
@@ -772,17 +828,6 @@ Cell *read(std::list<std::string> tokens)
   }
 }
 
-Cell *make_list(vector<Cell *> cells)
-{
-  Cell *c;
-  c = cons_cell(cells[cells.size()-1], &null_cell); 
-
-  for (int i = cells.size()-2 ; i>=0 ; --i)
-  {
-    c = cons_cell(cells[i], c);
-  }
-  return c;
-}
 
 #endif
 
@@ -1522,7 +1567,14 @@ void repl(const char *prompt, Environment *env)
 
 end_line:
 
-      //cout << "parenthesis_count: " << parenthesis_count << endl;
+
+#ifdef OS_CPP
+      cout << "parenthesis_count: " << parenthesis_count << endl;
+#else
+      myprint("parenthesis_count: "); 
+      myprint(parenthesis_count);
+      myprint("\r\n");
+#endif
         if (parenthesis_count == 0)
           break;
 
