@@ -4,7 +4,7 @@
 #include "cell.h"
 #include "token_container.h"
 
-const int MAX_ENVIRONMENT_POOL = 10;
+const int MAX_ENVIRONMENT_POOL = 20;
 
 #ifdef USE_CPP_MAP
 typedef std::map<std::string, Cell*> Frame;
