@@ -1,5 +1,6 @@
-CXXFLAGS=-DOS_CPP
+CXXFLAGS=-DOS_CPP -fno-exceptions -fno-rtti
 CXX=g++
+AR=ar
 ss: ss.o libss.a
 	$(CXX) -o $@ $^
 
@@ -7,7 +8,7 @@ ss.o: ss.cpp
 	$(CXX) $(CXXFLAGS) -g -c $<
 
 libss.a: s_eval.o cell.o token_container.o
-	ar rcs $@ $^
+	$(AR) rcs $@ $^
 
 s_eval.o: s_eval.cpp cell.h
 	$(CXX) $(CXXFLAGS) -g -c $<
