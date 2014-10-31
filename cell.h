@@ -4,6 +4,8 @@
 #ifdef OS_CPP
 #include <cstring>
 #include <iostream>
+#include <cstdio>
+#define myprint printf
 #else
 #include "k_string.h"
 #include "k_stdio.h"
