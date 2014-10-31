@@ -3,6 +3,8 @@
 #ifdef OS_CPP
 #include <cstring>
 #include <iostream>
+#define s_strlen strlen
+#define s_strcpy strcpy
 #else
 #include "k_string.h"
 #include "k_stdio.h"
