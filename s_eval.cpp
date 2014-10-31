@@ -1591,8 +1591,11 @@ end_line:
       }
 #endif
 
-#if 1
-      //cout << "tc.size(): " << tc.size() << endl;
+#ifdef OS_CPP
+      cout << "tc.size(): " << tc.size() << endl;
+#else
+      myprint("tc.size(): "); 
+      myprint(tc.size());
       myprint("\r\n");
       tc.print();
 #endif
