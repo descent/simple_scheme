@@ -1,8 +1,8 @@
 #ifndef TOKEN_CONTAINER_H
 #define TOKEN_CONTAINER_H
 
-const int STRING_SIZE = 256;
-const int TOKEN_SIZE = 1024;
+const int STRING_SIZE = 128;
+const int TOKEN_SIZE = 256;
 typedef char CString[STRING_SIZE];
 
 class TokenContainer
