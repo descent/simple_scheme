@@ -131,7 +131,7 @@ Environment *get_env(Environment *outer, const char *name)
 void extend_environment(Cell *vars, Cell *vals, Environment *env)
 {
   //cout << "-----\n";
-  print_cell(vars);
+  //print_cell(vars);
   //cout << "\n";
 #if 0
   print_cell(vals);
@@ -466,11 +466,24 @@ Cell *proc_pool_status(Cell *cell)
   extern int free_pair_index;
   extern int free_cell_index;
 
-#if 0
+#ifdef OS_CPP
   cout << "pool max: " << MAX_POOL << endl;
   cout << "Cell size: " << sizeof(Cell) << "bytes" << endl;
   cout << "cell pool index: " << free_cell_index << endl;
   cout << "pair pool index: " << free_pair_index << endl;
+#else
+  myprint("pool max: ");
+  myprint(MAX_POOL);
+  myprint("\r\n");
+  myprint("Cell size: "); 
+  myprint(sizeof(Cell)); 
+  myprint(" bytes\r\n");
+  myprint("cell pool index: ");
+  myprint(free_cell_index);
+  myprint("\r\n");
+  myprint("pair pool index: "); 
+  myprint(free_pair_index);
+  myprint("\r\n");
 #endif
   return &true_cell;
 }
@@ -1024,7 +1037,11 @@ Cell *apply(Cell *func, Cell *args)
       sprintf(env_name, "e%d", env_counter++);
       //cout << "\nouter env: " << func->env_->name_ << endl;
       Environment *env = get_env(func->env_, env_name);
-
+      if (env == 0)
+      {
+        strcpy(invalid_cell.val_, "env pool is empty");
+        return &invalid_cell;
+      }
       extend_environment(parameters, args, env);
 
       return eval_sequence(body, env);
@@ -1629,8 +1646,13 @@ end_line:
          }
          else
          {
-           myprint("expression fail!\r\n");
-           //cout << "error message: " << invalid_cell.val_ << endl;
+#ifdef OS_CPP
+           cout << "expression fail\nerror message: " << invalid_cell.val_ << endl;
+#else
+           myprint("expression fail!\r\nerror message: ");
+           myprint(invalid_cell.val_);
+           myprint("\r\n");
+#endif
          }
   }
 }
