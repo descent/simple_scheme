@@ -67,7 +67,7 @@ char* s32_itoa_s(int n, char* str, int radix)
 //std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 
 // return true iff given character is '0'..'9'
-bool isdig(char c) { return isdigit(static_cast<int>(c)) != 0; }
+bool isdig(char c) { return isdigit(static_cast<int>(c)); }
 
 Cell invalid_cell;
 Cell null_cell;
@@ -1450,6 +1450,7 @@ std::string to_string(const Cell & exp)
 
 enum {BEGIN, SPACE, WORD, END};
 
+
 // the default read-eval-print-loop
 void repl(const char *prompt, Environment *env)
 {
@@ -1460,10 +1461,10 @@ void repl(const char *prompt, Environment *env)
     std::cout << prompt;
 #else
     myprint(prompt);
-    TokenContainer tc;
 #endif
-
+    TokenContainer tc;
     int parenthesis_count=0;
+
     while(1)
     {
       // get_byte
@@ -1548,7 +1549,9 @@ void repl(const char *prompt, Environment *env)
                 break;
               }
               else
+              {
                 line[i++] = ch;
+              }
             }
           }
         }
@@ -1610,14 +1613,6 @@ end_line:
       continue;
 #endif
 
-#if 0
-        cout << endl;
-        print_cell(exp);
-        cout << endl;
-        proc_pool_status(exp);
-        continue;
-#endif
-
     exp = eval(exp, env);
     if (exp == &define_cell)
     {
@@ -1637,7 +1632,6 @@ end_line:
            myprint("expression fail!\r\n");
            //cout << "error message: " << invalid_cell.val_ << endl;
          }
-        //break;
   }
 }
 
