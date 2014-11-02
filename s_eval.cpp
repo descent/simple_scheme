@@ -1,6 +1,7 @@
 //#include <sstream>
 
 #ifdef OS_CPP
+#define ENTER '\n'
 #include <iostream>
 #include <string>
 #include <list>
@@ -14,6 +15,7 @@
 #include "k_string.h"
 #define strcmp s_strcmp
 #define sprintf s32_sprintf
+#define ENTER '\r'
 #endif
 
 #include "s_eval.h"
@@ -1538,7 +1540,7 @@ void repl(const char *prompt, Environment *env)
             }
             break;
           }
-          case '\r':
+          case ENTER:
           {
             //cout << "\\n" << endl;;
             //myprint("\r\nenter\r\n");
@@ -1552,7 +1554,7 @@ void repl(const char *prompt, Environment *env)
             {
               ch=getchar();
 
-              if (ch == ' ' || ch == ')' || ch == '(' || ch == '\r')
+              if (ch == ' ' || ch == ')' || ch == '(' || ch == ENTER)
               {
                 //if (ch == ')')
                 //if (ch == '(')
