@@ -41,14 +41,14 @@ struct Cell
     Cell(ProcType proc, const std::string proc_name) 
       :type(Proc), proc_(proc), val(proc_name), env_(0), proc_kind_(PRIMITIVE)
     {}
+#endif
     bool is_null() 
     {
-      if (list.size() == 0) 
+      if (type() == NULL_CELL)
         return true;
       else
         return false;
     }
-#endif
 
     CellType type() const {return type_;}
     //ProcKind proc_kind() const {return proc_kind_;}
