@@ -6,13 +6,14 @@
 #include <iostream>
 #include <cstdio>
 #define myprint printf
+using namespace std;
 #else
 #include "k_string.h"
 #include "k_stdio.h"
 #define strcpy s_strcpy
+using namespace DS;
 #endif
 
-using namespace std;
 
 const int MAX_POOL = 1024;
 
