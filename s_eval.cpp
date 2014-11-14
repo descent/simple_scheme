@@ -1659,6 +1659,142 @@ end_line:
   }
 }
 
+extern DS::Deque<int> line_buf;
+
+void non_os_repl(const char *prompt, Environment *env)
+{
+  extern Deque<DS::CString> deque;
+
+  for (;;) 
+  {
+    myprint(prompt);
+    TokenContainer tc;
+    int parenthesis_count=0;
+    int up_index=0;
+    int down_index=0;
+    DS::CString ps;
+
+    ps = "";
+
+    while(1)
+    {
+      // get_byte
+      //std::string line; 
+      //std::getline(std::cin, line);
+      char line[LINE_SIZE];
+      int i=0;
+      int state;
+      int ch;
+
+      while(i < LINE_SIZE)
+      {
+        ch = DS::getch();
+        switch (ch)
+        {
+          case UP_KEY:
+          {
+            //line[i] = 0;
+            //ps.init(line);
+            if (deque.back(up_index, ps) == true)
+            {
+              go_left(line_buf.size());
+              for (int i=0 ; i < 80 ; ++i)
+                send_byte(' ');
+              go_left(80);
+
+              //myprint("\r\n");
+              myprint(ps.c_str());
+              line_buf.clear();
+              const char *c_str = ps.c_str();
+              // copy to line buffer
+              for (int i=0 ; i < ps.length() ; ++i)
+              {
+                int c = c_str[i];
+                line_buf.push_back(c);
+              }
+              //myprint("\r\n");
+              ++up_index;
+            }
+            break;
+          }
+          case DOWN_KEY:
+          {
+            if (deque.back(up_index-1, ps) == true)
+            {
+              go_left(line_buf.size());
+              for (int i=0 ; i < 80 ; ++i)
+                send_byte(' ');
+              go_left(80);
+
+              const char *c_str = ps.c_str();
+              line_buf.clear();
+              // copy to line buffer
+              for (int i=0 ; i < ps.length() ; ++i)
+              {
+                int c = c_str[i];
+                line_buf.push_back(c);
+              }
+
+              //myprint("\r\n");
+              myprint(ps.c_str());
+              //myprint("\r\n");
+              --up_index;
+            }
+
+            break;
+          }
+          case ENTER:
+          {
+            //cout << "\\n" << endl;;
+            //myprint("\r\nenter\r\n");
+            up_index = 0;
+            goto end_line;
+            break;
+          }
+          case BACKSPACE:
+          {
+            if (!line_buf.empty())
+            {
+              send_byte(8);
+              send_byte(' ');
+              send_byte(8);
+              line_buf.pop_back();
+            }
+            break;
+          }
+          default:
+          {
+            //line[i++] = ch;
+            line_buf.push_back(ch);
+            break;
+          }
+        }
+      }
+end_line:
+
+      int l = 0;
+      int c;
+      int line_buf_len = line_buf.size();
+      for ( ; l < line_buf_len ; ++l)
+      {
+        line_buf.pop_front(c);
+        line[l] = c;
+      }
+      line[l] = 0;
+      ps.init(line);
+      deque.push_back(ps);
+
+
+      myprint("\r\ninput str: ");
+      myprint(ps.c_str());
+      myprint("\r\n");
+      ps = "";
+    } 
+
+    // parse input string
+  }
+}
+
 int init_eval()
 {
 #if 1
