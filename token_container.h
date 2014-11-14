@@ -3,10 +3,11 @@
 
 const int STRING_SIZE = 128;
 const int TOKEN_SIZE = 256;
-typedef char CString[STRING_SIZE];
 
 class TokenContainer
 {
+  typedef char CString[STRING_SIZE];
+
   public:
     TokenContainer();
     int push_back(const char* str);

@@ -5,12 +5,13 @@
 #include <iostream>
 #define s_strlen strlen
 #define s_strcpy strcpy
+using namespace std;
 #else
 #include "k_string.h"
 #include "k_stdio.h"
+using namespace DS;
 #endif
 
-using namespace std;
 
 #if 0
 void strcpy(char *dst, const char *src)
