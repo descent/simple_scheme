@@ -1693,17 +1693,24 @@ void non_os_repl(const char *prompt, Environment *env)
         {
           case UP_KEY:
           {
-            //line[i] = 0;
             //ps.init(line);
             if (deque.back(up_index, ps) == true)
             {
-              go_left(line_buf.size());
-              for (int i=0 ; i < 80 ; ++i)
-                send_byte(' ');
-              go_left(80);
+              int lb_size = line_buf.size();
+              int ps_size = ps.length();
 
-              //myprint("\r\n");
+              go_left(line_buf.size());
+
               myprint(ps.c_str());
+              if (ps_size < lb_size)
+              {
+                int str_diff = lb_size - ps_size;
+
+                for (int i=0 ; i < str_diff ; ++i)
+                  send_byte(' ');
+                go_left(str_diff);
+              }
+
               line_buf.clear();
               const char *c_str = ps.c_str();
               // copy to line buffer
@@ -1712,7 +1719,6 @@ void non_os_repl(const char *prompt, Environment *env)
                 int c = c_str[i];
                 line_buf.push_back(c);
               }
-              //myprint("\r\n");
               ++up_index;
             }
             break;
@@ -1721,23 +1727,29 @@ void non_os_repl(const char *prompt, Environment *env)
           {
             if (deque.back(up_index-1, ps) == true)
             {
-              go_left(line_buf.size());
-              for (int i=0 ; i < 80 ; ++i)
-                send_byte(' ');
-              go_left(80);
+              int lb_size = line_buf.size();
+              int ps_size = ps.length();
 
-              const char *c_str = ps.c_str();
+              go_left(line_buf.size());
+
+              myprint(ps.c_str());
+              if (ps_size < lb_size)
+              {
+                int str_diff = lb_size - ps_size;
+
+                for (int i=0 ; i < str_diff ; ++i)
+                  send_byte(' ');
+                go_left(str_diff);
+              }
+
               line_buf.clear();
+              const char *c_str = ps.c_str();
               // copy to line buffer
               for (int i=0 ; i < ps.length() ; ++i)
               {
                 int c = c_str[i];
                 line_buf.push_back(c);
               }
-
-              //myprint("\r\n");
-              myprint(ps.c_str());
-              //myprint("\r\n");
               --up_index;
             }
 
