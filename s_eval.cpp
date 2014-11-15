@@ -1729,7 +1729,7 @@ void non_os_repl(const char *prompt, Environment *env)
           }
           case DOWN_KEY:
           {
-            if (deque.back(up_index-1, ps) == true)
+            if (deque.back(up_index-2, ps) == true)
             {
               int lb_size = line_buf.size();
               int ps_size = ps.length();
@@ -1800,11 +1800,11 @@ end_line:
       ps.init(line);
       deque.push_back(ps);
 
-
+#if 0
       myprint("\r\ninput str: ");
       myprint(ps.c_str());
       myprint("\r\n");
-      ps = "";
+#endif
     } 
 
     // parse input string
