@@ -11,11 +11,15 @@
 #include <cstdio>
 #include <cstdlib>
 #define myprint printf
-#else
+#else // non os
 #include "k_string.h"
+#include "k_stdio.h"
+#include "cstring.h"
+#include "gdeque.h"
 #define strcmp s_strcmp
 #define sprintf s32_sprintf
-#define ENTER '\r'
+//#define ENTER '\r'
+//using namespace DS;
 #endif
 
 #include "s_eval.h"
