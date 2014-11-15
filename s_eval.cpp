@@ -1697,7 +1697,7 @@ end_line:
   }
 }
 
-extern DS::Deque<int> line_buf;
+//extern DS::Deque<int, 128> line_buf;
 
 // convert given string to list of tokens
 int tokenize(const char *s, TokenContainer &tokens, int &parenthesis_count)
@@ -1742,7 +1742,12 @@ int tokenize(const char *s, TokenContainer &tokens, int &parenthesis_count)
 
 void non_os_repl(const char *prompt, Environment *env)
 {
-  extern Deque<DS::CString> deque;
+  DS::Deque<int, 128> line_buf;
+  line_buf.init();
+
+  Deque<DS::CString> deque;
+
+  deque.init(); // history buffer
 
   for (;;) 
   {
