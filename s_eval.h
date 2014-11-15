@@ -36,6 +36,7 @@ struct Environment
 
 int init_eval();
 void repl(const char *prompt, Environment *env);
+void non_os_repl(const char *prompt, Environment *env);
 Environment *get_env(Environment *outer, const char *name);
 void create_primitive_procedure(Environment *env);
 
