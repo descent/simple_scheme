@@ -103,6 +103,7 @@ int add_variable(Environment *env, const char *variable, Cell *cell)
   }
 }
 
+
 // return EnvElement * pointer need not to free it.
 EnvElement *find_variable(Environment *env, const char *variable)
 {
@@ -1473,6 +1474,39 @@ std::string to_string(const Cell & exp)
 
 enum {BEGIN, SPACE, WORD, END};
 
+void do_eval(TokenContainer &tc, Environment * env)
+{
+    Cell *exp = read(tc);
+    if (exp->type_ == INVALID) // no input string
+    {
+      myprint("parse expression fail\r\n");
+      return;
+    }
+    exp = eval(exp, env);
+    if (exp == &define_cell)
+    {
+      //cout << "define: ok" << endl;
+      myprint("define: ok\r\n");
+    }
+    else if (exp->type_ != INVALID)
+         {
+           myprint("result:\r\n");
+           print_cell(exp);
+           myprint("\r\n");
+           if (exp->env_ != 0)
+             print_env(exp->env_, 0);
+         }
+         else
+         {
+#ifdef OS_CPP
+           cout << "expression fail\nerror message: " << invalid_cell.val_ << endl;
+#else
+           myprint("expression fail!\r\nerror message: ");
+           myprint(invalid_cell.val_);
+           myprint("\r\n");
+#endif
+         }
+}
 
 // the default read-eval-print-loop
 void repl(const char *prompt, Environment *env)
@@ -1665,6 +1699,47 @@ end_line:
 
 extern DS::Deque<int> line_buf;
 
+// convert given string to list of tokens
+int tokenize(const char *s, TokenContainer &tokens, int &parenthesis_count)
+{
+  //cout << "org str: " << str << endl;
+  //const char * s = str.c_str();
+  while (*s) 
+  {
+    while (*s == ' ')
+      ++s;
+    if (*s == '(' || *s == ')')
+    {
+      if (*s == '(')
+        ++parenthesis_count;
+      if (*s == ')')
+        --parenthesis_count;
+      tokens.push_back(*s++ == '(' ? "(" : ")");
+    }
+    else 
+    {
+      const char * t = s;
+      while (*t && *t != ' ' && *t != '(' && *t != ')')
+      {
+        if (*s == '(')
+          ++parenthesis_count;
+        if (*s == ')')
+          --parenthesis_count;
+        ++t;
+      }
+      char substr[STRING_SIZE];
+      s_strncpy(substr, s, t-s);
+      tokens.push_back(substr);
+      //tokens.push_back(std::string(s, t));
+      //cout << "str: " << s << endl;
+      s = t;
+    }
+  }
+  //cout << "parenthesis_count:" << parenthesis_count << endl;
+
+  return parenthesis_count;
+}
+
 void non_os_repl(const char *prompt, Environment *env)
 {
   extern Deque<DS::CString> deque;
@@ -1672,13 +1747,14 @@ void non_os_repl(const char *prompt, Environment *env)
   for (;;) 
   {
     myprint(prompt);
-    TokenContainer tc;
-    int parenthesis_count=0;
     int up_index=0;
     int down_index=0;
     DS::CString ps;
 
     ps = "";
+
+    int parenthesis_count=0;
+    TokenContainer tc;
 
     while(1)
     {
@@ -1695,6 +1771,14 @@ void non_os_repl(const char *prompt, Environment *env)
         ch = DS::getch();
         switch (ch)
         {
+          case LEFT_KEY:
+          {
+            break;
+          }
+          case RIGHT_KEY:
+          {
+            break;
+          }
           case UP_KEY:
           {
             //ps.init(line);
@@ -1805,10 +1889,20 @@ end_line:
       myprint(ps.c_str());
       myprint("\r\n");
 #endif
-    } 
+      // parse input string
+      tokenize(line, tc, parenthesis_count);
+      myprint("tc.size(): "); 
+      myprint(tc.size());
+      myprint("\r\n");
+      tc.print();
 
-    // parse input string
-  }
+      if (parenthesis_count == 0 )
+        break;
+    }  // end while(1)
+
+    do_eval(tc, env);
+
+  } // end for (;;) 
 }
 
 int init_eval()
