@@ -1499,6 +1499,10 @@ void do_eval(TokenContainer &tc, Environment * env)
            myprint("\r\n");
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
+#if 1
+           free_pair_index = previous_free_pair_index;
+           free_cell_index = previous_free_cell_index;
+#endif
          }
          else
          {
