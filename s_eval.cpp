@@ -1,26 +1,26 @@
 //#include <sstream>
 
 #ifdef OS_CPP
-#define ENTER '\n'
-#include <iostream>
-#include <string>
-#include <list>
-#include <map>
-#include <vector>
+  #define ENTER '\n'
+  #include <iostream>
+  #include <string>
+  #include <list>
+  #include <map>
+  #include <vector>
 
-#include <cstdio>
-#include <cstdlib>
-#define myprint printf
+  #include <cstdio>
+  #include <cstdlib>
+  #define myprint printf
+  #define s_strncpy strncpy
 #else // non os
-#include "k_string.h"
-#include "k_stdio.h"
+  #include "k_string.h"
+  #include "k_stdio.h"
+  #define strcmp s_strcmp
+  #define sprintf s32_sprintf
+#endif
+
 #include "cstring.h"
 #include "gdeque.h"
-#define strcmp s_strcmp
-#define sprintf s32_sprintf
-//#define ENTER '\r'
-//using namespace DS;
-#endif
 
 #include "s_eval.h"
 
@@ -475,7 +475,7 @@ Cell *proc_pool_status(Cell *cell)
 
 #ifdef OS_CPP
   cout << "pool max: " << MAX_POOL << endl;
-  cout << "Cell size: " << sizeof(Cell) << "bytes" << endl;
+  cout << "Cell size: " << sizeof(Cell) << " bytes" << endl;
   cout << "cell pool index: " << free_cell_index << endl;
   cout << "pair pool index: " << free_pair_index << endl;
 #else
@@ -1476,6 +1476,10 @@ enum {BEGIN, SPACE, WORD, END};
 
 void do_eval(TokenContainer &tc, Environment * env)
 {
+#if 1
+    previous_free_pair_index = free_pair_index;
+    previous_free_cell_index = free_cell_index;
+#endif
     Cell *exp = read(tc);
     if (exp->type_ == INVALID) // no input string
     {
@@ -1505,6 +1509,10 @@ void do_eval(TokenContainer &tc, Environment * env)
            myprint(invalid_cell.val_);
            myprint("\r\n");
 #endif
+#if 1
+           free_pair_index = previous_free_pair_index;
+           free_cell_index = previous_free_cell_index;
+#endif
          }
 }
 
@@ -1524,10 +1532,6 @@ void repl(const char *prompt, Environment *env)
 
     //myprint("before free_pair_index: %d\n", free_pair_index);
     //myprint("before free_cell_index: %d\n", free_cell_index);
-#if 1
-    previous_free_pair_index = free_pair_index;
-    previous_free_cell_index = free_cell_index;
-#endif
     while(1)
     {
       // get_byte
@@ -1666,6 +1670,10 @@ end_line:
       tc.print();
 #endif
 
+#if 1
+    previous_free_pair_index = free_pair_index;
+    previous_free_cell_index = free_cell_index;
+#endif
 #ifdef OS_CPP
     Cell *exp = read(tokens);
     if (exp->type_ == INVALID) // no input string
@@ -1763,12 +1771,13 @@ void non_os_repl(const char *prompt, Environment *env)
   DS::Deque<int, 128> line_buf;
   line_buf.init();
 
-  Deque<DS::CString> deque;
+  DS::Deque<DS::CString> deque;
 
   deque.init(); // history buffer
 
   for (;;) 
   {
+#ifndef OS_CPP
     myprint(prompt);
     int up_index=0;
     int down_index=0;
@@ -1925,6 +1934,7 @@ end_line:
 
     do_eval(tc, env);
 
+#endif
   } // end for (;;) 
 }
 
