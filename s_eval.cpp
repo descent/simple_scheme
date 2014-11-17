@@ -1522,6 +1522,12 @@ void repl(const char *prompt, Environment *env)
     TokenContainer tc;
     int parenthesis_count=0;
 
+    //myprint("before free_pair_index: %d\n", free_pair_index);
+    //myprint("before free_cell_index: %d\n", free_cell_index);
+#if 1
+    previous_free_pair_index = free_pair_index;
+    previous_free_cell_index = free_cell_index;
+#endif
     while(1)
     {
       // get_byte
@@ -1678,11 +1684,16 @@ end_line:
     }
     else if (exp->type_ != INVALID)
          {
+           myprint("release cell memory\r\n");
            myprint("result:\r\n");
            print_cell(exp);
            myprint("\r\n");
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
+#if 1
+           free_pair_index = previous_free_pair_index;
+           free_cell_index = previous_free_cell_index;
+#endif
          }
          else
          {
@@ -1693,7 +1704,14 @@ end_line:
            myprint(invalid_cell.val_);
            myprint("\r\n");
 #endif
+
+#if 1
+           free_pair_index = previous_free_pair_index;
+           free_cell_index = previous_free_cell_index;
+#endif
          }
+    //myprint("after free_pair_index: %d\n", free_pair_index);
+    //myprint("after free_cell_index: %d\n", free_cell_index);
   }
 }
 

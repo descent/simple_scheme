@@ -15,7 +15,14 @@ using namespace DS;
 #endif
 
 
+#define MM_STATUS
+
 const int MAX_POOL = 1024;
+
+extern int free_pair_index;
+extern int free_cell_index;
+extern int previous_free_pair_index;
+extern int previous_free_cell_index;
 
 enum PairAttr {HEAD, FIRST, SECOND};
 enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, NULL_CELL, INVALID};
@@ -42,14 +49,14 @@ struct Cell
     Cell(ProcType proc, const std::string proc_name) 
       :type(Proc), proc_(proc), val(proc_name), env_(0), proc_kind_(PRIMITIVE)
     {}
+#endif
     bool is_null() 
     {
-      if (list.size() == 0) 
+      if (type() == NULL_CELL)
         return true;
       else
         return false;
     }
-#endif
 
     CellType type() const {return type_;}
     //ProcKind proc_kind() const {return proc_kind_;}
@@ -64,12 +71,17 @@ struct Cell
     Cell *second_;
     ProcType proc_; 
     bool lambda_;
-
     Environment *env_;
+#ifdef MM_STATUS
+    int pool_index_;
+#endif
 };
 
 extern Cell invalid_cell;
 extern Cell null_cell;
+
+extern Cell pair_pool[];
+extern Cell cell_pool[];
 
 void print_cell(const Cell *cell);
 Cell *get_cell(const char *val, CellType type);

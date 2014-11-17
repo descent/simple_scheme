@@ -1,8 +1,5 @@
 #include "cell.h"
 
-//#define TEST_CELL
-
-
 const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "INVALID"};
 
 const char* Cell::type_str() const 
@@ -15,6 +12,8 @@ Cell cell_pool[MAX_POOL];
 
 int free_pair_index;
 int free_cell_index;
+int previous_free_pair_index;
+int previous_free_cell_index;
 
 extern Cell invalid_cell;
 
@@ -31,6 +30,9 @@ Cell *get_pair()
   c->pair_attr_ = HEAD;
   c->first_ = 0;
   c->second_ = 0;
+#ifdef MM_STATUS
+  c->pool_index_ = free_pair_index-1;
+#endif
   return c;
 }
 
@@ -44,6 +46,9 @@ Cell *get_cell(const char *val, ProcType proc)
   strcpy(c->val_, val);
   c->first_ = 0;
   c->second_ = 0;
+#ifdef MM_STATUS
+  c->pool_index_ = free_cell_index-1;
+#endif
   return c;
 }
 
@@ -56,6 +61,9 @@ Cell *get_cell(const char *val, CellType type)
   strcpy(c->val_, val);
   c->first_ = 0;
   c->second_ = 0;
+#ifdef MM_STATUS
+  c->pool_index_ = free_cell_index-1;
+#endif
   return c;
 }
 
