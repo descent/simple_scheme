@@ -508,6 +508,15 @@ Cell *proc_pool_status(Cell *cell)
   myprint("free_env_index: ");
   myprint(free_env_index);
   myprint("\r\n");
+
+#ifdef SP_STATUS
+extern u32 sp_val;
+
+  myprint("stack reg: ");
+  myprint(sp_val, 16);
+  myprint("\r\n");
+#endif
+
 #endif
   return &true_cell;
 }
