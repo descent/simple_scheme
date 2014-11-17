@@ -483,7 +483,10 @@ Cell *proc_pool_status(Cell *cell)
   cout << "Environment size: " << sizeof(Environment) << " bytes" << endl;
   cout << "free_env_index: " << free_env_index << endl;
 #else
-  myprint("pool max: ");
+  myprint("cell pool max: ");
+  myprint(MAX_POOL);
+  myprint("\r\n");
+  myprint("pair pool max: ");
   myprint(MAX_POOL);
   myprint("\r\n");
   myprint("Cell size: "); 
@@ -494,6 +497,15 @@ Cell *proc_pool_status(Cell *cell)
   myprint("\r\n");
   myprint("pair pool index: "); 
   myprint(free_pair_index);
+  myprint("\r\n");
+  myprint("env pool max: ");
+  myprint(MAX_ENVIRONMENT_POOL);
+  myprint("\r\n");
+  myprint("Environment size: "); 
+  myprint(sizeof(Environment)); 
+  myprint(" bytes\r\n");
+  myprint("free_env_index: ");
+  myprint(free_env_index);
   myprint("\r\n");
 #endif
   return &true_cell;
