@@ -122,6 +122,7 @@ EnvElement *find_variable(Environment *env, const char *variable)
 
 Environment environment_pool[MAX_ENVIRONMENT_POOL];
 int free_env_index;
+int previous_free_env_index;
 
 Environment *get_env(Environment *outer, const char *name)
 {
@@ -1495,6 +1496,8 @@ void do_eval(TokenContainer &tc, Environment * env)
 #if 1
     previous_free_pair_index = free_pair_index;
     previous_free_cell_index = free_cell_index;
+
+    previous_free_env_index = free_env_index;
 #endif
     Cell *exp = read(tc);
     if (exp->type_ == INVALID) // no input string
@@ -1518,6 +1521,8 @@ void do_eval(TokenContainer &tc, Environment * env)
 #if 1
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
+
+           free_env_index = previous_free_env_index;
 #endif
          }
          else
@@ -1532,6 +1537,8 @@ void do_eval(TokenContainer &tc, Environment * env)
 #if 1
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
+
+           free_env_index = previous_free_env_index;
 #endif
          }
 }
@@ -1693,6 +1700,9 @@ end_line:
 #if 1
     previous_free_pair_index = free_pair_index;
     previous_free_cell_index = free_cell_index;
+
+    previous_free_env_index = free_env_index;
+
 #endif
 #ifdef OS_CPP
     Cell *exp = read(tokens);
@@ -1721,6 +1731,8 @@ end_line:
 #if 1
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
+
+           free_env_index = previous_free_env_index;
 #endif
          }
          else
@@ -1736,6 +1748,8 @@ end_line:
 #if 1
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
+
+           free_env_index = previous_free_env_index;
 #endif
          }
     //myprint("after free_pair_index: %d\n", free_pair_index);
