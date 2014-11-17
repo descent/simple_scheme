@@ -474,10 +474,14 @@ Cell *proc_pool_status(Cell *cell)
   extern int free_cell_index;
 
 #ifdef OS_CPP
-  cout << "pool max: " << MAX_POOL << endl;
+  cout << "cell pool max: " << MAX_POOL << endl;
+  cout << "pair pool max: " << MAX_POOL << endl;
   cout << "Cell size: " << sizeof(Cell) << " bytes" << endl;
   cout << "cell pool index: " << free_cell_index << endl;
   cout << "pair pool index: " << free_pair_index << endl;
+  cout << "env pool max: " << MAX_ENVIRONMENT_POOL << endl;
+  cout << "Environment size: " << sizeof(Environment) << " bytes" << endl;
+  cout << "free_env_index: " << free_env_index << endl;
 #else
   myprint("pool max: ");
   myprint(MAX_POOL);
