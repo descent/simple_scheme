@@ -1218,7 +1218,7 @@ Cell *eval_if(Cell *exp, Environment *env)
   // (if (< 1 0) -1 1)
   if (eval(car_cell(cdr_cell(exp)), env) == &true_cell)
   {
-    eval(car_cell(cdr_cell(cdr_cell(exp))), env);
+    return eval(car_cell(cdr_cell(cdr_cell(exp))), env);
   }
   else
   {
