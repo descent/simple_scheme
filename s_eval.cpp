@@ -474,6 +474,8 @@ Cell *proc_pool_status(Cell *cell)
   extern int free_pair_index;
   extern int free_cell_index;
 
+
+
 #ifdef OS_CPP
   cout << "cell pool max: " << MAX_POOL << endl;
   cout << "pair pool max: " << MAX_POOL << endl;
@@ -510,11 +512,19 @@ Cell *proc_pool_status(Cell *cell)
   myprint("\r\n");
 
 #ifdef SP_STATUS
-extern u32 sp_val;
+  extern u32 sp_val;
+  u32 get_stack_reg();
 
-  myprint("stack reg: ");
+  u32 cur_sr = get_stack_reg();
+
+  myprint("min stack reg: ");
   myprint(sp_val, 16);
   myprint("\r\n");
+
+  myprint("current stack reg: ");
+  myprint(cur_sr, 16);
+  myprint("\r\n");
+
 #endif
 
 #endif
