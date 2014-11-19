@@ -1490,6 +1490,18 @@ enum {BEGIN, SPACE, WORD, END};
 
 void do_eval(TC &tc, Environment * env)
 {
+#ifdef OS_CPP
+      cout << "tc.size(): " << tc.size() << endl;
+      for (std::list<std::string>::iterator it=tc.begin() ; it != tc.end() ; ++it)
+      {
+        cout << *it << endl;
+      }
+#else
+      myprint("tc.size(): "); 
+      myprint(tc.size());
+      myprint("\r\n");
+      tc.print();
+#endif
 #if 1
     previous_free_pair_index = free_pair_index;
     previous_free_cell_index = free_cell_index;
@@ -1673,71 +1685,9 @@ end_line:
     }
     //parenthesis_count=0;
 
-#ifdef OS_CPP
-      cout << "tc.size(): " << tc.size() << endl;
-      for (std::list<std::string>::iterator it=tc.begin() ; it != tc.end() ; ++it)
-      {
-        cout << *it << endl;
-      }
-#else
-      myprint("tc.size(): "); 
-      myprint(tc.size());
-      myprint("\r\n");
-      tc.print();
-#endif
 
-#if 1
-    previous_free_pair_index = free_pair_index;
-    previous_free_cell_index = free_cell_index;
+    do_eval(tc, env);
 
-    previous_free_env_index = free_env_index;
-
-#endif
-
-    Cell *exp = read(tc);
-    if (exp->type_ == INVALID) // no input string
-      continue;
-
-    exp = eval(exp, env);
-    if (exp == &define_cell)
-    {
-      //cout << "define: ok" << endl;
-      myprint("define: ok\r\n");
-    }
-    else if (exp->type_ != INVALID)
-         {
-           myprint("release cell memory\r\n");
-           myprint("result:\r\n");
-           print_cell(exp);
-           myprint("\r\n");
-           if (exp->env_ != 0)
-             print_env(exp->env_, 0);
-#if 1
-           free_pair_index = previous_free_pair_index;
-           free_cell_index = previous_free_cell_index;
-
-           free_env_index = previous_free_env_index;
-#endif
-         }
-         else
-         {
-#ifdef OS_CPP
-           cout << "expression fail\nerror message: " << invalid_cell.val_ << endl;
-#else
-           myprint("expression fail!\r\nerror message: ");
-           myprint(invalid_cell.val_);
-           myprint("\r\n");
-#endif
-
-#if 1
-           free_pair_index = previous_free_pair_index;
-           free_cell_index = previous_free_cell_index;
-
-           free_env_index = previous_free_env_index;
-#endif
-         }
-    //myprint("after free_pair_index: %d\n", free_pair_index);
-    //myprint("after free_cell_index: %d\n", free_cell_index);
   }
 }
 
@@ -1941,10 +1891,7 @@ end_line:
 #endif
       // parse input string
       tokenize(line, tc, parenthesis_count);
-      myprint("tc.size(): "); 
-      myprint(tc.size());
-      myprint("\r\n");
-      tc.print();
+
 
       if (parenthesis_count == 0 )
         break;
