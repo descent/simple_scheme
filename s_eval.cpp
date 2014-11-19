@@ -69,6 +69,12 @@ char* s32_itoa_s(int n, char* str, int radix)
 }
 #endif
 
+#ifdef OS_CPP
+typedef std::list<std::string> TC;
+#else
+typedef TokenContainer TC;
+#endif
+
 // return given mumber as a string
 //std::string str(long n) { std::ostringstream os; os << n; return os.str(); }
 
@@ -844,48 +850,9 @@ Cell *make_list(vector<Cell *> cells)
   return c;
 }
 
-// return the Lisp expression in the given tokens
-Cell *read_from(std::list<std::string> & tokens)
-{
-  const std::string token(tokens.front());
-  //char *token = tokens;
-  tokens.pop_front();
-  if (token == "(") 
-  {
-    vector<Cell *> cells;
-    while (tokens.front() != ")")
-    {
-      cells.push_back(read_from(tokens));
-    }
-    tokens.pop_front();
-    return make_list(cells);
-  }
-  else
-  {
-    Cell *cell;
-    if (isdig(token[0]) || (token[0] == '-' && isdig(token[1])))
-      cell = get_cell(token.c_str(), NUMBER);
-    else
-      cell = get_cell(token.c_str(), SYMBOL);
-    //cout << "cell val_: " << cell->val_ << endl;
-    return cell;
-  }
-}
-
-// return the Lisp expression represented by the given string
-Cell *read(std::list<std::string> tokens)
-{
-  if (tokens.size() > 0)
-    return read_from(tokens);
-  else
-  {
-    strcpy(invalid_cell.val_, "no input string");
-    return &invalid_cell;
-  }
-}
-
 
 #endif
+
 
 Cell *make_list(Cell *cells[], int len)
 {
@@ -899,11 +866,18 @@ Cell *make_list(Cell *cells[], int len)
   return c;
 }
 
+
   const int CELL_SIZE = 256;
 
-Cell *read_from(TokenContainer &tokens)
+// return the Lisp expression in the given tokens
+// return the Lisp expression represented by the given string
+Cell *read_from(TC &tokens)
 {
+#ifdef OS_CPP
+  const char *token = tokens.front().c_str();
+#else
   const char *token = tokens.front();
+#endif
   int total_cells = 0; 
   //char *token = tokens;
   tokens.pop_front();
@@ -912,7 +886,11 @@ Cell *read_from(TokenContainer &tokens)
     //vector<Cell *> cells;
     Cell *cells[CELL_SIZE];
 
+#ifdef OS_CPP
+    while (strcmp(tokens.front().c_str(), ")") != 0)
+#else
     while (strcmp(tokens.front(), ")") != 0)
+#endif
     {
       cells[total_cells++] = read_from(tokens);
     }
@@ -937,7 +915,7 @@ Cell *read_from(TokenContainer &tokens)
   }
 }
 
-Cell *read(TokenContainer &tokens)
+Cell *read(TC &tokens)
 {
   if (tokens.size() > 0)
     return read_from(tokens);
@@ -1510,7 +1488,7 @@ std::string to_string(const Cell & exp)
 
 enum {BEGIN, SPACE, WORD, END};
 
-void do_eval(TokenContainer &tc, Environment * env)
+void do_eval(TC &tc, Environment * env)
 {
 #if 1
     previous_free_pair_index = free_pair_index;
@@ -1568,12 +1546,11 @@ void repl(const char *prompt, Environment *env)
   for (;;) 
   {
 #ifdef OS_CPP
-    std::list<std::string> tokens;
     std::cout << prompt;
 #else
     myprint(prompt);
 #endif
-    TokenContainer tc;
+    TC tc;
     int parenthesis_count=0;
 
     //myprint("before free_pair_index: %d\n", free_pair_index);
@@ -1672,9 +1649,6 @@ void repl(const char *prompt, Environment *env)
         if (line[0] != ' ' && line[0] != 0)
         {
           //cout << line << endl;
-#ifdef OS_CPP
-          tokens.push_back(line);
-#endif
           tc.push_back(line);
           line[0] = 0;
         }
@@ -1700,15 +1674,11 @@ end_line:
     //parenthesis_count=0;
 
 #ifdef OS_CPP
-      cout << "tokens.size(): " << tokens.size() << endl;
-      for (std::list<std::string>::iterator it=tokens.begin() ; it != tokens.end() ; ++it)
+      cout << "tc.size(): " << tc.size() << endl;
+      for (std::list<std::string>::iterator it=tc.begin() ; it != tc.end() ; ++it)
       {
         cout << *it << endl;
       }
-#endif
-
-#ifdef OS_CPP
-      cout << "tc.size(): " << tc.size() << endl;
 #else
       myprint("tc.size(): "); 
       myprint(tc.size());
@@ -1723,15 +1693,10 @@ end_line:
     previous_free_env_index = free_env_index;
 
 #endif
-#ifdef OS_CPP
-    Cell *exp = read(tokens);
-    if (exp->type_ == INVALID) // no input string
-      continue;
-#else
+
     Cell *exp = read(tc);
     if (exp->type_ == INVALID) // no input string
       continue;
-#endif
 
     exp = eval(exp, env);
     if (exp == &define_cell)
