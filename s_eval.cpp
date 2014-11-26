@@ -1840,6 +1840,19 @@ void non_os_repl(const char *prompt, Environment *env)
               }
               --up_index;
             }
+            else
+            {
+              if (ps.length() == 0) break;
+
+              int ps_size = ps.length();
+              go_left(ps_size);
+              for (int i=0 ; i < ps_size ; ++i)
+                send_byte(' ');
+
+              go_left(ps_size);
+              line_buf.clear();
+              ps="";
+            }
 
             break;
           }
