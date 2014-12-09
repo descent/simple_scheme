@@ -1,5 +1,11 @@
 CXXFLAGS=-DOS_CPP -fno-exceptions -fno-rtti
 CXX=g++
+
+# make CH=1 will use ccache
+ifdef CH
+CXX=ccache g++
+endif
+
 AR=ar
 ss: ss.o libss.a
 	$(CXX) -o $@ $^
