@@ -1,4 +1,5 @@
 CXXFLAGS=-DOS_CPP -fno-exceptions -fno-rtti
+CXXLDFLAGS=
 CXX=g++
 
 # make CH=1 will use ccache
@@ -6,9 +7,14 @@ ifdef CH
 CXX=ccache g++
 endif
 
+ifdef RL # ReadLine
+CXXFLAGS=-DRL -DOS_CPP -fno-exceptions -fno-rtti
+CXXLDFLAGS=-lreadline
+endif
+
 AR=ar
 ss: ss.o libss.a
-	$(CXX) -o $@ $^
+	$(CXX) -o $@ $^ $(CXXLDFLAGS)
 
 ss.o: ss.cpp
 	$(CXX) $(CXXFLAGS) -g -c $<

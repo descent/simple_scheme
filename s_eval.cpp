@@ -19,7 +19,7 @@
   #define sprintf s32_sprintf
 #endif
 
-#define RL
+//#define RL
 // readline
 #ifdef RL
 #include <cstdio>
@@ -1505,6 +1505,7 @@ std::string to_string(const Cell & exp)
 
 void do_eval(TC &tc, Environment * env)
 {
+#if 0
 #ifdef OS_CPP
       cout << "tc.size(): " << tc.size() << endl;
       for (std::list<std::string>::iterator it=tc.begin() ; it != tc.end() ; ++it)
@@ -1517,6 +1518,8 @@ void do_eval(TC &tc, Environment * env)
       myprint("\r\n");
       tc.print();
 #endif
+#endif
+
 #if 1
     previous_free_pair_index = free_pair_index;
     previous_free_cell_index = free_cell_index;
@@ -1709,6 +1712,7 @@ end_line:
 // readline 
 void rl_repl(const char *prompt, Environment *env)
 {
+#ifdef RL
   for (;;) 
   {
     TC tc;
@@ -1834,6 +1838,7 @@ end_line:
     do_eval(tc, env);
 
   }
+#endif
 }
 
 //extern DS::Deque<int, 128> line_buf;
