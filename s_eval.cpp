@@ -12,11 +12,14 @@
   #include <cstdlib>
   #define myprint printf
   #define s_strncpy strncpy
+  using namespace std;
 #else // non os
+  #include "myiostream.h"
   #include "k_string.h"
   #include "k_stdio.h"
   #define strcmp s_strcmp
   #define sprintf s32_sprintf
+  using namespace DS;
 #endif
 
 #include "cstring.h"
@@ -24,7 +27,6 @@
 
 #include "s_eval.h"
 
-using namespace std;
 
 #ifdef OS_CPP
 char* s32_itoa_s(int n, char* str, int radix)
@@ -383,6 +385,48 @@ int print_env(Environment *env, int count)
 #endif
 }
 
+// (md addr   [width]    [count])
+// (md 0x1234 8/16/*32   *1/2/3/4)
+// (md 0x1234 32         1)
+// * is default value
+Cell *proc_md(Cell *cell)
+{
+  Cell *addr = car_cell(cell);
+  Cell *width = car_cell(cdr_cell(cell));
+  Cell *count = car_cell(cdr_cell(cdr_cell(cell)));
+  int w=32;
+  int c=1;
+  int dump_addr;
+  if (addr != &null_cell)
+  {
+    dump_addr = atoi(addr->val_);
+  }
+  if (width != &null_cell)
+  {
+    w = atoi(width->val_);
+  }
+  if (count != &null_cell)
+  {
+    c = atoi(count->val_);
+  }
+  #if 0
+  if (third != &null_cell)
+  {
+    strcpy(invalid_cell.val_, "requires exactly 2 argument");
+    return &invalid_cell;
+  }
+  cout << "addr: " << addr->val_ << endl;
+  cout << "width: " << width->val_ << endl;
+  cout << "count: " << count->val_ << endl;
+  #endif
+  cout << dump_addr << ": " << *(volatile unsigned int*)dump_addr << endl;
+  return &true_cell;
+}
+
+Cell *proc_mm(Cell *cell)
+{
+}
+
 Cell *proc_env(Cell *cell)
 {
   Cell *first = car_cell(cell);
@@ -480,9 +524,6 @@ Cell *proc_pool_status(Cell *cell)
   extern int free_pair_index;
   extern int free_cell_index;
 
-
-
-#ifdef OS_CPP
   cout << "cell pool max: " << MAX_POOL << endl;
   cout << "pair pool max: " << MAX_POOL << endl;
   cout << "Cell size: " << sizeof(Cell) << " bytes" << endl;
@@ -491,32 +532,9 @@ Cell *proc_pool_status(Cell *cell)
   cout << "env pool max: " << MAX_ENVIRONMENT_POOL << endl;
   cout << "Environment size: " << sizeof(Environment) << " bytes" << endl;
   cout << "free_env_index: " << free_env_index << endl;
-#else
-  myprint("cell pool max: ");
-  myprint(MAX_POOL);
-  myprint("\r\n");
-  myprint("pair pool max: ");
-  myprint(MAX_POOL);
-  myprint("\r\n");
-  myprint("Cell size: "); 
-  myprint(sizeof(Cell)); 
-  myprint(" bytes\r\n");
-  myprint("cell pool index: ");
-  myprint(free_cell_index);
-  myprint("\r\n");
-  myprint("pair pool index: "); 
-  myprint(free_pair_index);
-  myprint("\r\n");
-  myprint("env pool max: ");
-  myprint(MAX_ENVIRONMENT_POOL);
-  myprint("\r\n");
-  myprint("Environment size: "); 
-  myprint(sizeof(Environment)); 
-  myprint(" bytes\r\n");
-  myprint("free_env_index: ");
-  myprint(free_env_index);
-  myprint("\r\n");
 
+#ifdef OS_CPP
+#else
 #ifdef SP_STATUS
   extern u32 sp_val;
   u32 get_stack_reg();
@@ -644,6 +662,12 @@ void create_primitive_procedure(Environment *env)
 
   op = get_cell("primitive env", proc_env);
   ADD_VAR(env, "env", op)
+
+  op = get_cell("primitive md", proc_md); // memory display
+  ADD_VAR(env, "md", op)
+
+  op = get_cell("primitive mm", proc_mm); // memory modify
+  ADD_VAR(env, "mm", op)
 
   //frame.insert(Frame::value_type("true", &true_cell));
   ADD_VAR(env, "true", &true_cell)
