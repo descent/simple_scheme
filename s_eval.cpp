@@ -419,7 +419,7 @@ Cell *proc_md(Cell *cell)
   cout << "width: " << width->val_ << endl;
   cout << "count: " << count->val_ << endl;
   #endif
-  cout << dump_addr << ": " << *(volatile unsigned int*)dump_addr << endl;
+  cout << hex << dump_addr << ": " << *(volatile unsigned int*)dump_addr << dec << endl;
   return &true_cell;
 }
 
