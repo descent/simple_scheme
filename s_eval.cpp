@@ -399,15 +399,15 @@ Cell *proc_md(Cell *cell)
   int dump_addr;
   if (addr != &null_cell)
   {
-    dump_addr = atoi(addr->val_);
+    dump_addr = strtoul(addr->val_, 0, 16);
   }
   if (width != &null_cell)
   {
-    w = atoi(width->val_);
+    w = strtol(width->val_, 0, 16);
   }
   if (count != &null_cell)
   {
-    c = atoi(count->val_);
+    c = strtol(count->val_, 0, 16);
   }
   #if 0
   if (third != &null_cell)
@@ -419,12 +419,44 @@ Cell *proc_md(Cell *cell)
   cout << "width: " << width->val_ << endl;
   cout << "count: " << count->val_ << endl;
   #endif
-  cout << hex << dump_addr << ": " << *(volatile unsigned int*)dump_addr << dec << endl;
+  cout << hex << dump_addr << ": " << *((volatile unsigned int*)dump_addr) << dec << endl;
   return &true_cell;
 }
 
+// (mm addr   value   [width]    [count])
+// (mm 0x1234         8/16/*32   *1/2/3/4)
+// (mm 0x1234 0xffee  32         1)
+// * is default value
 Cell *proc_mm(Cell *cell)
 {
+  Cell *addr = car_cell(cell);
+  Cell *value = car_cell(cdr_cell(cell));
+  Cell *width = car_cell(cdr_cell(cdr_cell(cell)));
+  Cell *count = car_cell(cdr_cell(cdr_cell(cdr_cell(cell))));
+  static int w=32;
+  static int c=1;
+  static int w_addr;
+  static int w_val;;
+  if (addr != &null_cell)
+  {
+    w_addr = strtol(addr->val_, 0, 16);
+  }
+  if (value != &null_cell)
+  {
+    w_val = strtol(value->val_, 0, 16);
+  }
+  if (width != &null_cell)
+  {
+    w = strtol(width->val_, 0, 16);
+  }
+  if (count != &null_cell)
+  {
+    c = strtol(count->val_, 0, 16);
+  }
+  cout << hex << "w_addr: " << w_addr << ", w_val: " << w_val << dec << ", width: " << w << ", count: " << c << endl;
+  *((volatile unsigned int*)w_addr) = w_val;
+
+  return &true_cell;
 }
 
 Cell *proc_env(Cell *cell)
