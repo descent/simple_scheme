@@ -1799,7 +1799,7 @@ void non_os_repl(const char *prompt, Environment *env)
   for (;;) 
   {
 #ifndef OS_CPP
-    myprint(prompt);
+    cout << prompt;
     int up_index=0;
     int down_index=0;
     DS::CString ps;
