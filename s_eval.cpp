@@ -1613,11 +1613,8 @@ void repl(const char *prompt, Environment *env)
 {
   for (;;) 
   {
-#ifdef OS_CPP
-    std::cout << prompt;
-#else
-    myprint(prompt);
-#endif
+    cout << prompt;
+
     TC tc;
     int parenthesis_count=0;
 
