@@ -1790,11 +1790,11 @@ int tokenize(const char *s, TokenContainer &tokens, int &parenthesis_count)
 void non_os_repl(const char *prompt, Environment *env)
 {
   DS::Deque<int, 128> line_buf;
-  line_buf.init();
+  //line_buf.init();
 
   DS::Deque<DS::CString> deque;
 
-  deque.init(); // history buffer
+  //deque.init(); // history buffer
 
   for (;;) 
   {
