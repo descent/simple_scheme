@@ -17,7 +17,7 @@ using namespace DS;
 
 #define MM_STATUS
 
-const int MAX_POOL = 1024;
+const int MAX_POOL = 512;
 
 extern int free_pair_index;
 extern int free_cell_index;
@@ -32,7 +32,7 @@ struct Environment;
 struct Cell;
 typedef Cell *(*ProcType)(Cell *);
 
-const int MAX_SIZE = 20;
+const int MAX_SIZE = 10;
 // a variant that can hold any kind of lisp value
 struct Cell 
 {
