@@ -178,7 +178,8 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
     //cout << "\n====\n";
 
 #ifdef USE_CPP_MAP
-    env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
+    //env->frame_.insert(Frame::value_type( car_cell(rest_vars)->val_, car_cell(rest_vals)));
+    env->frame_.insert({car_cell(rest_vars)->val_, car_cell(rest_vals)});
 #else
   if (add_variable(env, car_cell(rest_vars)->val_, car_cell(rest_vals)) == -1)
   {
