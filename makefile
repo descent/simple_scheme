@@ -1,4 +1,4 @@
-CXXFLAGS=-DOS_CPP -fno-exceptions -fno-rtti
+CXXFLAGS=-DOS_CPP -fno-exceptions -fno-rtti -std=c++11
 CXX=g++
 
 # make CH=1 will use ccache
