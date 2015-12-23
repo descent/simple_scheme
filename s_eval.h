@@ -6,12 +6,26 @@
 
 const int MAX_ENVIRONMENT_POOL = 40;
 
+// #define USE_CPP_MAP
+
+const int LINE_SIZE = 128;
+
 #ifdef USE_CPP_MAP
-typedef std::map<std::string, Cell*> Frame;
+
+#ifdef OS_CPP
+#include <map>
+#include <string>
+using namespace std;
+#else
+#include "mymap.h"
+#include "mystring.h"
+using namespace DS;
+#endif
+
+typedef map<string, Cell*> Frame;
 #else
 const int FRAME_LEN = 24;
 
-const int LINE_SIZE = 128;
 
 struct EnvElement
 {
