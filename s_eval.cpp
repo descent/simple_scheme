@@ -664,16 +664,13 @@ Cell *proc_mul(Cell *cell)
 }
 
 #ifdef USE_CPP_MAP
-  #define ADD_VAR(env, var, val) frame.insert({var, op});
+  #define ADD_VAR(env, var, val) env->frame_.insert({var, op});
 #else
   #define ADD_VAR(env, var, val) add_variable(env, var, op);
 #endif
 
 void create_primitive_procedure(Environment *env)
 {
-#ifdef USE_CPP_MAP
-  Frame &frame = env->frame_;
-#endif
   Cell *op = get_cell("primitive add", proc_add);
   ADD_VAR(env, "+", op)
 
