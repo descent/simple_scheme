@@ -6,7 +6,8 @@
 
 const int MAX_ENVIRONMENT_POOL = 40;
 
-// #define USE_CPP_MAP
+//#define USE_CPP_MAP
+//#define USE_MYMAP
 
 const int LINE_SIZE = 128;
 
