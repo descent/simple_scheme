@@ -647,7 +647,7 @@ Cell *proc_mul(Cell *cell)
 }
 
 #ifdef USE_CPP_MAP
-  #define ADD_VAR(env, var, val) frame.insert(Frame::value_type(var, op));
+  #define ADD_VAR(env, var, val) frame.insert({var, op});
 #else
   #define ADD_VAR(env, var, val) add_variable(env, var, op);
 #endif
