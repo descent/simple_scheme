@@ -1612,13 +1612,7 @@ void do_eval(TC &tc, Environment * env)
          }
          else
          {
-#ifdef OS_CPP
-           cout << "expression fail\nerror message: " << invalid_cell.val_ << endl;
-#else
-           myprint("expression fail!\r\nerror message: ");
-           myprint(invalid_cell.val_);
-           myprint("\r\n");
-#endif
+           cout << "expression fail" << endl << "error message: " << invalid_cell.val_ << endl;
 #if 1
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
