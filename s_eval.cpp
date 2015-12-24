@@ -216,16 +216,12 @@ Cell* lookup_variable_value(const Cell *exp, Environment *env)
   auto it = env->frame_.find(exp->val_);
   #ifdef USE_MYMAP
   if (it != 0) // find it
-  {
-    return (*it).second;
-  }
   #else
   if (it != env->frame_.end()) // find it
+  #endif
   {
-    //cout << "found it" << endl;
     return (*it).second;
   }
-  #endif
   else
   {
     if (env->outer_ != 0)
