@@ -10,7 +10,7 @@ AR=ar
 ss: ss.o libss.a
 	$(CXX) -o $@ $^
 
-ss.o: ss.cpp
+ss.o: ss.cpp s_eval.h cell.h token_container.h
 	$(CXX) $(CXXFLAGS) -g -c $<
 
 libss.a: s_eval.o cell.o token_container.o
