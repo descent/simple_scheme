@@ -1569,16 +1569,13 @@ enum {BEGIN, SPACE, WORD, END};
 
 void do_eval(TC &tc, Environment * env)
 {
+  cout << "tc.size(): " << tc.size() << endl;
 #ifdef OS_CPP
-      cout << "tc.size(): " << tc.size() << endl;
       for (std::list<std::string>::iterator it=tc.begin() ; it != tc.end() ; ++it)
       {
         cout << *it << endl;
       }
 #else
-      myprint("tc.size(): "); 
-      myprint(tc.size());
-      myprint("\r\n");
       tc.print();
 #endif
 #if 1
@@ -1590,20 +1587,19 @@ void do_eval(TC &tc, Environment * env)
     Cell *exp = read(tc);
     if (exp->type_ == INVALID) // no input string
     {
-      myprint("parse expression fail\r\n");
+      cout << "parse expression fail" << endl;
       return;
     }
     exp = eval(exp, env);
     if (exp == &define_cell)
     {
-      //cout << "define: ok" << endl;
-      myprint("define: ok\r\n");
+      cout << "define: ok" << endl;
     }
     else if (exp->type_ != INVALID)
          {
-           myprint("result:\r\n");
+           cout << "result:" << endl;
            print_cell(exp);
-           myprint("\r\n");
+           cout << endl;
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
 #if 1
