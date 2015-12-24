@@ -14,6 +14,7 @@
   #define s_strncpy strncpy
   using namespace std;
 #else // non os
+  #define second v_ // DS::map use (k_,v_), but std::map use (first,second)
   #include "myiostream.h"
   #include "k_string.h"
   #include "k_stdio.h"
@@ -203,7 +204,7 @@ Cell* lookup_variable_value(const Cell *exp, Environment *env)
   //cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
 
 #ifdef USE_CPP_MAP
-  Frame::const_iterator it = env->frame_.find(exp->val_);
+  auto it = env->frame_.find(exp->val_);
   if (it != env->frame_.end()) // find it
   {
     //cout << "found it" << endl;
