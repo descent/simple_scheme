@@ -14,6 +14,7 @@
   #define s_strncpy strncpy
   using namespace std;
 #else // non os
+  #define first k_ // DS::map use (k_,v_), but std::map use (first,second)
   #define second v_ // DS::map use (k_,v_), but std::map use (first,second)
   #include "myiostream.h"
   #include "k_string.h"
