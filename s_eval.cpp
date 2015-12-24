@@ -201,7 +201,16 @@ void extend_environment(Cell *vars, Cell *vals, Environment *env)
 
 Cell* lookup_variable_value(const Cell *exp, Environment *env)
 {
-  //cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << endl;
+#ifdef DEBUG_OP
+  {
+  cout << "lookup: " << exp->val_ << " in environment ## "<< env->name_ << " val_: " << exp->val_ << endl;
+  auto it = env->frame_.begin();
+  for ( ; it != env->frame_.end() ; ++it)
+  {
+    cout << it->first << endl;
+  }
+  }
+#endif
 
 #ifdef USE_CPP_MAP
   auto it = env->frame_.find(exp->val_);
