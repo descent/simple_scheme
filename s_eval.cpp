@@ -28,7 +28,6 @@
 
 #include "s_eval.h"
 
-
 #ifdef OS_CPP
 char* s32_itoa_s(int n, char* str, int radix)
 {
@@ -205,11 +204,18 @@ Cell* lookup_variable_value(const Cell *exp, Environment *env)
 
 #ifdef USE_CPP_MAP
   auto it = env->frame_.find(exp->val_);
+  #ifdef USE_MYMAP
+  if (it != 0) // find it
+  {
+    return (*it).second;
+  }
+  #else
   if (it != env->frame_.end()) // find it
   {
     //cout << "found it" << endl;
     return (*it).second;
   }
+  #endif
   else
   {
     if (env->outer_ != 0)
@@ -1213,8 +1219,12 @@ Cell *definition_value(Cell *exp)
 void set_variable(Cell *var, Cell *val, Environment *env)
 {
 #ifdef USE_CPP_MAP
-  Frame::iterator it = env->frame_.find(var->val_);
+  auto it = env->frame_.find(var->val_);
+  #ifdef USE_MYMAP
+  if (it != 0) // find it
+  #else
   if (it != env->frame_.end()) // find it
+  #endif
   {
     it->second = val;
   }
@@ -1352,12 +1362,20 @@ Cell *expand_clauses(Cell *clauses)
 bool set_variable_value(Cell *var, Cell *val, Environment * env)
 {
 #ifdef USE_CPP_MAP
-  Frame::iterator it = env->frame_.find(var->val_);
+  auto it = env->frame_.find(var->val_);
+  #ifdef USE_MYMAP
+  if (it != 0) // find it
+  {
+    it->second = val;
+    return true;
+  }
+  #else
   if (it != env->frame_.end()) // find it
   {
     it->second = val;
     return true;
   }
+  #endif
   else // not fount
   {
     if (env->outer_ != 0)
