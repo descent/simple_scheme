@@ -19,13 +19,13 @@
   #include "myiostream.h"
   #include "k_string.h"
   #include "k_stdio.h"
+  #include "cstring.h"
+  #include "gdeque.h"
   #define strcmp s_strcmp
   #define sprintf s32_sprintf
   using namespace DS;
 #endif
 
-#include "cstring.h"
-#include "gdeque.h"
 
 #include "s_eval.h"
 
@@ -1800,6 +1800,7 @@ int tokenize(const char *s, TokenContainer &tokens, int &parenthesis_count)
   return parenthesis_count;
 }
 
+#ifndef OS_CPP
 void non_os_repl(const char *prompt, Environment *env)
 {
   DS::Deque<int, 128> line_buf;
@@ -1981,6 +1982,7 @@ end_line:
 #endif
   } // end for (;;) 
 }
+#endif
 
 int init_eval()
 {
