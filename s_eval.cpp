@@ -1862,7 +1862,7 @@ void non_os_repl(const char *prompt, Environment *env)
                 int str_diff = lb_size - ps_size;
 
                 for (int i=0 ; i < str_diff ; ++i)
-                  send_byte(' ');
+                  putchar(' '); 
                 go_left(str_diff);
               }
 
@@ -1893,7 +1893,7 @@ void non_os_repl(const char *prompt, Environment *env)
                 int str_diff = lb_size - ps_size;
 
                 for (int i=0 ; i < str_diff ; ++i)
-                  send_byte(' ');
+                  putchar(' ');
                 go_left(str_diff);
               }
 
@@ -1914,7 +1914,7 @@ void non_os_repl(const char *prompt, Environment *env)
               int ps_size = ps.length();
               go_left(ps_size);
               for (int i=0 ; i < ps_size ; ++i)
-                send_byte(' ');
+                putchar(' '); 
 
               go_left(ps_size);
               line_buf.clear();
@@ -1935,9 +1935,9 @@ void non_os_repl(const char *prompt, Environment *env)
           {
             if (!line_buf.empty())
             {
-              send_byte(8);
-              send_byte(' ');
-              send_byte(8);
+              putchar(8);
+              putchar(' '); // fixed me: if use cout << ' ', use backspace will got wrong behavior
+              putchar(8);
               line_buf.pop_back();
             }
             break;
