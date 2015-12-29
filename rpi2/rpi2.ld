@@ -10,6 +10,7 @@ SECTIONS
   /*   .text : { *(.text*) } > ram  */
   .text :
   {
+    KEEP(*(booting))
     KEEP(*(.isr_vector .isr_vector.*))
     *(.text .text.*)
     *(.rodata .rodata*)
