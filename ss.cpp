@@ -1,6 +1,6 @@
 #include "s_eval.h"
 
-#ifdef P103
+#if defined(P103) || defined(RPI2)
 #define main(...) mymain()
 #endif
 
