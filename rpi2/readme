@@ -1,0 +1,5 @@
+rpi2 version
+build:
+  mkdir inc lib
+  ln -s simple_stdcpplib/libmystdcpp.a lib/
+  ln -s simple_stdcpplib/*.h inc/
