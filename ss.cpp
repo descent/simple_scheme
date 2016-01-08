@@ -1,6 +1,6 @@
 #include "s_eval.h"
 
-#if defined(P103) || defined(RPI2)
+#if defined(P103) || defined(RPI2) || defined(STM32F407)
 #define main(...) mymain()
 #endif
 
@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
   Environment *global_env = get_env(0, "global");
   create_primitive_procedure(global_env);
 
-#ifdef P103
+#if defined(P103) || defined(RPI2) || defined(STM32F407)
   non_os_repl("simple scheme> ", global_env);
 #else
   repl("simple scheme> ", global_env);
