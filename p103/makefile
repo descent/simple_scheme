@@ -1,6 +1,6 @@
 include rule.mk
 
-CXXFLAGS += $(MYCXXFLAGS) $(CFLAGS) 
+CXXFLAGS += $(MYCXXFLAGS) $(CFLAGS)
 
 CFLAGS=-g
 
@@ -21,12 +21,15 @@ CXX=arm-none-eabi-g++
 
 LINK_FILES=bst.h bst.cpp k_stdio.cpp k_stdio.h mem.h mem.cpp
 
-all: mymain.bin
+all: mymain.bin 
+
+#simple_stdcpplib: $(sources)
+#	ln.sh
 
 mymain.bin: mymain.elf
 	arm-none-eabi-objcopy -Obinary $< $@
 
-mymain.elf: mymain.o cell.o  s_eval.o  token_container.o lib/libmystdcpp.a
+mymain.elf: mymain.o cell.o  s_eval.o  token_container.o simple_stdcpplib/libmystdcpp.a
 	arm-none-eabi-g++ $(MYCFLAGS) $(MYCXXFLAGS) $(CFLAGS) $(LD_FLAGS) -o $@ $^ -lgcc
 
 mymain.o: mymain.cpp
@@ -34,6 +37,7 @@ mymain.o: mymain.cpp
 
 sources = cell.cpp  s_eval.cpp  token_container.cpp 
 include $(sources:.cpp=.dpp)
+
 
 %.o:%.S
 	arm-none-eabi-gcc $(MYCFLAGS) $(INC) -c $< 
@@ -43,5 +47,5 @@ include $(sources:.cpp=.dpp)
 clean:
 	rm -rf *.o *.elf *.bin *.dpp *.dpp.*
 distclean:
+	rm -rf simple_stdcpplib
 	find . -type l -exec rm -f {} \; 
-	rm -f $(LINK_FILES)
