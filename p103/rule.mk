@@ -1,5 +1,5 @@
 CFLAGS=-g
-MYCFLAGS=-fno-common -O0 -g -mcpu=cortex-m3 -mthumb -I./inc -DP103 -mfloat-abi=soft 
+MYCFLAGS=-fno-common -O0 -g -mcpu=cortex-m3 -mthumb -I./simple_stdcpplib -DP103 -mfloat-abi=soft 
 MYCXXFLAGS = -fno-exceptions -fno-rtti -ffreestanding -nostdlib -nodefaultlibs -std=c++11
 LD_FLAGS=-Wl,-T./p103.ld -nostartfiles
 CXX=arm-none-eabi-g++
