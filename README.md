@@ -31,3 +31,5 @@ p103:
 you can use p103 qemu to run it
 (https://github.com/beckus/qemu_stm32.git)
 qemu_stm32/arm-softmmu/qemu-system-arm -M stm32-p103 -kernel mymain.bin -nographic
+[video] (https://youtu.be/P7K5zxa5MlE)
+
