@@ -1516,7 +1516,16 @@ Cell *eval(Cell *exp, Environment *env)
                           }
                           else if (tagged_list(exp, "quote"))
                                {
-                                 return car_cell(cdr_cell(exp));
+                                 Cell *result = car_cell(cdr_cell(exp));
+
+                                 if (result->type_ != PAIR)
+                                 {
+                                   strcpy(invalid_cell.val_, "quote fail");
+                                   //strcpy(invalid_cell.val_, "quote argument should be list. ex: (quote (1 2 3))");
+                                   return &invalid_cell;
+                                 }
+                                 else
+                                   return result;
                                }
                                else if (tagged_list(exp, "set!"))
                                     {
