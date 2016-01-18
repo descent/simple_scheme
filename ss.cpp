@@ -2,7 +2,17 @@
 
 #if defined(P103) || defined(RPI2) || defined(STM32F407)
 #define main(...) mymain()
+#else // under OS
+
+  #ifdef RL
+  #define REPL rl_repl
+  #else
+  #define REPL repl
+  #endif
+
 #endif
+
+
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +23,7 @@ int main(int argc, char *argv[])
 #if defined(P103) || defined(RPI2) || defined(STM32F407)
   non_os_repl("simple scheme> ", global_env);
 #else
-  repl("simple scheme> ", global_env);
+  REPL("simple scheme> ", global_env);
 #endif
   return 0;
 }

@@ -26,6 +26,20 @@
   using namespace DS;
 #endif
 
+//#define RL
+// readline
+#ifdef RL
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/errno.h>
+
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 #include "s_eval.h"
 
@@ -1565,19 +1579,12 @@ std::string to_string(const Cell & exp)
 }
 #endif
 
-enum {BEGIN, SPACE, WORD, END};
+//enum {BEGIN, SPACE, WORD, END};
 
 void do_eval(TC &tc, Environment * env)
 {
   cout << "tc.size(): " << tc.size() << endl;
-#ifdef OS_CPP
-      for (std::list<std::string>::iterator it=tc.begin() ; it != tc.end() ; ++it)
-      {
-        cout << *it << endl;
-      }
-#else
-      tc.print();
-#endif
+
 #if 1
     previous_free_pair_index = free_pair_index;
     previous_free_cell_index = free_cell_index;
@@ -1755,6 +1762,138 @@ end_line:
     do_eval(tc, env);
 
   }
+}
+
+// readline 
+void rl_repl(const char *prompt, Environment *env)
+{
+#ifdef RL
+  for (;;) 
+  {
+    TC tc;
+    int parenthesis_count=0;
+
+    //myprint("before free_pair_index: %d\n", free_pair_index);
+    //myprint("before free_cell_index: %d\n", free_cell_index);
+    while(1)
+    {
+      // get_byte
+      //std::string line; 
+      //std::getline(std::cin, line);
+      char line[LINE_SIZE];
+      char *input_line = readline(prompt);
+
+      add_history(input_line);
+
+      int i=0;
+      int state;
+      int idx=0;
+
+      while(idx < strlen(input_line))
+      {
+        int ch;
+
+        ch = input_line[idx++];
+        switch (ch)
+        {
+          case '(':
+          {
+            ++parenthesis_count;
+            line[0] = ch;
+            line[1] = 0;
+            i=0;
+            break;
+          }
+          case ')':
+          {
+            --parenthesis_count;
+            line[0] = ch;
+            line[1] = 0;
+            i=0;
+            break;
+          }
+          #if 0
+          case EOF:
+          {
+            exit(1);
+          }
+          #endif
+          case ' ':
+          {
+            while(1)
+            {
+              ch=input_line[idx++];
+              if (ch != ' ')
+              {
+                i=0;
+                --idx;
+                break;
+              }
+            }
+            break;
+          }
+          case ENTER:
+          {
+            //cout << "\\n" << endl;;
+            //myprint("\r\nenter\r\n");
+            goto end_line;
+            break;
+          }
+          default:
+          {
+            line[i++] = ch;
+            while(1)
+            {
+              ch=input_line[idx++];
+
+              if (ch == ' ' || ch == ')' || ch == '(' || ch == ENTER)
+              {
+                --idx;
+                line[i] = 0;
+                i = 0;
+                break;
+              }
+              else
+              {
+                line[i++] = ch;
+              }
+            }
+          }
+        }
+
+        if (line[0] != ' ' && line[0] != 0)
+        {
+          //cout << line << endl;
+          tc.push_back(line);
+          line[0] = 0;
+        }
+
+      }
+
+end_line:
+      free(input_line);
+
+
+#ifdef OS_CPP
+      cout << "parenthesis_count: " << parenthesis_count << endl;
+#else
+      myprint("parenthesis_count: "); 
+      myprint(parenthesis_count);
+      myprint("\r\n");
+#endif
+        if (parenthesis_count == 0)
+          break;
+
+      //if (0 >= tokenize(line, tokens))
+        //break;
+    }
+    //parenthesis_count=0;
+
+
+    do_eval(tc, env);
+
+  }
+#endif
 }
 
 //extern DS::Deque<int, 128> line_buf;
