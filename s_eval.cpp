@@ -1855,7 +1855,7 @@ void rl_repl(const char *prompt, Environment *env)
             {
               ch=input_line[idx++];
 
-              if (ch == ' ' || ch == ')' || ch == '(' || ch == ENTER)
+              if (ch == ' ' || ch == ')' || ch == '(' || ch == ENTER || ch == '\0')
               {
                 --idx;
                 line[i] = 0;
