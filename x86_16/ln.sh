@@ -5,7 +5,7 @@ CPPLIB=simple_stdcpplib
 if [ ! -d "$CPPLIB" ]; then
   git clone https://github.com/descent/simple_stdcpplib.git
   cd $CPPLIB
-  make P103=1
+  make X86=1
   cd -
 fi
 
