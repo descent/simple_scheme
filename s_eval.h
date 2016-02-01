@@ -1,10 +1,17 @@
 #ifndef S_EVAL_H
 #define S_EVAL_H
 
+#include "x86_16.h"
+
 #include "cell.h"
 #include "token_container.h"
 
+
+#ifdef X86_16
+const int MAX_ENVIRONMENT_POOL = 20;
+#else
 const int MAX_ENVIRONMENT_POOL = 40;
+#endif
 
 // #define USE_CPP_MAP
 
@@ -25,7 +32,12 @@ using namespace DS;
 
 typedef map<string, Cell*> Frame;
 #else
+
+#ifdef X86_16
+const int FRAME_LEN = 4;
+#else
 const int FRAME_LEN = 24;
+#endif
 
 
 struct EnvElement
