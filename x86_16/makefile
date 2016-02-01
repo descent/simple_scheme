@@ -25,7 +25,7 @@ all: mymain.bin
 mymain.bin: mymain.elf
 	objcopy -Obinary $< $@
 	./cp2img.sh
-	@echo type \'qemu-system-i385 -fda boot.img\' to run qemu
+	@echo type \'qemu-system-i386 -fda boot.img\' to run qemu
 
 mymain.elf: mymain.o cell.o  s_eval.o  token_container.o simple_stdcpplib/libmystdcpp.a
 	$(CXX) $(MYCFLAGS) $(MYCXXFLAGS) $(CFLAGS) $(LD_FLAGS) -o $@ $^ -lgcc
