@@ -20,7 +20,7 @@ using namespace DS;
 #define MM_STATUS
 
 #ifdef X86_16
-const int MAX_POOL = 32;
+const int MAX_POOL = 48;
 #else
 const int MAX_POOL = 512;
 #endif

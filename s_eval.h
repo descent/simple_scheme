@@ -34,7 +34,7 @@ typedef map<string, Cell*> Frame;
 #else
 
 #ifdef X86_16
-const int FRAME_LEN = 4;
+const int FRAME_LEN = 8;
 #else
 const int FRAME_LEN = 24;
 #endif
