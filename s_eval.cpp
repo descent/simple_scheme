@@ -1,5 +1,6 @@
 //#include <sstream>
 
+
 #ifdef OS_CPP
   #define ENTER '\n'
   #include <iostream>
@@ -334,6 +335,65 @@ int add_cell(Cell *c)
          return 0;
 }
 
+Cell *proc_add(Cell *cell)
+{
+  int sum=0;
+  Cell *c = car_cell(cell);
+  Cell *rest=cell;
+
+  while (rest->type_ != NULL_CELL)
+  {
+#if 0
+    cout << "\n%%%\n";
+    print_cell(rest);
+    cout << "\n%%%\n";
+#endif
+    sum += atoi(car_cell(rest)->val_);
+    rest = cdr_cell(rest);
+  }
+  //cout << "sum: " << sum << endl;
+  char str[20];
+  return get_cell(s32_itoa_s(sum, str, 10), NUMBER);
+}
+
+Cell *proc_sub(Cell *cell)
+{
+  Cell *c = car_cell(cell);
+  Cell *rest=cdr_cell(cell);
+  int sub = atoi(c->val_);
+
+  while (rest->type_ != NULL_CELL)
+  {
+    sub -= atoi(car_cell(rest)->val_);
+    rest = cdr_cell(rest);
+  }
+  //cout << "sub: " << sub << endl;
+  char str[20];
+  return get_cell(s32_itoa_s(sub, str, 10), NUMBER);
+#if 0
+  int result = sub_cell(c);
+  cout << "result: " << result << endl;
+  return Cell(Number, str(result));
+#endif
+}
+
+Cell *proc_mul(Cell *cell)
+{
+  int product=1;
+  Cell *c = car_cell(cell);
+  Cell *rest=cell;
+
+  while (rest->type_ != NULL_CELL)
+  {
+    product *= atoi(car_cell(rest)->val_);
+    rest = cdr_cell(rest);
+  }
+  //cout << "product: " << product << endl;
+  char str[20];
+  return get_cell(s32_itoa_s(product, str, 10), NUMBER);
+}
+
+#ifdef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
 Cell *proc_less(Cell *cell)
 {
   // (< x1 x2 x3 ...) 理解成數學上的 x1 < x2 < x3 
@@ -615,63 +675,7 @@ Cell *proc_pool_status(Cell *cell)
   return &true_cell;
 }
 
-Cell *proc_add(Cell *cell)
-{
-  int sum=0;
-  Cell *c = car_cell(cell);
-  Cell *rest=cell;
-
-  while (rest->type_ != NULL_CELL)
-  {
-#if 0
-    cout << "\n%%%\n";
-    print_cell(rest);
-    cout << "\n%%%\n";
 #endif
-    sum += atoi(car_cell(rest)->val_);
-    rest = cdr_cell(rest);
-  }
-  //cout << "sum: " << sum << endl;
-  char str[20];
-  return get_cell(s32_itoa_s(sum, str, 10), NUMBER);
-}
-
-Cell *proc_sub(Cell *cell)
-{
-  Cell *c = car_cell(cell);
-  Cell *rest=cdr_cell(cell);
-  int sub = atoi(c->val_);
-
-  while (rest->type_ != NULL_CELL)
-  {
-    sub -= atoi(car_cell(rest)->val_);
-    rest = cdr_cell(rest);
-  }
-  //cout << "sub: " << sub << endl;
-  char str[20];
-  return get_cell(s32_itoa_s(sub, str, 10), NUMBER);
-#if 0
-  int result = sub_cell(c);
-  cout << "result: " << result << endl;
-  return Cell(Number, str(result));
-#endif
-}
-
-Cell *proc_mul(Cell *cell)
-{
-  int product=1;
-  Cell *c = car_cell(cell);
-  Cell *rest=cell;
-
-  while (rest->type_ != NULL_CELL)
-  {
-    product *= atoi(car_cell(rest)->val_);
-    rest = cdr_cell(rest);
-  }
-  //cout << "product: " << product << endl;
-  char str[20];
-  return get_cell(s32_itoa_s(product, str, 10), NUMBER);
-}
 
 #ifdef USE_CPP_MAP
   #define ADD_VAR(env, var, val) env->frame_.insert({var, op});
@@ -690,6 +694,8 @@ void create_primitive_procedure(Environment *env)
   op = get_cell("primitive sub", proc_sub);
   ADD_VAR(env, "-", op)
 
+
+#ifdef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
   op = get_cell("primitive less", proc_less);
   ADD_VAR(env, "<", op)
 
@@ -725,7 +731,7 @@ void create_primitive_procedure(Environment *env)
 
   op = get_cell("primitive mm", proc_mm); // memory modify
   ADD_VAR(env, "mm", op)
-
+#endif
   //frame.insert(Frame::value_type("true", &true_cell));
   ADD_VAR(env, "true", &true_cell)
   //frame.insert(Frame::value_type("false", &false_cell));
@@ -1616,8 +1622,10 @@ void do_eval(TC &tc, Environment * env)
            cout << "result:" << endl;
            print_cell(exp);
            cout << endl;
+           #ifndef X86_16
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
+           #endif
 #if 1
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
@@ -1637,6 +1645,7 @@ void do_eval(TC &tc, Environment * env)
          }
 }
 
+#ifdef OS_CPP
 // the default read-eval-print-loop
 void repl(const char *prompt, Environment *env)
 {
@@ -1904,6 +1913,7 @@ end_line:
   }
 #endif
 }
+#endif // end #ifdef OS_CPP
 
 //extern DS::Deque<int, 128> line_buf;
 
