@@ -393,7 +393,7 @@ Cell *proc_mul(Cell *cell)
   return get_cell(s32_itoa_s(product, str, 10), NUMBER);
 }
 
-#ifdef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
+#ifndef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
 Cell *proc_less(Cell *cell)
 {
   // (< x1 x2 x3 ...) 理解成數學上的 x1 < x2 < x3 
@@ -695,7 +695,7 @@ void create_primitive_procedure(Environment *env)
   ADD_VAR(env, "-", op)
 
 
-#ifdef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
+#ifndef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
   op = get_cell("primitive less", proc_less);
   ADD_VAR(env, "<", op)
 
