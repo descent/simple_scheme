@@ -1,6 +1,8 @@
 #ifndef CELL_H
 #define CELL_H
 
+#include "x86_16.h"
+
 #ifdef OS_CPP
 #include <cstring>
 #include <iostream>
