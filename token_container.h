@@ -1,8 +1,15 @@
 #ifndef TOKEN_CONTAINER_H
 #define TOKEN_CONTAINER_H
 
+#include "x86_16.h"
+
+#ifdef X86_16
+const int STRING_SIZE = 24;
+const int TOKEN_SIZE = 56;
+#else
 const int STRING_SIZE = 128;
 const int TOKEN_SIZE = 256;
+#endif
 
 class TokenContainer
 {
