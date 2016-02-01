@@ -14,6 +14,7 @@
   #define myprint printf
   #define s_strncpy strncpy
   using namespace std;
+
 #else // non os
   #define first k_ // DS::map use (k_,v_), but std::map use (first,second)
   #define second v_ // DS::map use (k_,v_), but std::map use (first,second)
@@ -333,6 +334,15 @@ int add_cell(Cell *c)
        }
        else
          return 0;
+}
+
+Cell *proc_exit(Cell *cell)
+{
+#ifndef OS_CPP
+  void exit(int status);
+#endif
+  exit(0);
+  return &true_cell;
 }
 
 Cell *proc_add(Cell *cell)
@@ -694,6 +704,9 @@ void create_primitive_procedure(Environment *env)
   op = get_cell("primitive sub", proc_sub);
   ADD_VAR(env, "-", op)
 
+  op = get_cell("primitive exit", proc_exit);
+  ADD_VAR(env, "exit", op)
+  ADD_VAR(env, "quit", op)
 
 #ifndef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
   op = get_cell("primitive less", proc_less);
