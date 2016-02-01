@@ -19,7 +19,11 @@ using namespace DS;
 
 #define MM_STATUS
 
+#ifdef X86_16
+const int MAX_POOL = 32;
+#else
 const int MAX_POOL = 512;
+#endif
 
 extern int free_pair_index;
 extern int free_cell_index;
