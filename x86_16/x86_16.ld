@@ -65,5 +65,15 @@ SECTIONS
       SHORT(0xaa55);
   }
 */
+
+    /DISCARD/ :
+    {
+        *(.eh_frame*);
+        *(.iplt*);
+        *(.igot*);
+        *(.rel*);
+        *(.comment);
+/* add any unwanted sections spewed out by your version of gcc and flags here */
+    }
   _estack = 0xa0000; /* 640k */
 }  
