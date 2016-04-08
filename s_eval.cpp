@@ -1,5 +1,8 @@
 //#include <sstream>
 
+#ifdef UEFI
+  #define ENTER '\n'
+#endif
 
 #ifdef OS_CPP
   #define ENTER '\n'
@@ -1994,6 +1997,119 @@ void non_os_repl(const char *prompt, Environment *env)
     int parenthesis_count=0;
     TokenContainer tc;
 
+#ifdef UEFI
+    while(1)
+    {
+      // get_byte
+      //std::string line; 
+      //std::getline(std::cin, line);
+      char line[LINE_SIZE];
+      int i=0;
+      int state;
+
+      while(i < LINE_SIZE)
+      {
+        int ch;
+
+        ch = getchar();
+        switch (ch)
+        {
+          case '(':
+          {
+            ++parenthesis_count;
+            line[0] = ch;
+            line[1] = 0;
+            i=0;
+            break;
+          }
+          case ')':
+          {
+            --parenthesis_count;
+            line[0] = ch;
+            line[1] = 0;
+            i=0;
+            break;
+          }
+          #if 0
+          case EOF:
+          {
+            exit(1);
+          }
+          #endif
+          case ' ':
+          {
+            while(1)
+            {
+              ch=getchar();
+              if (ch != ' ')
+              {
+                i=0;
+                #ifdef OS_CPP
+                ungetc(ch, stdin);
+                #else
+                ungetch(ch);
+                #endif
+                break;
+              }
+            }
+            break;
+          }
+          case ENTER:
+          {
+            //cout << "\\n" << endl;;
+            //myprint("\r\nenter\r\n");
+            goto end_line;
+            break;
+          }
+          default:
+          {
+            line[i++] = ch;
+            while(1)
+            {
+              ch=getchar();
+
+              if (ch == ' ' || ch == ')' || ch == '(' || ch == ENTER)
+              {
+                //if (ch == ')')
+                //if (ch == '(')
+                #ifdef OS_CPP
+                ungetc(ch, stdin);
+                #else
+                ungetch(ch);
+                #endif
+                line[i] = 0;
+                i = 0;
+                break;
+              }
+              else
+              {
+                line[i++] = ch;
+              }
+            }
+          }
+        }
+
+        if (line[0] != ' ' && line[0] != 0)
+        {
+          //cout << line << endl;
+          tc.push_back(line);
+          line[0] = 0;
+        }
+
+      }
+
+end_line:
+
+
+      cout << "parenthesis_count: " << parenthesis_count << endl;
+        if (parenthesis_count == 0)
+          break;
+
+      //if (0 >= tokenize(line, tokens))
+        //break;
+    }
+
+#else // non os
     while(1)
     {
       // get_byte
@@ -2147,7 +2263,7 @@ end_line:
       if (parenthesis_count == 0 )
         break;
     }  // end while(1)
-
+#endif
     do_eval(tc, env);
 
 #endif
