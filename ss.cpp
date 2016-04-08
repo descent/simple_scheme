@@ -15,7 +15,14 @@
 
 #endif
 
+#ifdef UEFI
 
+extern "C"
+{
+  void _GLOBAL__sub_I__ZN2DS4coutE();
+  void _GLOBAL__sub_I__ZN2DS5go_upEv();
+}
+#endif
 
 int main(int argc, char *argv[])
 {
