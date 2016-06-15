@@ -486,6 +486,54 @@ int print_env(Environment *env, int count)
 #endif
 }
 
+#ifdef RPI2
+
+#define GPIO_BASE       0x3F200000UL
+volatile unsigned int* gpio = (unsigned int*)GPIO_BASE;
+
+
+Cell *proc_led_init(Cell *cell)
+{
+  cout << "led init" << endl;
+
+  /* Write 1 to the GPIO16 init nibble in the Function Select 1 GPIO
+       peripheral register to enable GPIO16 as an output */
+#if 1
+  gpio[4] &= (~(7 << 21));
+  gpio[4] |= (1 << 21);
+#endif
+  return &true_cell;
+}
+
+void led_on()
+{
+  gpio[8] = (1 << 15); // led on
+}
+
+void led_off()
+{
+  gpio[11] = (1 << 15); // led off
+}
+
+Cell *proc_led(Cell *cell)
+{
+  Cell *led_cmd = car_cell(cell);
+  cout << "cmd: " << led_cmd->val_ << endl;
+  if (strcmp(led_cmd->val_, "1") == 0)
+  {
+    cout << "led on" << endl;
+    led_on();  
+  }
+  else
+  {
+    cout << "led off" << endl;
+    led_off();  
+  }
+
+  return &true_cell;
+}
+#endif
+
 // (md addr   [width]    [count])
 // (md 0x1234 8/16/*32   *1/2/3/4)
 // (md 0x1234 32         1)
@@ -711,6 +759,14 @@ void create_primitive_procedure(Environment *env)
   ADD_VAR(env, "exit", op)
   ADD_VAR(env, "quit", op)
 
+#ifdef RPI2
+  op = get_cell("primitive led_init", proc_led_init); 
+  ADD_VAR(env, "led_init", op)
+
+  op = get_cell("primitive led", proc_led); 
+  ADD_VAR(env, "led", op)
+#endif
+
 #ifndef X86_16 // support less proc_xxx, the block will don't support in x86/16bit mode
   op = get_cell("primitive less", proc_less);
   ADD_VAR(env, "<", op)
@@ -747,6 +803,7 @@ void create_primitive_procedure(Environment *env)
 
   op = get_cell("primitive mm", proc_mm); // memory modify
   ADD_VAR(env, "mm", op)
+
 #endif
   //frame.insert(Frame::value_type("true", &true_cell));
   ADD_VAR(env, "true", &true_cell)
