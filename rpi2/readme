@@ -1,5 +1,6 @@
-rpi2 version
-build:
-  mkdir inc lib
-  ln -s simple_stdcpplib/libmystdcpp.a lib/
-  ln -s simple_stdcpplib/*.h inc/
+build rpi2 version:
+  export PATH to RIP2 toolchain, ex: PATH=/home/descent/rpi2/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin:$PATH
+
+command:
+  ./ln.sh
+  make
