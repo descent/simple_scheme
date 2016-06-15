@@ -26,7 +26,7 @@ all: mymain.bin
 mymain.bin: mymain.elf
 	arm-linux-gnueabihf-objcopy -Obinary $< $@
 
-mymain.elf: mymain.o cell.o  s_eval.o  token_container.o lib/libmystdcpp.a
+mymain.elf: mymain.o cell.o  s_eval.o  token_container.o simple_stdcpplib/libmystdcpp.a
 	$(CXX) $(MYCFLAGS) $(MYCXXFLAGS) $(CFLAGS) $(LD_FLAGS) -o $@ $^ -lgcc
 
 mymain.o: mymain.cpp
