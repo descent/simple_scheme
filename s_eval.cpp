@@ -114,6 +114,33 @@ Cell false_cell;
 Cell begin_cell;
 Cell if_cell;
 
+Cell *timer_cell=0;
+
+
+void check_timer_list(int signo)
+{
+#if 1
+  static int i=1;
+  if (i%1000 == 0)
+  {
+    if (timer_cell && timer_cell->timer_)
+    {
+    Cell *ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    i=1;
+    }
+  }
+  ++i;
+#endif  
+  //cout << "timer check" << endl;  
+}
+
 //#define USE_CPP_MAP
 
 #ifndef USE_CPP_MAP
