@@ -1016,6 +1016,9 @@ Cell *make_list(vector<Cell *> cells)
 
 Cell *make_list(Cell *cells[], int len)
 {
+  if (len == 0)
+    return get_cell("empty", NUMBER);
+
   Cell *c;
   c = cons_cell(cells[len-1], &null_cell); 
 
