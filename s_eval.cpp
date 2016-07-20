@@ -1,3 +1,5 @@
+//#define LINUX
+
 //#include <sstream>
 
 #ifdef UEFI
@@ -346,6 +348,18 @@ Cell *proc_exit(Cell *cell)
 #endif
   exit(0);
   return &true_cell;
+}
+
+Cell *proc_get_timer(Cell *cell)
+{
+  Cell *timer_name = car_cell(cell);
+  Cell *interval = car_cell(cdr_cell(cell));
+  Cell *call_back_func = car_cell(cdr_cell(cdr_cell(cell)));
+
+  cout << "timer_name: " << timer_name->val_ << endl;
+  cout << "interval: " << interval->val_ << endl;
+
+  return get_cell(timer_name->val_, TIMER);
 }
 
 Cell *proc_add(Cell *cell)
@@ -805,6 +819,10 @@ void create_primitive_procedure(Environment *env)
   ADD_VAR(env, "mm", op)
 
 #endif
+
+  op = get_cell("primitive get-timer", proc_get_timer);
+  ADD_VAR(env, "get-timer", op)
+
   //frame.insert(Frame::value_type("true", &true_cell));
   ADD_VAR(env, "true", &true_cell)
   //frame.insert(Frame::value_type("false", &false_cell));
@@ -1496,6 +1514,23 @@ bool set_variable_value(Cell *var, Cell *val, Environment * env)
   return false;
 }
 
+Cell *get_timer_cell(Cell *exp, Environment *env)
+{
+  Cell *cell = car_cell(exp);
+  Cell *timer_name = car_cell(cdr_cell(exp));
+  Cell *interval = car_cell(cdr_cell(cdr_cell(exp)));
+  Cell *call_back_func = car_cell(cdr_cell(cdr_cell(cdr_cell(exp))));
+
+  cout << "timer_name: " << timer_name->val_ << endl;
+  cout << "interval: " << interval->val_ << endl;
+
+  Cell *timer_cell = get_cell(timer_name->val_, TIMER);
+
+  eval(call_back_func, env);
+
+  return timer_cell;
+}
+
 Cell *eval_assignment(Cell *exp, Environment *env)
 {
   // (set! a 9)
@@ -1613,6 +1648,10 @@ Cell *eval(Cell *exp, Environment *env)
                                     {
                                       return eval_assignment(exp, env);
                                     }
+                                    else if (tagged_list(exp, "get-timer"))
+                                         {
+                                           return get_timer_cell(exp, env);
+                                         }
 
 #if 0
       if (exp->type_ == SYMBOL)
