@@ -1,5 +1,7 @@
 (lambda () (+ 1 2))
 
+((lambda () (+ 1 2))) // run lambda function, current it will fail
+
 (lambda (x) (+ x 4))
 ((lambda (x) (+ x 4)) 5)
 
@@ -90,3 +92,6 @@ env name: global
 (factorial 6)
 
 (define (f n) (if (= n 1) 1 (* n (f (- n 1)))))
+
+(get-timer (a-timer) (1000) (lambda () (+ 1 2)))
+(get-timer a-timer 1000 (lambda () (+ 1 2)))
