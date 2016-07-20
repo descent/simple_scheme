@@ -1,6 +1,7 @@
 #include "cell.h"
 
-const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "INVALID"};
+
+const char *cell_type_string[] = {"STRING", "SYMBOL", "NUMBER", "PAIR", "PRIMITIVE_PROC", "LAMBDA_PROC", "NULL_CELL", "TIMER", "INVALID"};
 
 const char* Cell::type_str() const 
 {
@@ -72,24 +73,28 @@ void print_cell(const Cell *cell)
   //cout << "cell->type: " << cell->type_str() << endl;
   if (cell == 0)
   {
-    myprint("null ptr\n");
+    //myprint("null ptr\n");
+    cout << "null ptr" << endl;
     return;
   }
   if (cell->type() == PAIR)
   {
     //if (cell->pair_attr_ == FIRST || cell->pair_attr_ == HEAD)
-    myprint("( "); 
+    //myprint("( "); 
+    cout << "( ";
     print_cell(cell->first_);
     print_cell(cell->second_);
-    myprint(") "); 
+    //myprint(") "); 
+    cout << ") ";
   }
   else
   {
     if (cell->type() != NULL_CELL)
     {
       //cout << cell->val_ << " ## " << cell->type_str() << " , ";
-      myprint(cell->val_);
-      myprint(" , ");
+      //myprint(cell->val_);
+      //myprint(" , ");
+      cout << cell->val_ << " , ";
     }
     else
       myprint(" () ");

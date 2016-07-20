@@ -10,6 +10,7 @@
 #define myprint printf
 using namespace std;
 #else
+#include "myiostream.h"
 #include "k_string.h"
 #include "k_stdio.h"
 #define strcpy s_strcpy
@@ -31,7 +32,7 @@ extern int previous_free_pair_index;
 extern int previous_free_cell_index;
 
 enum PairAttr {HEAD, FIRST, SECOND};
-enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, NULL_CELL, INVALID};
+enum CellType {STRING, SYMBOL, NUMBER, PAIR, PRIMITIVE_PROC, NULL_CELL, TIMER, INVALID};
 
 struct Environment;
 
