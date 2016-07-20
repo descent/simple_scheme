@@ -1528,11 +1528,21 @@ Cell *get_timer_cell(Cell *exp, Environment *env)
   cout << "timer_name: " << timer_name->val_ << endl;
   cout << "interval: " << interval->val_ << endl;
 
-  Cell *timer_cell = get_cell(timer_name->val_, TIMER);
+  Cell *eval_cell = eval(call_back_func, env);
 
-  eval(call_back_func, env);
+  timer_cell = get_cell(timer_name->val_, TIMER);
+  timer_cell->timer_ = eval_cell;
 
-  return timer_cell;
+#if 0
+  Cell *ret = apply(timer_cell->timer_, &null_cell);
+  cout << "ret in get_timer_cell: " << ret->val_ << endl;
+  ret = apply(timer_cell->timer_, &null_cell);
+  cout << "ret in get_timer_cell: " << ret->val_ << endl;
+  ret = apply(timer_cell->timer_, &null_cell);
+  cout << "ret in get_timer_cell: " << ret->val_ << endl;
+#endif
+  //return timer_cell;
+  return &true_cell;
 }
 
 Cell *eval_assignment(Cell *exp, Environment *env)
