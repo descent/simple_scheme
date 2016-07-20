@@ -29,10 +29,7 @@ extern "C"
 #include <sys/time.h>
 #include <signal.h>
 
-void check_timer_list(int signo)
-{
-  // cout << "timer check" << endl;  
-}
+void check_timer_list(int signo);
 
 
 #endif
