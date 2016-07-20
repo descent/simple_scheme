@@ -1245,7 +1245,10 @@ Cell *apply(Cell *func, Cell *args)
         strcpy(invalid_cell.val_, "env pool is empty");
         return &invalid_cell;
       }
-      extend_environment(parameters, args, env);
+
+      //if (args != &null_cell)
+      if (parameters != &null_cell)
+        extend_environment(parameters, args, env);
 
       return eval_sequence(body, env);
 
