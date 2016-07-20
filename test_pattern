@@ -1,6 +1,6 @@
 (lambda () (+ 1 2))
 
-((lambda () (+ 1 2))) // run lambda function, current it will fail
+((lambda () (+ 1 2))) // run lambda function, current it will fail, fixed it
 
 (lambda (x) (+ x 4))
 ((lambda (x) (+ x 4)) 5)
