@@ -97,6 +97,10 @@ env name: global
 (get-timer a-timer 1000 (lambda () (+ 1 2)))
 
 (get-timer a-timer 1000 (lambda () (+ 3 2)))
+(start-timer a-timer)
+(stop-timer a-timer)
+
+(get-timer a-timer 1000000 (lambda () (+ 3 2)))
 
 (get-timer a-timer 1000 ((lambda () (+ 1 2))) )
 
