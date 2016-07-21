@@ -1,4 +1,4 @@
-#define LINUX
+//#define LINUX
 #include "s_eval.h"
 //#include "myiostream.h"
 
