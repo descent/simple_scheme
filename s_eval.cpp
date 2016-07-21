@@ -1560,6 +1560,43 @@ bool set_variable_value(Cell *var, Cell *val, Environment * env)
   return false;
 }
 
+Cell *stop_timer_cell(Cell *exp, Environment *env)
+{
+  Cell *cell = car_cell(exp); // start-timer
+  Cell *timer_name = car_cell(cdr_cell(exp)); // a-timer
+
+  //cout << "stop timer: " << timer_name->val_ << endl;
+
+  for (auto &i : timer_list)
+  {
+    if (strcmp(i->name().c_str(), timer_name->val_) == 0)
+    {
+      i->enable(false);
+      i->reset_counter();
+    }
+  }
+  return &true_cell;
+}
+
+Cell *start_timer_cell(Cell *exp, Environment *env)
+{
+  Cell *cell = car_cell(exp); // start-timer
+  Cell *timer_name = car_cell(cdr_cell(exp)); // a-timer
+
+  cout << "start timer: " << timer_name->val_ << endl;
+
+  for (auto &i : timer_list)
+  {
+    if (strcmp(i->name().c_str(), timer_name->val_) == 0)
+    {
+      cout << "i->name(): " << i->name() << " enable" << endl;
+      i->enable(true);
+      cout << "i->is_enable: " << i->is_enable() << endl;
+    }
+  }
+  return &true_cell;
+}
+
 Cell *get_timer_cell(Cell *exp, Environment *env)
 {
   Cell *cell = car_cell(exp);
@@ -1572,8 +1609,12 @@ Cell *get_timer_cell(Cell *exp, Environment *env)
 
   Cell *eval_cell = eval(call_back_func, env);
 
-  timer_cell = get_cell(timer_name->val_, TIMER);
-  timer_cell->timer_ = eval_cell;
+  Timer *timer = new Timer(timer_name->val_, atoi(interval->val_), eval_cell);
+
+  //timer_cell = get_cell(timer_name->val_, TIMER);
+  //timer_cell->timer_ = eval_cell;
+
+  timer_list.push_back(timer);
 
 #if 0
   Cell *ret = apply(timer_cell->timer_, &null_cell);
@@ -1708,6 +1749,14 @@ Cell *eval(Cell *exp, Environment *env)
                                          {
                                            return get_timer_cell(exp, env);
                                          }
+                                         else if (tagged_list(exp, "start-timer"))
+                                              {
+                                                return start_timer_cell(exp, env);
+                                              }
+                                              else if (tagged_list(exp, "stop-timer"))
+                                                   {
+                                                     return stop_timer_cell(exp, env);
+                                                   }
 
 #if 0
       if (exp->type_ == SYMBOL)
