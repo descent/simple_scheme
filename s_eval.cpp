@@ -1832,6 +1832,8 @@ void do_eval(TC &tc, Environment * env)
       cout << "parse expression fail" << endl;
       return;
     }
+    if (exp == &null_cell)
+      return;
     exp = eval(exp, env);
     if (exp == &define_cell)
     {
