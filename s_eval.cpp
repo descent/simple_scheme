@@ -50,6 +50,8 @@
 
 #include "s_eval.h"
 
+vector<Timer*> timer_list;
+
 #ifdef OS_CPP
 char* s32_itoa_s(int n, char* str, int radix)
 {
@@ -114,13 +116,24 @@ Cell false_cell;
 Cell begin_cell;
 Cell if_cell;
 
-Cell *timer_cell=0;
-
-
+#ifdef LINUX
 void check_timer_list(int signo)
 {
+  for (auto &i : timer_list)
+  {
+    if (i->is_enable())
+      ++(i->cur_count_);
+    if (i->is_enable() && i->timeup())
+    {
+      Cell *ret = apply(i->func_, &null_cell);
+      cout << "timer ret: " << ret->val_ << endl;
+      i->reset_counter();
+    }
+  }
+
 #if 1
   static int i=1;
+#if 0
   if (i%1000 == 0)
   {
     if (timer_cell && timer_cell->timer_)
@@ -137,9 +150,11 @@ void check_timer_list(int signo)
     }
   }
   ++i;
+#endif
 #endif  
   //cout << "timer check" << endl;  
 }
+#endif
 
 //#define USE_CPP_MAP
 
