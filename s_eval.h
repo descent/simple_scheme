@@ -9,6 +9,8 @@
 
 #ifdef X86_16
 const int MAX_ENVIRONMENT_POOL = 20;
+#elif defined LINUX
+const int MAX_ENVIRONMENT_POOL = 1000;
 #else
 const int MAX_ENVIRONMENT_POOL = 40;
 #endif
