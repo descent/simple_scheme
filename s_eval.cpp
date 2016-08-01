@@ -1,5 +1,7 @@
 //#define LINUX
 
+// #define FREE_CELL, if enable timer, need comment the macro
+
 //#include <sstream>
 
 #ifdef UEFI
@@ -1848,7 +1850,7 @@ void do_eval(TC &tc, Environment * env)
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
            #endif
-#if 1
+#ifdef FREE_CELL
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
 
@@ -1858,7 +1860,7 @@ void do_eval(TC &tc, Environment * env)
          else
          {
            cout << "expression fail" << endl << "error message: " << invalid_cell.val_ << endl;
-#if 1
+#ifdef FREE_CELL
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
 
