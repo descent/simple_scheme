@@ -14,6 +14,7 @@
 using namespace std;
 #else
 #include "myiostream.h"
+#include "mystring.h"
 #include "k_string.h"
 #include "k_stdio.h"
 #define strcpy s_strcpy
@@ -103,6 +104,7 @@ Cell *cons_cell(Cell *first, Cell *second);
 bool is_list(const Cell *cell);
 int length_cell(Cell *cell);
 
+#ifdef LINUX
 class Timer
 {
   public:
@@ -149,5 +151,6 @@ class Timer
 
   private:
 };
+#endif
 
 #endif

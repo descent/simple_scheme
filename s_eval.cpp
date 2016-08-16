@@ -52,7 +52,9 @@
 
 #include "s_eval.h"
 
+#ifdef LINUX
 vector<Timer*> timer_list;
+#endif
 
 #ifdef OS_CPP
 char* s32_itoa_s(int n, char* str, int radix)
@@ -1564,6 +1566,7 @@ bool set_variable_value(Cell *var, Cell *val, Environment * env)
 
 Cell *stop_timer_cell(Cell *exp, Environment *env)
 {
+#ifdef LINUX
   Cell *cell = car_cell(exp); // start-timer
   Cell *timer_name = car_cell(cdr_cell(exp)); // a-timer
 
@@ -1577,11 +1580,13 @@ Cell *stop_timer_cell(Cell *exp, Environment *env)
       i->reset_counter();
     }
   }
+#endif
   return &true_cell;
 }
 
 Cell *start_timer_cell(Cell *exp, Environment *env)
 {
+#ifdef LINUX
   Cell *cell = car_cell(exp); // start-timer
   Cell *timer_name = car_cell(cdr_cell(exp)); // a-timer
 
@@ -1596,11 +1601,13 @@ Cell *start_timer_cell(Cell *exp, Environment *env)
       cout << "i->is_enable: " << i->is_enable() << endl;
     }
   }
+#endif
   return &true_cell;
 }
 
 Cell *get_timer_cell(Cell *exp, Environment *env)
 {
+#ifdef LINUX
   Cell *cell = car_cell(exp);
   Cell *timer_name = car_cell(cdr_cell(exp));
   Cell *interval = car_cell(cdr_cell(cdr_cell(exp)));
@@ -1627,6 +1634,7 @@ Cell *get_timer_cell(Cell *exp, Environment *env)
   cout << "ret in get_timer_cell: " << ret->val_ << endl;
 #endif
   //return timer_cell;
+#endif
   return &true_cell;
 }
 
