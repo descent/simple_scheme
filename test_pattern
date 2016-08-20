@@ -91,6 +91,9 @@ env name: global
 (factorial 5)
 (factorial 6)
 
+(define (add n) (+ 1 2))
+
+
 (define (f n) (if (= n 1) 1 (* n (f (- n 1)))))
 
 (get-timer (a-timer) (1000) (lambda () (+ 1 2)))
@@ -100,8 +103,26 @@ env name: global
 (start-timer a-timer)
 (stop-timer a-timer)
 
+(get-timer b-timer 2000 (lambda () (* 3 2)))
+(start-timer b-timer)
+(stop-timer b-timer)
+
 (get-timer a-timer 1000000 (lambda () (+ 3 2)))
 
 (get-timer a-timer 1000 ((lambda () (+ 1 2))) )
 
 *exp->first_->second_->second_->first_->first_
+
+
+// rpi2 led on/off
+simple scheme> (led_init)                                                    
+simple scheme> (led 1)                  
+simple scheme> (led 0)
+
+(define (delay n) (if (= n 1) 1 (delay (- n 1)) ))
+(define (led_test) (led_init) (led 1) (delay 20) (led 0) )
+(led)
+
+(define (add) (+ 1 2) (* 2 3))
+
+
