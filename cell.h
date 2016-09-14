@@ -3,7 +3,10 @@
 
 #include "x86_16.h"
 
+#include "mytype.h"
+
 #ifdef OS_CPP
+#include <string>
 #include <cstring>
 #include <iostream>
 #include <cstdio>
@@ -11,6 +14,7 @@
 using namespace std;
 #else
 #include "myiostream.h"
+#include "mystring.h"
 #include "k_string.h"
 #include "k_stdio.h"
 #define strcpy s_strcpy
@@ -99,4 +103,54 @@ Cell *cdr_cell(Cell *cell);
 Cell *cons_cell(Cell *first, Cell *second);
 bool is_list(const Cell *cell);
 int length_cell(Cell *cell);
+
+#ifdef LINUX
+class Timer
+{
+  public:
+    Timer(const string &name, u32 interval, Cell *func): 
+      name_(name), interval_(interval), func_(func), cur_count_(0), enable_(false)
+    {
+    }
+
+    void reset_counter()
+    {
+      cur_count_ = 0;
+    }
+
+    const string& name() const
+    {
+      return name_;
+    }
+
+    void add_count()
+    {
+    }
+
+    void enable(bool e)
+    {
+      enable_ = e;
+    }
+
+    bool is_enable() const
+    {
+      return enable_;
+    }
+    bool timeup() const
+    {
+      if (interval_ == cur_count_)
+        return true;
+      return false;
+    }
+
+    string name_;
+    Cell *func_;
+    u32 interval_;
+    u32 cur_count_;
+    bool enable_;
+
+  private:
+};
+#endif
+
 #endif

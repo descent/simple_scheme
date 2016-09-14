@@ -9,6 +9,8 @@
 
 #ifdef X86_16
 const int MAX_ENVIRONMENT_POOL = 20;
+#elif defined LINUX
+const int MAX_ENVIRONMENT_POOL = 1000;
 #else
 const int MAX_ENVIRONMENT_POOL = 40;
 #endif
@@ -67,5 +69,6 @@ void non_os_repl(const char *prompt, Environment *env);
 void rl_repl(const char *prompt, Environment *env);
 Environment *get_env(Environment *outer, const char *name);
 void create_primitive_procedure(Environment *env);
+Cell *apply(Cell *func, Cell *args);
 
 #endif

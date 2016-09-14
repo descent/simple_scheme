@@ -1,3 +1,7 @@
+//#define LINUX
+
+// #define FREE_CELL, if enable timer, need comment the macro
+
 //#include <sstream>
 
 #ifdef UEFI
@@ -47,6 +51,10 @@
 #endif
 
 #include "s_eval.h"
+
+#ifdef LINUX
+vector<Timer*> timer_list;
+#endif
 
 #ifdef OS_CPP
 char* s32_itoa_s(int n, char* str, int radix)
@@ -111,6 +119,46 @@ Cell true_cell;
 Cell false_cell;
 Cell begin_cell;
 Cell if_cell;
+
+#ifdef LINUX
+void check_timer_list(int signo)
+{
+  for (auto &i : timer_list)
+  {
+    if (i->is_enable())
+      ++(i->cur_count_);
+    if (i->is_enable() && i->timeup())
+    {
+      Cell *ret = apply(i->func_, &null_cell);
+      cout << "timer ret: " << ret->val_ << endl;
+      i->reset_counter();
+    }
+  }
+
+#if 1
+  static int i=1;
+#if 0
+  if (i%1000 == 0)
+  {
+    if (timer_cell && timer_cell->timer_)
+    {
+    Cell *ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    ret = apply(timer_cell->timer_, &null_cell);
+    cout << "timer ret: " << ret->val_ << endl;
+    i=1;
+    }
+  }
+  ++i;
+#endif
+#endif  
+  //cout << "timer check" << endl;  
+}
+#endif
 
 //#define USE_CPP_MAP
 
@@ -346,6 +394,18 @@ Cell *proc_exit(Cell *cell)
 #endif
   exit(0);
   return &true_cell;
+}
+
+Cell *proc_get_timer(Cell *cell)
+{
+  Cell *timer_name = car_cell(cell);
+  Cell *interval = car_cell(cdr_cell(cell));
+  Cell *call_back_func = car_cell(cdr_cell(cdr_cell(cell)));
+
+  cout << "timer_name: " << timer_name->val_ << endl;
+  cout << "interval: " << interval->val_ << endl;
+
+  return get_cell(timer_name->val_, TIMER);
 }
 
 Cell *proc_add(Cell *cell)
@@ -805,6 +865,10 @@ void create_primitive_procedure(Environment *env)
   ADD_VAR(env, "mm", op)
 
 #endif
+
+  op = get_cell("primitive get-timer", proc_get_timer);
+  ADD_VAR(env, "get-timer", op)
+
   //frame.insert(Frame::value_type("true", &true_cell));
   ADD_VAR(env, "true", &true_cell)
   //frame.insert(Frame::value_type("false", &false_cell));
@@ -1017,7 +1081,8 @@ Cell *make_list(vector<Cell *> cells)
 Cell *make_list(Cell *cells[], int len)
 {
   if (len == 0)
-    return get_cell("empty", NUMBER);
+    return &null_cell;
+    //return get_cell("empty", NUMBER);
 
   Cell *c;
   c = cons_cell(cells[len-1], &null_cell); 
@@ -1226,7 +1291,10 @@ Cell *apply(Cell *func, Cell *args)
         strcpy(invalid_cell.val_, "env pool is empty");
         return &invalid_cell;
       }
-      extend_environment(parameters, args, env);
+
+      //if (args != &null_cell)
+      if (parameters != &null_cell)
+        extend_environment(parameters, args, env);
 
       return eval_sequence(body, env);
 
@@ -1496,6 +1564,80 @@ bool set_variable_value(Cell *var, Cell *val, Environment * env)
   return false;
 }
 
+Cell *stop_timer_cell(Cell *exp, Environment *env)
+{
+#ifdef LINUX
+  Cell *cell = car_cell(exp); // start-timer
+  Cell *timer_name = car_cell(cdr_cell(exp)); // a-timer
+
+  //cout << "stop timer: " << timer_name->val_ << endl;
+
+  for (auto &i : timer_list)
+  {
+    if (strcmp(i->name().c_str(), timer_name->val_) == 0)
+    {
+      i->enable(false);
+      i->reset_counter();
+    }
+  }
+#endif
+  return &true_cell;
+}
+
+Cell *start_timer_cell(Cell *exp, Environment *env)
+{
+#ifdef LINUX
+  Cell *cell = car_cell(exp); // start-timer
+  Cell *timer_name = car_cell(cdr_cell(exp)); // a-timer
+
+  cout << "start timer: " << timer_name->val_ << endl;
+
+  for (auto &i : timer_list)
+  {
+    if (strcmp(i->name().c_str(), timer_name->val_) == 0)
+    {
+      cout << "i->name(): " << i->name() << " enable" << endl;
+      i->enable(true);
+      cout << "i->is_enable: " << i->is_enable() << endl;
+    }
+  }
+#endif
+  return &true_cell;
+}
+
+Cell *get_timer_cell(Cell *exp, Environment *env)
+{
+#ifdef LINUX
+  Cell *cell = car_cell(exp);
+  Cell *timer_name = car_cell(cdr_cell(exp));
+  Cell *interval = car_cell(cdr_cell(cdr_cell(exp)));
+  Cell *call_back_func = car_cell(cdr_cell(cdr_cell(cdr_cell(exp))));
+
+  cout << "timer_name: " << timer_name->val_ << endl;
+  cout << "interval: " << interval->val_ << endl;
+
+  Cell *eval_cell = eval(call_back_func, env);
+
+  Timer *timer = new Timer(timer_name->val_, atoi(interval->val_), eval_cell);
+
+  //timer_cell = get_cell(timer_name->val_, TIMER);
+  //timer_cell->timer_ = eval_cell;
+
+  timer_list.push_back(timer);
+
+#if 0
+  Cell *ret = apply(timer_cell->timer_, &null_cell);
+  cout << "ret in get_timer_cell: " << ret->val_ << endl;
+  ret = apply(timer_cell->timer_, &null_cell);
+  cout << "ret in get_timer_cell: " << ret->val_ << endl;
+  ret = apply(timer_cell->timer_, &null_cell);
+  cout << "ret in get_timer_cell: " << ret->val_ << endl;
+#endif
+  //return timer_cell;
+#endif
+  return &true_cell;
+}
+
 Cell *eval_assignment(Cell *exp, Environment *env)
 {
   // (set! a 9)
@@ -1613,6 +1755,18 @@ Cell *eval(Cell *exp, Environment *env)
                                     {
                                       return eval_assignment(exp, env);
                                     }
+                                    else if (tagged_list(exp, "get-timer"))
+                                         {
+                                           return get_timer_cell(exp, env);
+                                         }
+                                         else if (tagged_list(exp, "start-timer"))
+                                              {
+                                                return start_timer_cell(exp, env);
+                                              }
+                                              else if (tagged_list(exp, "stop-timer"))
+                                                   {
+                                                     return stop_timer_cell(exp, env);
+                                                   }
 
 #if 0
       if (exp->type_ == SYMBOL)
@@ -1688,6 +1842,8 @@ void do_eval(TC &tc, Environment * env)
       cout << "parse expression fail" << endl;
       return;
     }
+    if (exp == &null_cell)
+      return;
     exp = eval(exp, env);
     if (exp == &define_cell)
     {
@@ -1702,7 +1858,7 @@ void do_eval(TC &tc, Environment * env)
            if (exp->env_ != 0)
              print_env(exp->env_, 0);
            #endif
-#if 1
+#ifdef FREE_CELL
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
 
@@ -1712,7 +1868,7 @@ void do_eval(TC &tc, Environment * env)
          else
          {
            cout << "expression fail" << endl << "error message: " << invalid_cell.val_ << endl;
-#if 1
+#ifdef FREE_CELL
            free_pair_index = previous_free_pair_index;
            free_cell_index = previous_free_cell_index;
 

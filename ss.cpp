@@ -1,3 +1,4 @@
+//#define LINUX
 #include "s_eval.h"
 //#include "myiostream.h"
 
@@ -24,8 +25,29 @@ extern "C"
 }
 #endif
 
+#ifdef LINUX
+#include <sys/time.h>
+#include <signal.h>
+
+void check_timer_list(int signo);
+
+
+#endif
+
 int main(int argc, char *argv[])
 {
+
+#ifdef LINUX
+  signal(SIGALRM, check_timer_list);
+
+  struct itimerval stTimer, ovalue;
+  stTimer.it_value.tv_sec = 0;
+  stTimer.it_value.tv_usec = 1000;
+  stTimer.it_interval.tv_sec = 0;
+  stTimer.it_interval.tv_usec = 1000;
+  setitimer(ITIMER_REAL, &stTimer, &ovalue);
+#endif
+
   init_eval();
   Environment *global_env = get_env(0, "global");
   create_primitive_procedure(global_env);
