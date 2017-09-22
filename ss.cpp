@@ -34,8 +34,23 @@ void check_timer_list(int signo);
 
 #endif
 
+#if defined(RPI2) 
+void enable_rpi2_jtag_pin()
+{
+  volatile u32 gpfsel0 = 0x3f200000;
+  volatile u32 gpfsel2 = 0x3f200008;
+
+  *(volatile u32*)gpfsel0 = 0x2000;
+  *(volatile u32*)gpfsel2 = 0x61b6c0;
+
+}
+#endif
+
 int main(int argc, char *argv[])
 {
+#if defined(RPI2) 
+  enable_rpi2_jtag_pin();
+#endif
 
 #ifdef LINUX
   signal(SIGALRM, check_timer_list);
